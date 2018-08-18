@@ -13,17 +13,50 @@ sys.path.insert(0, './Scons')
 import build
 import re
 
+def AbortBuild():
+    print ("\nAborting build...\n")
+    sys.exit(2)
+
 # Build in MinGW
 env = Environment(tools = ['mingw'])
 
-# Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
-sourceFiles = build.GenerateList("./Scons/Sources.scons")
-env.Append(CPPPATH=build.GenerateList("./Scons/Include.scons"))
-env.Append(CCFLAGS=build.GenerateList("./Scons/CcFlags.scons"))
+# Check if test build is activated.
+test = ARGUMENTS.get('test')
+if test != None:
+    print ("\nRun " + test + " unit tests.\n")
 
-# Build object files into ./Build folder.
-for sourceFile in sourceFiles:
-    env.Object(target = "./Build/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
+    try:
+        includePaths = build.GenerateList("./Scons/UTest_" + test + "_Include.scons")
+        includePaths.append('./Catch')
+    except:
+        print ("ERROR: Gathering include directories failed!")
+        print ("       Make sure you have created UTest_" + test + "_Include.scons file listing")
+        print ("       the include directories neede for the tests!")
+        AbortBuild()
 
-# Build the main target from object files.
-env.Program(target = './Build/testi', source = Glob("./Build/*.o"))
+    try:
+        sources = build.GenerateList("./Scons/UTest_" + test + "_Sources.scons")
+    except:
+        print ("ERROR: Gathering source files failed!")
+        print ("       Make sure you have created UTest_" + test + "_Sources.scons file listing")
+        print ("       the source files needes for the tests!")
+        AbortBuild()
+
+    env.Append(LINKFLAGS = build.GenerateList("./Scons/LdFlags.scons"))
+    env.Append(CCFLAGS=build.GenerateList("./Scons/UTestCcFlags.scons"))
+    env.Append(CPPPATH = includePaths)
+    env.Program(target = './Build/Tests/UTest_' + test, source = sources)
+
+else:
+    print ("\nBuilding target...\n")
+    # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
+    sourceFiles = build.GenerateList("./Scons/Sources.scons")
+    env.Append(CPPPATH=build.GenerateList("./Scons/Include.scons"))
+    env.Append(CCFLAGS=build.GenerateList("./Scons/CcFlags.scons"))
+
+    # Build object files into ./Build folder.
+    for sourceFile in sourceFiles:
+        env.Object(target = "./Build/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
+
+    # Build the main target from object files.
+    env.Program(target = './Build/testi', source = Glob("./Build/*.o"))

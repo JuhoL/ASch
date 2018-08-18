@@ -1,6 +1,6 @@
-# **A**ll-purpose **Sch**eduler **ASch**
+# ASch
 
-This is a simple event-driven single-thread scheduler for embedded devices. Designed mainly for learning embedded C++.
+**A**ll-purpose **Sch**eduler, **ASch**, is a simple event-driven single-thread scheduler for embedded devices. Designed mainly for learning embedded C++.
 
 ### Prerequisites
 
@@ -13,9 +13,9 @@ This is a simple event-driven single-thread scheduler for embedded devices. Desi
 Run SCons on the root of the project.
 
 ## Running the tests
-'''
+```
 Nothing yet...
-'''
+```
 ## Built With
 
 * [MinGW](http://www.mingw.org/) - Build environment for unit tests in Windows

@@ -1,0 +1,4 @@
+-Wall
+-Werror
+-fprofile-arcs
+-ftest-coverage
