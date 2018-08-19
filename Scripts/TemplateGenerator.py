@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# Title           : TemplateGenerator.py
+# Description     : This script generates .cpp and .h files for given module
+#                   and its unit tests, and it adds the unit tests into SCons
+#                   build and the module into the release build.
+# Author          : Juho Lepistö
+# Date            : 18 Aug 2018
+# Python version  : 3.7
+#==============================================================================
+
 import sys
 import os
 from datetime import datetime

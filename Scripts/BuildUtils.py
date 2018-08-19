@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# Title           : BuildUtils.py
+# Description     : These are utility functions used for ASch SCons build.
+# Author          : Juho Lepistö
+# Date            : 18 Aug 2018
+# Python version  : 3.7
+#==============================================================================
+
 import string
 
 def CreateListFromFile(fileName):
