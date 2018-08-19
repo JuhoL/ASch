@@ -7,15 +7,18 @@
 - MinGW
 - GCC for C++
 - ARM GCC
-- Python 3.7
 - SCons 3.0.1
-- PyCobertura
+- Catch2 (included)
+- CppCheck
+- Python 3.7
+    - PyCobertura
 
 ## Building
 ### Required Tools
 * [MinGW](http://www.mingw.org/) - Build environment for unit tests in Windows
 * [ARM-GCC](https://sourceforge.net/projects/mingw-gcc-arm-eabi/) - ARM GCC for MinGW for builduing releases
 * [SCons](https://scons.org/) - Build scripting
+* [CppCheck](http://cppcheck.sourceforge.net/) - Static analyser
 
 ### Building Release
 To build all:

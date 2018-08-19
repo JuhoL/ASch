@@ -51,8 +51,21 @@ else:
         print ("\nConverting XML into HTML...")
         subprocess.run("pycobertura show --format html --output ./TestReports/ASch-coverage.html ./TestReports/ASch-coverage.xml", shell=True)
 
+        # Run static analyser.
+        print ("\nRunning CppCheck for every file...\n")
+        sourcePaths = []
+        includePaths = []
+        for path in parameters.values():
+            if path not in sourcePaths:
+                sourcePaths.append(path[0] + "\\sources")
+                includePaths.append(path[0] + "\\include")
+        subprocess.run("cppcheck --language=c++ --library=gnu --enable=all --suppress=missingIncludeSystem " + " ".join(sourcePaths) + " -I " + " -I ".join(includePaths), shell=True)
+
     elif targetName in parameters.keys():
         targetPath = parameters[targetName][0]
         RunUnitTests(targetName, targetPath, clean)
+        # Run static analyser.
+        print ("\nRunning CppCheck...\n")
+        subprocess.run("cppcheck --language=c++ --library=gnu --enable=all --suppress=missingIncludeSystem " + targetPath + "\\sources\\" + targetName + ".cpp " + targetPath + "\\include\\" + targetName + ".h -I " + targetPath + "\\include\\", shell=True)
 
 print ("\nAll done!\n")
