@@ -45,7 +45,15 @@ if test != None:
     env.Append(CCFLAGS=BuildUtils.GenerateList("./Build/SCons_UTest/UTestCcFlags.scons"))
     env.Append(LINKFLAGS = BuildUtils.GenerateList("./Build/SCons_UTest/UTestLdFlags.scons"))
     env.Append(CPPPATH = includePaths)
-    unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = sourceFiles)
+
+    # Build object files into ./Build folder.
+    for sourceFile in sourceFiles:
+        env.Object(target = "./Build/Objects/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
+
+    # Build the main target from object files.
+    unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = Glob("./Build/Objects/*.o"))
+
+    #unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = sourceFiles)
     env.NoClean(unitTest)
 
 else:

@@ -26,18 +26,15 @@ else:
             print ("\nCreating coverage report...\n")
 
             # Run gcov
-            subprocess.run("gcov " + target[1] + "\\tests\\UTest_" + target[0] + ".cpp" + " -r")
+            subprocess.run("gcov " + target[1] + "\\tests\\UTest_" + target[0] + ".cpp" + " -r -o .\\Build\\Objects")
             # Run gcovr
             subprocess.run("gcovr -r . --filter=(.+/)?" + target[0] + "\\.cpp$ --xml-pretty -o " + target[0] + "_TestCoverage.xml")
             
-            print ("\nClean up...\n")
             # Move the XML and cleanup coverage artifacts.
             subprocess.run("move " + target[0] + "_TestCoverage.xml TestReports", shell=True)
-            subprocess.run("del *.gcov", shell=True)
-            subprocess.run("del " + target[1] + "\\tests\\*.gc*", shell=True)
-            subprocess.run("del " + target[1] + "\\sources\\*.gc*", shell=True)
 
-            # Cleanup build artifacts.
-            subprocess.run("scons test=" + target[0] + " -c", shell=True)
-
+            print ("\nAll done!\n")
+        else:
+            print ("\nCleanup coverage files...\n")
+            subprocess.run("del Build\\Objects\\*" + target[0] + "*.gc*", shell=True)
             print ("\nAll done!\n")
