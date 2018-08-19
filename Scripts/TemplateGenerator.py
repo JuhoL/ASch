@@ -2,14 +2,6 @@ import sys
 import os
 from datetime import datetime
 
-def CreateDictionaryFromFile(fileName):
-    targets = {}
-    with open(fileName) as targetsFile:
-        for line in targetsFile:
-            elements = line.split( )
-            targets[elements[0]] = elements[1:]
-    return targets
-
 class Template:
     date = datetime.now()
     
@@ -114,10 +106,31 @@ class Template:
 
     # Generates all files
     def GenerateAll(self): 
-        self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/cpptemplate.tmp")
+        # Check that the .cpp file does not exist yet.
+        targetFile = "./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp"
+        if os.path.isfile(targetFile):
+            print ("Module " + self.keywords['<__MODULE__>'] + " in ./" + self.keywords['<__PATH__>'] + " already exists!")
+            response = input("Answer YES if you want to overwrite (WARNING: the existing file(s) will be lost): ")
+            if response.upper()[:3] != "YES":
+                print ("Aborting file generation...\n")
+                sys.exit(1)
+        else:
+            print ("Are you sure you want to create a module name " + self.keywords['<__MODULE__>'] + " to ./" + self.keywords['<__PATH__>'] + "?")
+            response = input("Answer y/Y to confirm: ")
+            if response.upper()[0] != "Y":
+                print ("Aborting file generation...\n")
+                sys.exit(1)
+
+        print ("\nGenerating template files...")
+        self.GenerateFromTemplate(targetFile, "./Templates/cpptemplate.tmp")
         self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".h", "./Templates/htemplate.tmp")
         self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
+        
+        print ("Reconfiguring SCons...")
         self.GenerateSconsFiles()
+        print ("\nAll done!\n")
+
+        return
 
 try:
     template = Template()
