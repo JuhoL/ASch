@@ -4,28 +4,45 @@
 
 ### Prerequisites
 
-- MinGW + GCC for C++
+- MinGW
+- GCC for C++
+- ARM GCC
 - Python 3.7
 - SCons 3.0.1
+- PyCobertura
 
-### Building
-
-Run SCons on the root of the project.
-
-## Running the tests
-```
-Nothing yet...
-```
-## Built With
-
+## Building
+### Required Tools
 * [MinGW](http://www.mingw.org/) - Build environment for unit tests in Windows
+* [ARM-GCC](https://sourceforge.net/projects/mingw-gcc-arm-eabi/) - ARM GCC for MinGW for builduing releases
 * [SCons](https://scons.org/) - Build scripting
 
-## Authors
+### Building Release
+To build all:
+```
+python ./build.py
+```
+To clean all
+```
+python ./build.py clean
+```
 
+### Building Modules and Running Unit Tests
+To build a module and run its unit tests:
+```
+python ./build.py <module_name>
+```
+To run all the tests and generate a coverage report:
+```
+python ./build.py testall
+```
+To clean build and unit test artifacts
+```
+python ./build.py <module_name/tessall> clean
+```
+
+## Authors
 * **Juho Lepistö** - *Initial work* - [JuhoL](https://github.com/JuhoL)
 
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
