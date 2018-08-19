@@ -1,16 +1,16 @@
 import string
 
-def GenerateList(fileName):
+def CreateListFromFile(fileName):
     includes = []
     with open(fileName) as includeFile:
         for line in includeFile:
             includes.append(line.translate(str.maketrans('', '', '\r\n')))
     return includes
 
-def GenerateTargetDictionary():
+def CreateDictionaryFromFile(fileName):
     targets = {}
-    with open("./Build/SCons_UTest/UTestTargets.scons") as targetsFile:
+    with open(fileName) as targetsFile:
         for line in targetsFile:
             elements = line.split( )
-            targets[elements[0]] = [elements[1], elements[2]]
+            targets[elements[0]] = elements[1:]
     return targets
