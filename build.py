@@ -2,7 +2,10 @@ import sys
 import os
 import subprocess
 
-parameters = {'queue': ['ASch_Queue', '.\\Utils']}
+sys.path.insert(0, './Build/Scripts')
+from BuildUtils import GenerateTargetDictionary
+
+parameters = GenerateTargetDictionary()
 
 if 'clean' in sys.argv:
     clean = ' -c'

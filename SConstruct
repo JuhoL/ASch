@@ -8,10 +8,10 @@
 #==============================================================================
 
 import sys
-sys.path.insert(0, './Build/Scripts')
-
-import BuildUtils
 import re
+
+sys.path.insert(0, './Build/Scripts')
+from BuildUtils import GenerateList
 
 def AbortBuild():
     print ("\nAborting build...\n")
@@ -26,7 +26,7 @@ if test != None:
     print ("\nRun " + test + " unit tests.\n")
 
     try:
-        includePaths = BuildUtils.GenerateList("./Build/SCons_UTest/UTest_" + test + "_Include.scons")
+        includePaths = GenerateList("./Build/SCons_UTest/UTest_" + test + "_Include.scons")
         includePaths.append('./Catch')
     except:
         print ("ERROR: Gathering include directories failed!")
@@ -35,15 +35,15 @@ if test != None:
         AbortBuild()
 
     try:
-        sourceFiles = BuildUtils.GenerateList("./Build/SCons_UTest/UTest_" + test + "_Sources.scons")
+        sourceFiles = GenerateList("./Build/SCons_UTest/UTest_" + test + "_Sources.scons")
     except:
         print ("ERROR: Gathering source files failed!")
         print ("       Make sure you have created UTest_" + test + "_Sources.scons file listing")
         print ("       the source files needes for the tests!")
         AbortBuild()
 
-    env.Append(CCFLAGS=BuildUtils.GenerateList("./Build/SCons_UTest/UTestCcFlags.scons"))
-    env.Append(LINKFLAGS = BuildUtils.GenerateList("./Build/SCons_UTest/UTestLdFlags.scons"))
+    env.Append(CCFLAGS=GenerateList("./Build/SCons_UTest/UTestCcFlags.scons"))
+    env.Append(LINKFLAGS = GenerateList("./Build/SCons_UTest/UTestLdFlags.scons"))
     env.Append(CPPPATH = includePaths)
 
     # Build object files into ./Build folder.
@@ -59,10 +59,10 @@ if test != None:
 else:
     print ("\nBuilding target...\n")
     # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
-    sourceFiles = BuildUtils.GenerateList("./Build/SCons_Release/Sources.scons")
-    env.Append(CPPPATH=BuildUtils.GenerateList("./Build/SCons_Release/Include.scons"))
-    env.Append(CCFLAGS=BuildUtils.GenerateList("./Build/SCons_Release/CcFlags.scons"))
-    env.Append(LINKFLAGS = BuildUtils.GenerateList("./Build/SCons_Release/LdFlags.scons"))
+    sourceFiles = GenerateList("./Build/SCons_Release/Sources.scons")
+    env.Append(CPPPATH=GenerateList("./Build/SCons_Release/Include.scons"))
+    env.Append(CCFLAGS=GenerateList("./Build/SCons_Release/CcFlags.scons"))
+    env.Append(LINKFLAGS = GenerateList("./Build/SCons_Release/LdFlags.scons"))
 
     # Build object files into ./Build folder.
     for sourceFile in sourceFiles:
