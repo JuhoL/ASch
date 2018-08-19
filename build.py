@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 
-parameters = {'queue': ['ASch_Queue', '.\\Build\\Tests\\', '.\\Utils\\tests\\']}
+parameters = {'queue': ['ASch_Queue', '.\\Utils']}
 
 if 'clean' in sys.argv:
     clean = ' -c'
@@ -21,15 +21,20 @@ else:
         if clean == '':
             # Run the test.
             print ("\nRunning the tests...\n")
-            subprocess.run(target[1] + "UTest_" + target[0] + ".exe", shell=True)
+            subprocess.run(".\\Build\\Tests\\UTest_" + target[0] + ".exe", shell=True)
 
             print ("\nCreating coverage report...\n")
 
             # Run gcov
-            subprocess.run("gcov " + target[2] + "UTest_" + target[0] + ".cpp" + " -r")
+            subprocess.run("gcov " + target[1] + "\\tests\\UTest_" + target[0] + ".cpp" + " -r")
             # Run gcovr
             subprocess.run("gcovr -r . --filter=(.+/)?" + target[0] + "\\.cpp$ --xml-pretty -o " + target[0] + "_TestCoverage.xml")
             
             # Copy the XML and cleanup artifacts.
-            #subprocess.run("cp " + target[0] + "_TestCoverage.xml ./Build/Tests/", shell=True)
-            #subprocess.run('rm *.gcov', shell=True, encoding='utf-8')
+            subprocess.run("move " + target[0] + "_TestCoverage.xml TestReports", shell=True)
+            subprocess.run("del *.gcov", shell=True)
+            subprocess.run("del " + target[1] + "\\tests\\*.gc*", shell=True)
+            subprocess.run("del " + target[1] + "\\sources\\*.gc*", shell=True)
+
+            # Cleanup the build artifacts.
+            subprocess.run("scons test=" + target[0] + " -c", shell=True)

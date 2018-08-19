@@ -2,7 +2,8 @@
 */__pycache__
 *.o
 *.pyc
-Build/*
+Build
+TestReports
 *.gcno
 *.gcda
 *.gcov
