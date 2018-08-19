@@ -4,6 +4,7 @@
 *.pyc
 TestReports/*.xml
 TestReports/*.html
+*.log
 *.gcno
 *.gcda
 *.gcov

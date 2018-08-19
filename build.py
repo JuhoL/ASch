@@ -13,19 +13,20 @@ def RunUnitTests(targetName, targetPath, clean):
         # Run the test.
         print ("\nRunning the tests...\n")
         subprocess.run(".\\Build\\Tests\\UTest_" + targetName + ".exe -d yes --order rand --rng-seed time", shell=True)
-
-        print ("\nCreating coverage report...\n")
-
-        # Run gcov
-        subprocess.run("gcov " + targetPath + "\\tests\\UTest_" + targetName + ".cpp" + " -r -o .\\Build\\Objects")
-        # Run gcovr
-        subprocess.run("gcovr -r . --filter=(.+/)?" + targetName + "\\.cpp$ --xml-pretty -o " + targetName + "_TestCoverage.xml")
-        
-        # Move the XML and cleanup coverage artifacts.
-        subprocess.run("move " + targetName + "_TestCoverage.xml TestReports", shell=True)
     else:
         print ("\nCleanup coverage files...\n")
         subprocess.run("del Build\\Objects\\*" + targetName + "*.gc*", shell=True)
+    return
+
+def RunTestCoverageAnalysis(targetName, targetPath):
+    print ("\nCreating coverage report...\n")
+    # Run gcov
+    subprocess.run("gcov " + targetPath + "\\tests\\UTest_" + targetName + ".cpp" + " -r -o .\\Build\\Objects")
+    # Run gcovr
+    subprocess.run("gcovr -r . --filter=(.+/)?" + targetName + "\\.cpp$ --xml-pretty -o " + targetName + "_TestCoverage.xml")
+    # Move the XML and cleanup coverage artifacts.
+    subprocess.run("move " + targetName + "_TestCoverage.xml TestReports", shell=True)
+    return
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
@@ -43,6 +44,7 @@ else:
         for key in parameters.keys():
             targetPath = parameters[key][0]
             RunUnitTests(key, targetPath, clean)
+            RunTestCoverageAnalysis(key, targetPath)
 
         print ("\nMerge coverage xmls...")
         subprocess.run("python .\\TestReports\\CoberturaMerger.py -o ASch-coverage.xml -p ./TestReports", shell=True)
@@ -59,7 +61,8 @@ else:
             if path not in sourcePaths:
                 sourcePaths.append(path[0] + "\\sources")
                 includePaths.append(path[0] + "\\include")
-        subprocess.run("cppcheck --language=c++ --library=gnu --enable=all --suppress=missingIncludeSystem " + " ".join(sourcePaths) + " -I " + " -I ".join(includePaths), shell=True)
+        subprocess.run("cppcheck --language=c++ --library=gnu --enable=all --suppress=missingIncludeSystem " + " ".join(sourcePaths) + " -I " + " -I ".join(includePaths) + " 2> ASch_CppCheck_Report.log", shell=True)
+        subprocess.run("move ASch_CppCheck_Report.log TestReports", shell=True)
 
     elif targetName in parameters.keys():
         targetPath = parameters[targetName][0]
