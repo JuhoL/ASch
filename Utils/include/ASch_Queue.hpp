@@ -60,7 +60,7 @@ class Queue
 public:
     Queue(void);
 
-    void Push(ElementType element);
+    bool Push(ElementType element);
     bool Pop(ElementType& element);
     
     uint8_t GetNumberOfElements(void) const;

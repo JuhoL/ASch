@@ -69,15 +69,24 @@ Queue<ElementType, size>::Queue(void)
 }
 
 template <typename ElementType, std::size_t size>
-void Queue<ElementType, size>::Push(ElementType element)
+bool Queue<ElementType, size>::Push(ElementType element)
 {
+    bool errors;
+
     if (numberOfElements < queueSize)
     {
         elements[nextFreeIndex] = element;
         numberOfElements++;
         IncrementIndexWithRollover(nextFreeIndex, queueSize);
+
+        errors = false;
     }
-    return;
+    else
+    {
+        errors = true;
+    }
+    
+    return errors;
 }
 
 template <typename ElementType, std::size_t size>

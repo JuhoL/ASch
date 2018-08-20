@@ -53,12 +53,12 @@
 
 /// @brief  This is blocker for new.
 ///
-/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for resoning.
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
 void* NewOperatorBlocker(void);
 
 /// @brief  This is blocker for delete.
 ///
-/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for resoning.
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
 void DeleteOperatorBlocker(void);
 
 /// @brief  This is overload for new operator
