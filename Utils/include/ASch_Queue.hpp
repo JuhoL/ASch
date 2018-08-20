@@ -17,42 +17,64 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_Queue.cpp
+//! @file    ASch_Queue.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    18 Aug 2018
-//! 
+//! @date    16 Aug 2018
+//!
+//! @class   Queue
 //! @brief   This is a generic queue class.
 //! 
-//! These are unit tests for ASch_Queue.cpp
+//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+
+#ifndef ASCH_QUEUE_HPP_
+#define ASCH_QUEUE_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <cstdint>
 
-#include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-typedef struct
+namespace ASch
 {
-    uint32_t a;
-    uint32_t b;
-} testStruct_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-TEST_CASE("Queue is created")
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+template <typename ElementType, std::size_t size>
+class Queue
 {
-    ASch::Queue<testStruct_t, 5> queue = ASch::Queue<testStruct_t, 5>();
+public:
+    Queue(void);
 
-    REQUIRE (queue.GetNumberOfElements() == 0);
+    void Push(ElementType element);
+    bool Pop(ElementType& element);
+    
+    uint8_t GetNumberOfElements(void) const;
+    void Flush(void);
+
+private:
+    ElementType elements[size];
+    std::size_t queueSize = size;
+
+    uint8_t numberOfElements;
+    uint8_t nextFreeIndex;
+    uint8_t nextIndexInQueue;
+};
+
 }
+
+#endif // ASCH_QUEUE_HPP_

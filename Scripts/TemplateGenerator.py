@@ -10,6 +10,7 @@
 
 import sys
 import os
+import re
 from datetime import datetime
 
 class Template:
@@ -51,7 +52,8 @@ class Template:
         if "<__PATH__>" not in self.keywords.keys():
             self.keywords["<__PATH__>"] = ""
 
-        self.keywords["<__HEADERGUARD__>"] = self.keywords["<__MODULE__>"].upper() + "_H_"
+        self.keywords["<__HEADERGUARD__>"] = self.keywords["<__MODULE__>"].upper() + "_HPP_"
+        self.keywords["<__CLASS__>"] = re.split('[^a-zA-Z]', self.keywords["<__MODULE__>"])[-1]
         return
 
     # Scans the line for keywords and replace them.
@@ -133,7 +135,7 @@ class Template:
 
         print ("\nGenerating template files...")
         self.GenerateFromTemplate(targetFile, "./Templates/cpptemplate.tmp")
-        self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".h", "./Templates/htemplate.tmp")
+        self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp", "./Templates/hpptemplate.tmp")
         self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
         
         print ("Reconfiguring SCons...")

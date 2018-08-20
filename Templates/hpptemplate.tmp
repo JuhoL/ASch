@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) <__YEAR__> <__AUTHOR__>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,42 +17,53 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_Queue.cpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    18 Aug 2018
+//! @file    <__MODULE__>.hpp
+//! @author  <__AUTHOR__> <<__EMAIL__>>
+//! @date    <__DATE__>
+//!
+//! @class   <__CLASS__>
+//! @brief   !!!!! Brief file description here !!!!!
 //! 
-//! @brief   This is a generic queue class.
-//! 
-//! These are unit tests for ASch_Queue.cpp
+//! !!!!! Detailed file description here !!!!!
+
+#ifndef <__HEADERGUARD__>
+#define <__HEADERGUARD__>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <cstdint>
 
-#include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-typedef struct
+namespace <__NAMESPACE__>
 {
-    uint32_t a;
-    uint32_t b;
-} testStruct_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-TEST_CASE("Queue is created")
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+/// @class <__CLASS__>
+class <__CLASS__>
 {
-    ASch::Queue<testStruct_t, 5> queue = ASch::Queue<testStruct_t, 5>();
+public:
+    <__CLASS__>(void);
 
-    REQUIRE (queue.GetNumberOfElements() == 0);
-}
+private:
+    
+};
+
+} // namespace <__NAMESPACE__>
+
+#endif // <__HEADERGUARD__>

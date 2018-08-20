@@ -1,42 +1,43 @@
-/******************************************************************************************************************************
- * Copyright (c) 2018 Juho Lepistö
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
- * documentation files (the "Software"), to deal in the Software without restriction, including without 
- * limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial
- * portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *****************************************************************************************************************************/
+//-----------------------------------------------------------------------------------------------------------------------------
+// Copyright (c) 2018 Juho Lepistö
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without 
+// limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
+// portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+// CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//-----------------------------------------------------------------------------------------------------------------------------
 
-/**
- * @file    ASch_Queue.cpp
- * @author  Juho Lepistö <juho.lepisto(a)gmail.com>
- * @date    16 Aug 2018
- * @brief   This is a generic queue class.
- *
- * This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
- */
+//! @file    ASch_Queue.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    16 Aug 2018
+//!
+//! @class   Queue
+//! @brief   This is a generic queue class.
+//! 
+//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Queue.h>
-
-#include <ASch_Utils.h>
+#include <ASch_Queue.hpp>
+#include <ASch_Utils.hpp>
 
 namespace ASch
 {
 
+namespace
+{
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -46,15 +47,17 @@ namespace ASch
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Static Variables
+// 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
+// 5. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
+
+} // unnamed namespace
 //-----------------------------------------------------------------------------------------------------------------------------
-// 6. Classes
+// 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 template <typename ElementType, std::size_t size>
@@ -99,7 +102,7 @@ bool Queue<ElementType, size>::Pop(ElementType& element)
 }
 
 template <typename ElementType, std::size_t size>
-uint8_t Queue<ElementType, size>::GetNumberOfElements(void)
+uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
 {
     return numberOfElements;
 }

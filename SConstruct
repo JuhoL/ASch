@@ -28,6 +28,7 @@ if test != None:
     try:
         includePaths = CreateListFromFile("./Build/SCons_UTest/UTest_" + test + "_Include.scons")
         includePaths.append('./Catch')
+        includePaths.append('./FakeIt')
     except:
         print ("ERROR: Gathering include directories failed!")
         print ("       Make sure you have created UTest_" + test + "_Include.scons file listing")

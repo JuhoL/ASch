@@ -17,17 +17,16 @@
  * IN THE SOFTWARE.
  *****************************************************************************************************************************/
 
-/**
- * @file    ASch_Queue.h
- * @author  Juho Lepistö <juho.lepisto(a)gmail.com>
- * @date    16 Aug 2018
- * @brief   This is a generic queue class.
- *
- * This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
- */
+//! @file    ASch_Utils.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    16 Aug 2018
+//!
+//! @brief   This is a collection of generic constants and utility inline functions.
+//! 
+//! This is a collection of generic constants and utility inline functions that are used in ASch.
 
-#ifndef ASCH_QUEUE_H_
-#define ASCH_QUEUE_H_
+#ifndef ASCH_UTILS_HPP_
+#define ASCH_UTILS_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
@@ -50,31 +49,35 @@ namespace ASch
 // 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+template <typename type>
+inline void IncrementIndexWithRollover(type &index, std::size_t maxLimit)
+{
+    if (++index >= maxLimit)
+    {
+        index = 0;
+    }
+    return;
+}
+
+template <typename type>
+inline void DecrementIndexWithRollover(type &index, std::size_t maxLimit)
+{
+    if (index == 0)
+    {
+        index = static_cast<type>(maxLimit - 1);
+    }
+    else
+    {
+        index--;
+    }
+    return;
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //----------------------------------------------------------------------------------------------------------------------------
 
-template <typename ElementType, std::size_t size>
-class Queue
-{
-public:
-    Queue(void);
-
-    void Push(ElementType element);
-    bool Pop(ElementType& element);
-    
-    uint8_t GetNumberOfElements(void);
-    void Flush(void);
-
-private:
-    ElementType elements[size];
-    std::size_t queueSize = size;
-
-    uint8_t numberOfElements;
-    uint8_t nextFreeIndex;
-    uint8_t nextIndexInQueue;
-};
 
 }
 
-#endif // ASCH_QUEUE_H_
+#endif // ASCH_UTILS_HPP_
