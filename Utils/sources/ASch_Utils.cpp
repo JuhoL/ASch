@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,26 +17,20 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    <__MODULE__>.cpp
-//! @author  <__AUTHOR__> <<__EMAIL__>>
-//! @date    <__DATE__>
+//! @file    ASch_Utils.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    20 Aug 2018
 //!
-//! @class   <__CLASS__>
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   This is a collection of generic constants and utility inline functions.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! This is a collection of generic constants and utility inline functions that are used in ASch.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <<__MODULE__>.hpp>
+#include <ASch_Utils.hpp>
 
-namespace <__NAMESPACE__>
-{
-
-namespace
-{
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -53,15 +47,35 @@ namespace
 // 5. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-
-} // unnamed namespace
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-<__CLASS__>::<__CLASS__>(void)
+/// @brief  This is blocker for new.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for resoning.
+void* NewOperatorBlocker(void);
+
+/// @brief  This is blocker for delete.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for resoning.
+void DeleteOperatorBlocker(void);
+
+/// @brief  This is overload for new operator
+///
+/// This function overloads new in C++ with a call of NewOperatorBlocker() which is not defined causing a linker error.
+/// This will prevent hidden dynamic memory implementations, e.g. in C++ STL, by preventing linkage.
+/// This devious trick is courtesy of Dan Saks.
+void* operator new(std::size_t)
 {
-    return;
+    return NewOperatorBlocker();
 }
 
-} // namespace <__NAMESPACE__>
+/// @brief  This is overload for delete operator
+///
+/// This function overloads new in C++ with a call of DeleteOperatorBlocker() which is not defined causing a linker error.
+/// This is implemented only for sake of consistency. Intentionally breaking new is enough, but might just make sure it's dead.
+void operator delete(void*)
+{
+    return DeleteOperatorBlocker();
+}

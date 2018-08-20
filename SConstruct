@@ -49,10 +49,10 @@ if test != None:
 
     # Build object files into ./Build folder.
     for sourceFile in sourceFiles:
-        env.Object(target = "./Build/Objects/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
+        env.Object(target = "./Build/Objects/" + test + "/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
 
     # Build the main target from object files.
-    unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = Glob("./Build/Objects/*.o"))
+    unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = Glob("./Build/Objects/" + test + "/*.o"))
 
     #unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = sourceFiles)
     env.NoClean(unitTest)
