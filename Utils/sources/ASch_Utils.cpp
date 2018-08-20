@@ -17,27 +17,20 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Queue.cpp
+//! @file    ASch_Utils.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    16 Aug 2018
+//! @date    20 Aug 2018
 //!
-//! @class   Queue
-//! @brief   This is a generic queue class.
+//! @brief   This is a collection of generic constants and utility inline functions.
 //! 
-//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+//! This is a collection of generic constants and utility inline functions that are used in ASch.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Queue.hpp>
 #include <ASch_Utils.hpp>
 
-namespace ASch
-{
-
-namespace
-{
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -54,76 +47,35 @@ namespace
 // 5. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-
-} // unnamed namespace
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-template <typename ElementType, std::size_t size>
-Queue<ElementType, size>::Queue(void)
-{
-    this->Flush();
+/// @brief  This is blocker for new.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
+void* NewOperatorBlocker(void);
 
-    return;
+/// @brief  This is blocker for delete.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
+void DeleteOperatorBlocker(void);
+
+/// @brief  This is overload for new operator
+///
+/// This function overloads new in C++ with a call of NewOperatorBlocker() which is not defined causing a linker error.
+/// This will prevent hidden dynamic memory implementations, e.g. in C++ STL, by preventing linkage.
+/// This devious trick is courtesy of Dan Saks.
+void* operator new(std::size_t)
+{
+    return NewOperatorBlocker();
 }
 
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Push(ElementType element)
+/// @brief  This is overload for delete operator
+///
+/// This function overloads new in C++ with a call of DeleteOperatorBlocker() which is not defined causing a linker error.
+/// This is implemented only for sake of consistency. Intentionally breaking new is enough, but might just make sure it's dead.
+void operator delete(void*)
 {
-    bool errors;
-
-    if (numberOfElements < queueSize)
-    {
-        elements[nextFreeIndex] = element;
-        numberOfElements++;
-        IncrementIndexWithRollover(nextFreeIndex, queueSize);
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-    
-    return errors;
+    return DeleteOperatorBlocker();
 }
-
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Pop(ElementType& element)
-{
-    bool errors;
-
-    if (numberOfElements > 0U)
-    {
-        element = elements[nextIndexInQueue];
-        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
-        numberOfElements--;
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
-{
-    return numberOfElements;
-}
-
-template <typename ElementType, std::size_t size>
-void Queue<ElementType, size>::Flush(void)
-{
-    numberOfElements = 0U;
-    nextFreeIndex = 0U;
-    nextIndexInQueue = 0U;
-
-    return;
-}
-
-} // namespace ASch

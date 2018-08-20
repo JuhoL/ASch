@@ -12,7 +12,7 @@ def RunUnitTests(targetName, targetPath, clean):
     if clean == '':
         # Run the test.
         print ("\nRunning the tests...\n")
-        subprocess.run(".\\Build\\Tests\\UTest_" + targetName + ".exe -d yes --order rand --rng-seed time", shell=True)
+        subprocess.run(".\\Build\\Tests\\UTest_" + targetName + ".exe -d yes", shell=True)
     else:
         print ("\nCleanup coverage files...\n")
         subprocess.run("del Build\\Objects\\*" + targetName + "*.gc*", shell=True)

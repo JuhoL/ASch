@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,13 +17,13 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_<__MODULE__>.cpp
-//! @author  <__AUTHOR__> <__EMAIL__>
-//! @date    <__DATE__>
+//! @file    UTest_ASch_System.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    20 Aug 2018
 //! 
-//! @brief   These are unit tests for <__MODULE__>.cpp
+//! @brief   These are unit tests for ASch_System.cpp
 //! 
-//! These are unit tests for <__MODULE__>.cpp utilising Catch2 and FakeIt.
+//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
@@ -33,7 +33,7 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
-#include <<__MODULE__>.hpp>
+#include <ASch_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -48,16 +48,17 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO("Some test", "[feature]")
 {
-    GIVEN ("a_premise")
+    GIVEN("a_premise")
     {
-        WHEN ("doing_something")
+        WHEN("doing_something")
         {
-            THEN ("something_shall_happen")
+            THEN("something_shall_happen")
             {
                 REQUIRE (1 == 1);
             }
         }
     }
 }
+

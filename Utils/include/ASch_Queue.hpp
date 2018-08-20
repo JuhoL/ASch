@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,47 +17,64 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_<__MODULE__>.cpp
-//! @author  <__AUTHOR__> <__EMAIL__>
-//! @date    <__DATE__>
+//! @file    ASch_Queue.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    16 Aug 2018
+//!
+//! @class   Queue
+//! @brief   This is a generic queue class.
 //! 
-//! @brief   These are unit tests for <__MODULE__>.cpp
-//! 
-//! These are unit tests for <__MODULE__>.cpp utilising Catch2 and FakeIt.
+//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+
+#ifndef ASCH_QUEUE_HPP_
+#define ASCH_QUEUE_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <cstdint>
 
-#include <<__MODULE__>.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
+namespace ASch
 {
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Typedefs and Constants
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+template <typename ElementType, std::size_t size>
+class Queue
+{
+public:
+    Queue(void);
+
+    bool Push(ElementType element);
+    bool Pop(ElementType& element);
+    
+    uint8_t GetNumberOfElements(void) const;
+    void Flush(void);
+
+private:
+    ElementType elements[size];
+    std::size_t queueSize = size;
+
+    uint8_t numberOfElements;
+    uint8_t nextFreeIndex;
+    uint8_t nextIndexInQueue;
+};
 
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("Some test", "[feature_tag]")
-{
-    GIVEN ("a_premise")
-    {
-        WHEN ("doing_something")
-        {
-            THEN ("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
-}
+#endif // ASCH_QUEUE_HPP_
