@@ -9,6 +9,7 @@
 - ARM GCC
 - SCons 3.0.1
 - Catch2 (included)
+- FakeIt (included)
 - CppCheck
 - Python 3.7
     - PyCobertura

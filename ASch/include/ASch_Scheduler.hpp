@@ -17,48 +17,57 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @file    ASch_Scheduler.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    22 Aug 2018
+//!
+//! @class   Scheduler
+//! @brief   This is the scheduler module of ASch
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
-//! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
+//! from the event module.
+
+#ifndef ASCH_SCHEDULER_HPP_
+#define ASCH_SCHEDULER_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <cstdint>
+#include <Hal_SysTick.hpp>
 
-#include <ASch_System.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
+namespace ASch
 {
 
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+/// @class Scheduler
+class Scheduler
 {
-    GIVEN("a_premise")
-    {
-        WHEN("doing_something")
-        {
-            THEN("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
-}
+public:
+    explicit Scheduler(uint16_t tickIntervalInMs);
+    explicit Scheduler(Hal::SysTick& sysTickParameter, uint16_t tickIntervalInMs);
 
+private:
+    Hal::SysTick& sysTick;
+    Hal::SysTick sysTickObject;
+};
+
+} // namespace ASch
+
+#endif // ASCH_SCHEDULER_HPP_

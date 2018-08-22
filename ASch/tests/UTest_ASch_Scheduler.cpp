@@ -17,13 +17,13 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
+//! @file    UTest_ASch_Scheduler.cpp
 //! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @date    22 Aug 2018
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
+//! @brief   These are unit tests for ASch_Scheduler.cpp
 //! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! These are unit tests for ASch_Scheduler.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
@@ -32,8 +32,10 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <fakeit.hpp>
+using namespace fakeit;
 
-#include <ASch_System.hpp>
+#include <ASch_Scheduler.hpp>
+#include <Hal_SysTick.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -48,17 +50,29 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+SCENARIO ("Developer starts a scheduler", "[scheduler]")
 {
-    GIVEN("a_premise")
+    GIVEN ("a scheduler is not yet created")
     {
-        WHEN("doing_something")
+        WHEN ("a scheduler is created")
         {
-            THEN("something_shall_happen")
+            Mock<Hal::SysTick> mockSysTick;
+            Fake(Method(mockSysTick, SetInterval));
+
+            ASch::Scheduler(mockSysTick.get(), 1U);
+
+            THEN ("the scheduler shall configure system tick")
+            {
+                REQUIRE_NOTHROW (Verify(Method(mockSysTick, SetInterval)).Exactly(1));
+            }
+            AND_THEN ("scheduler tick handler shall be set as system tick handler")
+            {
+                REQUIRE (1 == 1);
+            }
+            AND_THEN ("no tasks shall be running")
             {
                 REQUIRE (1 == 1);
             }
         }
     }
 }
-
