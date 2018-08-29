@@ -1,3 +1,6 @@
 ./main.cpp
 ./Utils/sources/ASch_Queue.cpp
 ./ASch/sources/ASch_System.cpp
+./ASch/sources/ASch_Scheduler.cpp
+./Hal/sources/Hal_SysTick.cpp
+./Hal/sources/Hal_Isr.cpp

@@ -17,48 +17,67 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @file    Hal_Isr.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    29 Aug 2018
+//!
+//! @class   Isr
+//! @brief   HAL interface for ISRs.
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
-//! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
+
+#ifndef HAL_ISR_HPP_
+#define HAL_ISR_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <cstdint>
 
-#include <ASch_System.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
+namespace Hal
 {
 
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//!
+//! @brief   Different interrupt vectors available in the system.
+//!
+typedef enum
 {
-    GIVEN("a_premise")
-    {
-        WHEN("doing_something")
-        {
-            THEN("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
-}
+    interrupt_sysTick = 0,  //! SysTick vector.
 
+    interrupt_vectorsMax    //! The total number of vectors. Must be last on the enum!
+} interruptType_t;
+
+typedef void (*interruptHandler_t)(void);
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+/// @class Isr
+class Isr
+{
+public:
+    Isr(void);
+    virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
+
+private:
+    interruptHandler_t Handlers[interrupt_vectorsMax];
+};
+
+} // namespace ASch
+
+#endif // HAL_ISR_HPP_

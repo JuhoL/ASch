@@ -32,6 +32,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <fakeit.hpp>
+using namespace fakeit;
 
 #include <<__MODULE__>.hpp>
 

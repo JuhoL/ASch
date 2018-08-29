@@ -70,7 +70,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
                 REQUIRE (queue.GetNumberOfElements() == 0);
             }
         }
-        WHEN ("the developer creates another type of queue")
+        AND_WHEN ("the developer creates another type of queue")
         {
             ASch::Queue<uint32_t, 5> queue = ASch::Queue<uint32_t, 5>();
 
@@ -98,8 +98,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
                 REQUIRE (queue.GetNumberOfElements() == 1);
             }
         }
-
-        WHEN ("three elements are pushed into the queue")
+        AND_WHEN ("three elements are pushed into the queue")
         {
             testStruct_t testData = {.number = 1UL, .character = 'A'};
             bool errors = queue.Push(testData);

@@ -17,13 +17,13 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
+//! @file    UTest_Hal_SysTick.cpp
 //! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @date    22 Aug 2018
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
+//! @brief   These are unit tests for Hal_SysTick.cpp
 //! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! These are unit tests for Hal_SysTick.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
@@ -33,7 +33,7 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
-#include <ASch_System.hpp>
+#include <Hal_SysTick.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -48,17 +48,16 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+SCENARIO ("Some test", "[feature_tag]")
 {
-    GIVEN("a_premise")
+    GIVEN ("a_premise")
     {
-        WHEN("doing_something")
+        WHEN ("doing_something")
         {
-            THEN("something_shall_happen")
+            THEN ("something_shall_happen")
             {
                 REQUIRE (1 == 1);
             }
         }
     }
 }
-

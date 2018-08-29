@@ -17,48 +17,64 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @file    ASch_Scheduler.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    22 Aug 2018
+//!
+//! @class   Scheduler
+//! @brief   This is the scheduler module of ASch
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
-//! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
+//! from the event module.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <ASch_Scheduler.hpp>
 
-#include <ASch_System.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
+namespace ASch
+{
 
 namespace
 {
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Local Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Local Variables
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
+} // unnamed namespace
+//-----------------------------------------------------------------------------------------------------------------------------
+// 6. Class Member Definitions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs) : sysTick(sysTickParameter), isr(isrParameter)
 {
-    GIVEN("a_premise")
-    {
-        WHEN("doing_something")
-        {
-            THEN("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
+    sysTick.SetInterval(tickIntervalInMs);
+    isr.SetHandler(Hal::interrupt_sysTick, SysTickHandler);
+    return;
 }
 
+uint8_t Scheduler::GetTaskCount(void) const
+{
+    return eventQueue.GetNumberOfElements();
+}
+
+void SysTickHandler(void)
+{
+    return;
+}
+
+} // namespace ASch
