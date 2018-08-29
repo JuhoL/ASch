@@ -17,64 +17,46 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_Scheduler.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    22 Aug 2018
+//! @file    ASch_Configuration.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    28 Aug 2018
+//!
+//! @brief   Ssytem configuration header for ASch.
 //! 
-//! @brief   These are unit tests for ASch_Scheduler.cpp
-//! 
-//! These are unit tests for ASch_Scheduler.cpp utilising Catch2 and FakeIt.
+//! This class configures certain system parameters
+
+#ifndef ASCH_CONFIGURATION_HPP_
+#define ASCH_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <cstdint>
 
-#include <ASch_Scheduler.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
+namespace ASch
 {
 
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Developer starts a scheduler", "[scheduler]")
-{
-    GIVEN ("a scheduler is not yet created")
-    {
-        WHEN ("a scheduler is created")
-        {
-            Mock<Hal::SysTick> mockSysTick;
-            Fake(Method(mockSysTick, SetInterval));
+const std::size_t schedulerTasksMax = 5;
 
-            Mock<Hal::Isr> mockIsr;
-            Fake(Method(mockIsr, SetHandler));
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
 
-            ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
 
-            THEN ("the scheduler shall configure system tick")
-            {
-                REQUIRE_NOTHROW (Verify(Method(mockSysTick, SetInterval).Using(1U)).Exactly(1));
-            }
-            AND_THEN ("scheduler tick handler shall be set as system tick handler")
-            {
-                REQUIRE_NOTHROW (Verify(Method(mockIsr, SetHandler).Using(Hal::interrupt_sysTick, ASch::SysTickHandler)).Exactly(1));
-            }
-            AND_THEN ("no tasks shall be running")
-            {
-                REQUIRE (scheduler.GetTaskCount() == 0);
-            }
-        }
-    }
-}
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
+
+} // namespace ASch
+
+#endif // ASCH_CONFIGURATION_HPP_

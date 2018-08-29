@@ -17,64 +17,64 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_Scheduler.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    22 Aug 2018
+//! @file    Hal_Isr.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    29 Aug 2018
+//!
+//! @class   Isr
+//! @brief   HAL interface for ISRs.
 //! 
-//! @brief   These are unit tests for ASch_Scheduler.cpp
-//! 
-//! These are unit tests for ASch_Scheduler.cpp utilising Catch2 and FakeIt.
+//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <Hal_Isr.hpp>
 
-#include <ASch_Scheduler.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
-//-----------------------------------------------------------------------------------------------------------------------------
+namespace ASch
+{
 
 namespace
 {
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 2. Typedefs and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Developer starts a scheduler", "[scheduler]")
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Local Structs and Enums
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Local Variables
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
+} // unnamed namespace
+//-----------------------------------------------------------------------------------------------------------------------------
+// 6. Class Member Definitions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+Isr::Isr(void)
 {
-    GIVEN ("a scheduler is not yet created")
+    for (uint8_t i; i < static_cast<uint8_t>(interrupt_vectorsMax); ++i)
     {
-        WHEN ("a scheduler is created")
-        {
-            Mock<Hal::SysTick> mockSysTick;
-            Fake(Method(mockSysTick, SetInterval));
-
-            Mock<Hal::Isr> mockIsr;
-            Fake(Method(mockIsr, SetHandler));
-
-            ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
-
-            THEN ("the scheduler shall configure system tick")
-            {
-                REQUIRE_NOTHROW (Verify(Method(mockSysTick, SetInterval).Using(1U)).Exactly(1));
-            }
-            AND_THEN ("scheduler tick handler shall be set as system tick handler")
-            {
-                REQUIRE_NOTHROW (Verify(Method(mockIsr, SetHandler).Using(Hal::interrupt_sysTick, ASch::SysTickHandler)).Exactly(1));
-            }
-            AND_THEN ("no tasks shall be running")
-            {
-                REQUIRE (scheduler.GetTaskCount() == 0);
-            }
-        }
+        Handlers[i] = 0;
     }
+    return;
 }
+
+void Isr::SetHandler(interruptType_t type, const interruptHandler_t Handler)
+{
+    if (type < interrupt_vectorsMax)
+    {
+        Handlers[type] = Handler;
+    }
+    return;
+}
+
+} // namespace ASch

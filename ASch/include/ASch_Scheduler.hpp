@@ -35,7 +35,11 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <cstdint>
+#include <ASch_Configuration.hpp>
+#include <ASch_Queue.hpp>
+#include <ASch_Queue.cpp>
 #include <Hal_SysTick.hpp>
+#include <Hal_Isr.hpp>
 
 namespace ASch
 {
@@ -48,9 +52,16 @@ namespace ASch
 // 3. Structs and Enums
 //-----------------------------------------------------------------------------------------------------------------------------
 
+typedef struct
+{
+    ;
+} event_t;
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+void SysTickHandler(void);
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
@@ -60,12 +71,18 @@ namespace ASch
 class Scheduler
 {
 public:
-    explicit Scheduler(uint16_t tickIntervalInMs);
-    explicit Scheduler(Hal::SysTick& sysTickParameter, uint16_t tickIntervalInMs);
+    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs);
+    uint8_t GetTaskCount(void) const;
 
 private:
+    //void SysTickHandler(void);
+
+    // Dependencies
     Hal::SysTick& sysTick;
     Hal::SysTick sysTickObject;
+    Hal::Isr& isr;
+
+    Queue<event_t, schedulerTasksMax> eventQueue = Queue<event_t, schedulerTasksMax>();
 };
 
 } // namespace ASch

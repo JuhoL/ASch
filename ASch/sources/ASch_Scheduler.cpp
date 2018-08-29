@@ -33,8 +33,6 @@
 
 #include <ASch_Scheduler.hpp>
 
-#include <Hal_SysTick.hpp>
-
 namespace ASch
 {
 
@@ -56,24 +54,26 @@ namespace
 // 5. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-// Hal::SysTick sysTick;
-// Hal::SysTick* pSysTick;
 
 } // unnamed namespace
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-Scheduler::Scheduler(uint16_t tickIntervalInMs) : sysTick(sysTickObject)
+Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs) : sysTick(sysTickParameter), isr(isrParameter)
 {
-    sysTickObject = Hal::SysTick();
     sysTick.SetInterval(tickIntervalInMs);
+    isr.SetHandler(Hal::interrupt_sysTick, SysTickHandler);
     return;
 }
 
-Scheduler::Scheduler(Hal::SysTick& sysTickParameter, uint16_t tickIntervalInMs) : sysTick(sysTickParameter)
+uint8_t Scheduler::GetTaskCount(void) const
 {
-    sysTick.SetInterval(tickIntervalInMs);
+    return eventQueue.GetNumberOfElements();
+}
+
+void SysTickHandler(void)
+{
     return;
 }
 
