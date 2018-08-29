@@ -77,4 +77,14 @@ void Isr::SetHandler(interruptType_t type, const interruptHandler_t Handler)
     return;
 }
 
+void Isr::Enable(interruptType_t type)
+{
+    return;
+}
+
+void Isr::Disable(interruptType_t type)
+{
+    return;
+}
+
 } // namespace ASch

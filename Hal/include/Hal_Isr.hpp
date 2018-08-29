@@ -73,6 +73,8 @@ class Isr
 public:
     Isr(void);
     virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
+    virtual void Enable(interruptType_t type);
+    virtual void Disable(interruptType_t type);
 
 private:
     interruptHandler_t Handlers[interrupt_vectorsMax];

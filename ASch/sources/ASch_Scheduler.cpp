@@ -72,6 +72,13 @@ uint8_t Scheduler::GetTaskCount(void) const
     return eventQueue.GetNumberOfElements();
 }
 
+void Scheduler::Start(void)
+{
+    isr.Enable(Hal::interrupt_sysTick);
+    sysTick.Start();
+    return;
+}
+
 void SysTickHandler(void)
 {
     return;

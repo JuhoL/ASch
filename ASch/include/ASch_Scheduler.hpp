@@ -72,7 +72,8 @@ class Scheduler
 {
 public:
     explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs);
-    uint8_t GetTaskCount(void) const;
+    virtual uint8_t GetTaskCount(void) const;
+    virtual void Start(void);
 
 private:
     //void SysTickHandler(void);

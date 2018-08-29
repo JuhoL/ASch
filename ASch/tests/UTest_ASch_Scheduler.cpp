@@ -43,23 +43,37 @@ using namespace fakeit;
 namespace
 {
 
+inline void InitSysTickMock(Mock<Hal::SysTick>& mockSysTick)
+{
+    Fake(Method(mockSysTick, SetInterval));
+    Fake(Method(mockSysTick, Start));
+    return;
+}
+
+inline void InitIsrMock(Mock<Hal::Isr>& mockIsr)
+{
+    Fake(Method(mockIsr, SetHandler));
+    Fake(Method(mockIsr, Enable));
+    return;
+}
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Developer starts a scheduler", "[scheduler]")
+SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 {
     GIVEN ("a scheduler is not yet created")
     {
         WHEN ("a scheduler is created")
         {
             Mock<Hal::SysTick> mockSysTick;
-            Fake(Method(mockSysTick, SetInterval));
+            InitSysTickMock(mockSysTick);
 
             Mock<Hal::Isr> mockIsr;
-            Fake(Method(mockIsr, SetHandler));
+            InitIsrMock(mockIsr);
 
             ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
 
@@ -74,6 +88,31 @@ SCENARIO ("Developer starts a scheduler", "[scheduler]")
             AND_THEN ("no tasks shall be running")
             {
                 REQUIRE (scheduler.GetTaskCount() == 0);
+            }
+        }
+    }
+
+    GIVEN ("a scheduler is created")
+    {
+        Mock<Hal::SysTick> mockSysTick;
+        InitSysTickMock(mockSysTick);
+
+        Mock<Hal::Isr> mockIsr;
+        InitIsrMock(mockIsr);
+        
+        ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
+
+        WHEN ("developer starts the scheduler")
+        {
+            scheduler.Start();
+
+            THEN ("SysTick ISR is enabled")
+            {
+                REQUIRE_NOTHROW (Verify(Method(mockIsr, Enable).Using(Hal::interrupt_sysTick)).Exactly(1));
+            }
+            AND_THEN ("SysTick is started")
+            {
+                REQUIRE_NOTHROW (Verify(Method(mockSysTick, Start)).Exactly(1));
             }
         }
     }
