@@ -60,22 +60,50 @@ namespace
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs) : sysTick(sysTickParameter), isr(isrParameter)
+Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs)
+    : sysTick(sysTickParameter),
+      isr(isrParameter),
+      msPerTick(tickIntervalInMs),
+      taskCount(0)
 {
+    for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
+    {
+        tasks[i] = {.intervalInMs = 0, .Task = 0};
+        taskMsCounters[i] = 0;
+    }
+
     sysTick.SetInterval(tickIntervalInMs);
     isr.SetHandler(Hal::interrupt_sysTick, SysTickHandler);
     return;
-}
-
-uint8_t Scheduler::GetTaskCount(void) const
-{
-    return eventQueue.GetNumberOfElements();
 }
 
 void Scheduler::Start(void)
 {
     isr.Enable(Hal::interrupt_sysTick);
     sysTick.Start();
+    return;
+}
+
+void Scheduler::Stop(void)
+{
+    sysTick.Stop();
+    isr.Disable(Hal::interrupt_sysTick);
+    return;
+}
+
+uint8_t Scheduler::GetTaskCount(void) const
+{
+    return taskCount;
+}
+
+void Scheduler::CreateTask(task_t task)
+{
+    if ((taskCount < schedulerTasksMax) && (task.Task != 0) && (task.intervalInMs > 0U))
+    {
+        tasks[taskCount] = task;
+        taskMsCounters[taskCount] = task.intervalInMs;
+        ++taskCount;
+    }
     return;
 }
 

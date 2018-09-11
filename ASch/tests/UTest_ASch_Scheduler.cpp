@@ -47,6 +47,7 @@ inline void InitSysTickMock(Mock<Hal::SysTick>& mockSysTick)
 {
     Fake(Method(mockSysTick, SetInterval));
     Fake(Method(mockSysTick, Start));
+    Fake(Method(mockSysTick, Stop));
     return;
 }
 
@@ -54,6 +55,55 @@ inline void InitIsrMock(Mock<Hal::Isr>& mockIsr)
 {
     Fake(Method(mockIsr, SetHandler));
     Fake(Method(mockIsr, Enable));
+    Fake(Method(mockIsr, Disable));
+    return;
+}
+
+// ---------- Test tasks ----------
+static uint16_t testTaskCalls[6] = {0U};
+
+static void TestTask0(void)
+{
+    ++testTaskCalls[0];
+    return;
+}
+
+static void TestTask1(void)
+{
+    ++testTaskCalls[1];
+    return;
+}
+
+static void TestTask2(void)
+{
+    ++testTaskCalls[2];
+    return;
+}
+
+static void TestTask3(void)
+{
+    ++testTaskCalls[3];
+    return;
+}
+
+static void TestTask4(void)
+{
+    ++testTaskCalls[4];
+    return;
+}
+
+static void TestTask5(void)
+{
+    ++testTaskCalls[5];
+    return;
+}
+
+static ASch::taskHandler_t Handlers[6] = {TestTask0, TestTask1, TestTask2, TestTask3, TestTask4, TestTask5};
+
+inline void CreateTask(ASch::Scheduler& scheduler, uint8_t taskId, uint16_t interval)
+{
+    testTaskCalls[taskId] = 0U;
+    scheduler.CreateTask({.intervalInMs = interval, .Task = Handlers[taskId]});
     return;
 }
 
@@ -113,6 +163,64 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             AND_THEN ("SysTick is started")
             {
                 REQUIRE_NOTHROW (Verify(Method(mockSysTick, Start)).Exactly(1));
+            }
+        }
+    }
+
+    GIVEN ("a scheduler is running")
+    {
+        Mock<Hal::SysTick> mockSysTick;
+        InitSysTickMock(mockSysTick);
+
+        Mock<Hal::Isr> mockIsr;
+        InitIsrMock(mockIsr);
+        
+        ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
+        scheduler.Start();
+
+        WHEN ("developer stops the scheduler")
+        {
+            scheduler.Stop();
+
+            THEN ("SysTick is stopped")
+            {
+                REQUIRE_NOTHROW (Verify(Method(mockSysTick, Stop)).Exactly(1));
+            }
+            AND_THEN ("SysTick ISR is disabled") // ToDo: Verify order!
+            {
+                REQUIRE_NOTHROW (Verify(Method(mockIsr, Disable).Using(Hal::interrupt_sysTick)).Exactly(1));
+            }
+        }
+    }
+}
+
+SCENARIO ("Developer configures tasks successfully", "[scheduler]")
+{
+    GIVEN ("the scheduler is running and task list is empty")
+    {
+        Mock<Hal::SysTick> mockSysTick;
+        InitSysTickMock(mockSysTick);
+
+        Mock<Hal::Isr> mockIsr;
+        InitIsrMock(mockIsr);
+        
+        ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
+
+        WHEN ("a task is created")
+        {
+            CreateTask(scheduler, 0, 1);
+            THEN ("the task count shall be one")
+            {
+                REQUIRE (scheduler.GetTaskCount() == 1);
+            }
+            AND_WHEN ("SysTick triggers")
+            {
+                ASch::SysTickHandler();
+
+                THEN ("Task1 shall be called")
+                {
+                    ;
+                }
             }
         }
     }
