@@ -12,6 +12,8 @@ def CreateListFromFile(fileName):
     with open(fileName) as includeFile:
         for line in includeFile:
             includes.append(line.translate(str.maketrans('', '', '\r\n')))
+            print ("-------------- Latest include: " + includes[-1])
+
     return includes
 
 def CreateDictionaryFromFile(fileName):
