@@ -52,10 +52,20 @@ namespace ASch
 // 3. Structs and Enums
 //-----------------------------------------------------------------------------------------------------------------------------
 
+typedef void (*taskHandler_t)(void);
+typedef void (*eventHandler_t)(void*);
+
 typedef struct
 {
-    ;
+    eventHandler_t Handler;
+    void* pPayload;
 } event_t;
+
+typedef struct
+{
+    uint16_t intervalInMs;
+    taskHandler_t Task;
+} task_t;
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
@@ -71,18 +81,28 @@ void SysTickHandler(void);
 class Scheduler
 {
 public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, uint16_t tickIntervalInMs);
-    uint8_t GetTaskCount(void) const;
+    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs);
+    
+    virtual void Start(void);
+    virtual void Stop(void);
+
+    virtual uint8_t GetTaskCount(void) const;
+    virtual void CreateTask(task_t task);
 
 private:
-    //void SysTickHandler(void);
+    //static void SysTickHandler(void);
 
     // Dependencies
     Hal::SysTick& sysTick;
     Hal::SysTick sysTickObject;
     Hal::Isr& isr;
 
-    Queue<event_t, schedulerTasksMax> eventQueue = Queue<event_t, schedulerTasksMax>();
+    const uint8_t msPerTick;
+    uint8_t taskCount;
+    task_t tasks[schedulerTasksMax];
+    int16_t taskMsCounters[schedulerTasksMax];
+
+    Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
 };
 
 } // namespace ASch

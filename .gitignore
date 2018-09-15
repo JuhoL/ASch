@@ -2,8 +2,7 @@
 */__pycache__
 *.o
 *.pyc
-TestReports/*.xml
-TestReports/*.html
+TestReports/
 *.log
 *.gcno
 *.gcda
