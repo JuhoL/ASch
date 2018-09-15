@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : Cobertura.py
 # Description     : This is SCons tool for running pycobertura.
 # Author          : Juho Lepistö

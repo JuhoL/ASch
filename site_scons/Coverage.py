@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : Coverage.py
 # Description     : This is SCons tool for generating coverage reports.
 # Author          : Juho Lepistö

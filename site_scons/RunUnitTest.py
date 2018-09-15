@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : BuildUtils.py
 # Description     : This is SCons tool for running unit tests.
 # Author          : Juho Lepistö

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : TemplateGenerator.py
 # Description     : This script generates .cpp and .h files for given module
 #                   and its unit tests, and it adds the unit tests into SCons

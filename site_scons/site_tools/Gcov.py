@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : Gcov.py
 # Description     : This is SCons tool for running gcov.
 # Author          : Juho Lepistö

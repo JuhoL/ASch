@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : BuildUtils.py
 # Description     : These are utility functions used for ASch SCons build.
 # Author          : Juho Lepistö

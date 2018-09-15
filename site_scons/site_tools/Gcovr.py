@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Title           : Gcovr.py
 # Description     : This is SCons tool for running gcovr.
 # Author          : Juho Lepistö
