@@ -8,6 +8,7 @@
 #==============================================================================
 
 def CreateListFromFile(fileName):
+    print ("-------------- Opening " + fileName)
     includes = []
     with open(fileName) as includeFile:
         for line in includeFile:
