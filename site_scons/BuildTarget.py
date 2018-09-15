@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Title           : BuildTarget.py
 # Description     : These is target builder utility script for SCons.

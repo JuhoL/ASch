@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Title           : Gcov.py
 # Description     : This is SCons tool for running gcov.

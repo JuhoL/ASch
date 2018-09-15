@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Title           : Coverage.py
 # Description     : This is SCons tool for generating coverage reports.
