@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # Title           : SConstruct
 # Description     : This is a SCons script for building ASch.
 # Author          : Juho Lepistö

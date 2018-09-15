@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Title           : TemplateGenerator.py
 # Description     : This script generates .cpp and .h files for given module

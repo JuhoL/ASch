@@ -1,27 +1,30 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Title           : BuildUtils.py
-# Description     : These are utility functions used for ASch SCons build.
+# Title           : BuildTarget.py
+# Description     : These is target builder utility script for SCons.
 # Author          : Juho Lepistö
-# Date            : 18 Aug 2018
+# Date            : 15 Sep 2018
 # Python version  : 3.7
 #==============================================================================
 
 import re
+import sys
 from ListCreator import CreateListFromFile
 
 def BuildTarget(env, buildTarget, buildFiles):
     # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
     try:
         sourceFiles = CreateListFromFile(buildFiles["sources"])
-    except:
+    except Exception as e:
+        print (e)
         print ("ERROR: Gathering source files failed!")
         print ("       Make sure you have created .scons file listing in Build/Scons_UTest folder.")
         sys.exit(1)
 
     try:
         env.AppendUnique(CPPPATH = CreateListFromFile(buildFiles["include"]))
-    except:
+    except Exception as e:
+        print (e)
         print ("ERROR: Gathering include directories failed!")
         print ("       Make sure you have created .scons directory listing in Build/Scons_UTest folder.")
         sys.exit(1)
