@@ -8,17 +8,13 @@
 #==============================================================================
 
 def CreateListFromFile(fileName):
-    print ("-------------- Opening " + fileName)
     includes = []
     with open(fileName) as includeFile:
         for line in includeFile:
             includes.append(line.translate(str.maketrans('', '', '\r\n')))
-            print ("-------------- Latest include: " + includes[-1])
-
     return includes
 
 def CreateDictionaryFromFile(fileName):
-    print ("-------------- Opening " + fileName)
     targets = {}
     with open(fileName) as targetsFile:
         for line in targetsFile:
