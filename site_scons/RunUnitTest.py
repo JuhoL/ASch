@@ -7,9 +7,9 @@
 #==============================================================================
 
 def RunUnitTest(env, buildTarget):
-    testRun = env.Command(target = buildTarget + '_UTest.log',
+    testRun = env.Command(target = './TestReports/UnitTestLogs/' + buildTarget + '_UTest.log',
                           source = "./Build/Tests/" + buildTarget + "_UTest.exe",
-                          action = ["$SOURCE -o ./TestReports/UnitTestLogs/$TARGET", "type .\\TestReports\\UnitTestLogs\\$TARGET"])
+                          action = ["$SOURCE -o $TARGET", "type $TARGET"])
     env.Depends(testRun, buildTarget + "_executable")
     env.Alias(buildTarget, testRun)
     return

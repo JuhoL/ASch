@@ -16,7 +16,7 @@ def Gcov(env, buildTarget, targetPath):
 
 def GenerateCoverageXml(env, buildTarget, targetPath):
     testSource = targetPath[2:] + "/tests/UTest_" + buildTarget + ".cpp"
-    reportFile = buildTarget + "_TestCoverage"
+    reportFile = "./TestReports/CoverageLogs/" + buildTarget + "_TestCoverage"
 
     gcovXml = env.Gcovr(reportFile, testSource, GCOVR_SOURCE = testSource)
 

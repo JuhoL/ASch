@@ -34,7 +34,7 @@ def DetectGcovr(env):
         "Could not detect gcovr")
     return None
 
-gcovr_builder = SCons.Builder.Builder(action = "$GCOVR -r . --filter=$GCOVR_SOURCE $GCOVR_FLAGS ./TestReports/CoverageLogs/$TARGET",
+gcovr_builder = SCons.Builder.Builder(action = "$GCOVR -r . --filter=$GCOVR_SOURCE $GCOVR_FLAGS $TARGET",
                                       suffix = '.xml',
                                       src_suffix = '.cpp')
 
