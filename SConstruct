@@ -8,67 +8,33 @@
 #==============================================================================
 
 import sys
-import re
-
-sys.path.insert(0, './Scripts')
-from BuildUtils import CreateListFromFile
-
-def AbortBuild():
-    print ("\nAborting build...\n")
-    sys.exit(2)
+from ListCreator import CreateDictionaryFromFile
+from BuildTarget import *
+from CppCheck import *
+from RunUnitTest import *
+from Coverage import GenerateCoverageReport
 
 # Build in MinGW
-env = Environment(tools = ['mingw'])
+unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
+release = Environment(tools = ['mingw'])
+
+parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
+
+buildFiles = {"sources" : "./Build/SCons_Release/Sources.scons",
+              "include" : "./Build/SCons_Release/Include.scons",
+              "ccFlags" : "./Build/SCons_Release/CcFlags.scons",
+              "ldFlags" : "./Build/SCons_Release/LdFlags.scons"}
+asch = BuildTarget(release, 'ASch', buildFiles)
+release.Default(asch)
 
 # Check if test build is activated.
-test = ARGUMENTS.get('test')
-if test != None:
-    print ("\nRun " + test + " unit tests.\n")
-
-    try:
-        includePaths = CreateListFromFile("./Build/SCons_UTest/UTest_" + test + "_Include.scons")
-        includePaths.append('./Catch')
-        includePaths.append('./FakeIt')
-    except:
-        print ("ERROR: Gathering include directories failed!")
-        print ("       Make sure you have created UTest_" + test + "_Include.scons file listing")
-        print ("       the include directories neede for the tests!")
-        AbortBuild()
-
-    try:
-        sourceFiles = CreateListFromFile("./Build/SCons_UTest/UTest_" + test + "_Sources.scons")
-    except:
-        print ("ERROR: Gathering source files failed!")
-        print ("       Make sure you have created UTest_" + test + "_Sources.scons file listing")
-        print ("       the source files needes for the tests!")
-        AbortBuild()
-
-    env.Append(CCFLAGS=CreateListFromFile("./Build/SCons_UTest/UTestCcFlags.scons"))
-    env.Append(LINKFLAGS = CreateListFromFile("./Build/SCons_UTest/UTestLdFlags.scons"))
-    env.Append(CPPPATH = includePaths)
-
-    # Build object files into ./Build folder.
-    for sourceFile in sourceFiles:
-        env.Object(target = "./Build/Objects/" + test + "/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
-
-    # Build the main target from object files.
-    unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = Glob("./Build/Objects/" + test + "/*.o"))
-
-    #unitTest = env.Program(target = './Build/Tests/UTest_' + test, source = sourceFiles)
-    env.NoClean(unitTest)
-
-else:
-    print ("\nBuilding target...\n")
-    # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
-    sourceFiles = CreateListFromFile("./Build/SCons_Release/Sources.scons")
-    env.Append(CPPPATH=CreateListFromFile("./Build/SCons_Release/Include.scons"))
-    env.Append(CCFLAGS=CreateListFromFile("./Build/SCons_Release/CcFlags.scons"))
-    env.Append(LINKFLAGS = CreateListFromFile("./Build/SCons_Release/LdFlags.scons"))
-
-    # Build object files into ./Build folder.
-    for sourceFile in sourceFiles:
-        env.Object(target = "./Build/Objects/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile)
-
-    # Build the main target from object files.
-    release = env.Program(target = './Build/Release/ASch', source = Glob("./Build/Objects/*.o"))
-    env.NoClean(release)
+for target in COMMAND_LINE_TARGETS:
+    if target in parameters.keys():
+        buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
+                      "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
+                      "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
+                      "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
+        BuildTarget(unitTest, target, buildFiles)
+        RunUnitTest(unitTest, target)
+        CppCheck(unitTest, target, buildFiles)
+        GenerateCoverageReport(unitTest, target, parameters[target][0])

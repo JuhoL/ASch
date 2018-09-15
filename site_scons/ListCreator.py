@@ -6,8 +6,6 @@
 # Python version  : 3.7
 #==============================================================================
 
-import string
-
 def CreateListFromFile(fileName):
     includes = []
     with open(fileName) as includeFile:
