@@ -18,6 +18,7 @@ def CreateListFromFile(fileName):
     return includes
 
 def CreateDictionaryFromFile(fileName):
+    print ("-------------- Opening " + fileName)
     targets = {}
     with open(fileName) as targetsFile:
         for line in targetsFile:
