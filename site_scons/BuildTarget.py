@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Title           : BuildUtils.py
-# Description     : These are utility functions used for ASch SCons build.
+# Title           : BuildTarget.py
+# Description     : These is target builder utility script for SCons.
 # Author          : Juho Lepistö
-# Date            : 18 Aug 2018
+# Date            : 15 Sep 2018
 # Python version  : 3.7
 #==============================================================================
 
 import re
+import sys
 from ListCreator import CreateListFromFile
 
 def BuildTarget(env, buildTarget, buildFiles):

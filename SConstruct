@@ -19,6 +19,7 @@ unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura
 release = Environment(tools = ['mingw'])
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
+print ("-------------- Parameters: " + str(parameters))
 
 buildFiles = {"sources" : "./Build/SCons_Release/Sources.scons",
               "include" : "./Build/SCons_Release/Include.scons",
