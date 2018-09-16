@@ -20,8 +20,8 @@ if GetOption('linux') == None:
     unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
     release = Environment(tools = ['mingw'])
 else:
-    unitTest = Environment(tools = ['CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment()
+    unitTest = Environment(CC = 'g++', tools = ['CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
+    release = Environment(CC = 'g++')
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
