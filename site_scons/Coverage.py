@@ -7,6 +7,8 @@
 # Python version  : 3.7
 #==============================================================================
 
+from Utils import GetTestExecutableName
+
 def Gcov(env, buildTarget, targetPath):
     testSource = targetPath + "/tests/UTest_" + buildTarget + ".cpp"
     objectsDir = "./Build/Objects/" + buildTarget
@@ -32,14 +34,18 @@ def ShowModuleCoverage(env, buildTarget):
     return coverageHtml
 
 def GenerateCoverageReport(env, buildTarget, targetPath):
+    executable = GetTestExecutableName(buildTarget)
+
     gcov = Gcov(env, buildTarget, targetPath)
-    env.Depends(gcov, buildTarget + "_executable")
+    env.Depends(gcov, executable)
     env.Alias(buildTarget, gcov)
 
     gcovXml = GenerateCoverageXml(env, buildTarget, targetPath)
     env.Depends(gcovXml, gcov)
     env.Alias(buildTarget, gcovXml)
+    env.AlwaysBuild(gcovXml)
 
     coverageHtml = ShowModuleCoverage(env, buildTarget)
     env.Depends(coverageHtml, gcovXml)
     env.Alias(buildTarget, coverageHtml)
+    env.AlwaysBuild(coverageHtml)

@@ -45,7 +45,6 @@ def BuildTarget(env, buildTarget, buildFiles):
         
     output = env.Program(target = targetString, source = objectFiles)
     env.Alias(buildTarget, output)
-    env.Alias(buildTarget + "_executable", output)
 
     env.NoClean(output)
 
