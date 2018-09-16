@@ -15,3 +15,8 @@ AddOption('--step',
           action = 'store',
           help = 'Runs the given step of the build. Available steps: \
                   build, unit_test, cppcheck, coverage')
+
+AddOption('--linux',
+          dest = 'linux',
+          nargs = 0,
+          help = 'Disables mingw tool.')

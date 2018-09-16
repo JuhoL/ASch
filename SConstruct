@@ -16,9 +16,12 @@ from CppCheck import *
 from RunUnitTest import *
 from Coverage import GenerateCoverageReport
 
-# Build in MinGW
-unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-release = Environment(tools = ['mingw'])
+if GetOption('linux') == None:
+    unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
+    release = Environment(tools = ['mingw'])
+else:
+    unitTest = Environment(tools = ['CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
+    release = Environment()
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
