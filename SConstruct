@@ -22,7 +22,10 @@ release = Environment(tools = ['mingw'])
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
-SetOption('num_jobs', multiprocessing.cpu_count() - 1)
+cores = multiprocessing.cpu_count() - 1
+if cores == 0:
+    cores = 1
+SetOption('num_jobs', cores)
 print("running with -j %s" % GetOption('num_jobs'))
 
 step = GetOption('step')
