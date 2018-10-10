@@ -13,14 +13,16 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Build'
-                def buildResult = 'SUCCESS'
+                script {
+                    currentBuild.result = 'SUCCESS'
+                }
             }
         }
 
         stage ('Tests') {
             when {
                 expression {
-                    buildResult == 'SUCCESS'
+                    currentBuild.result == 'SUCCESS'
                 }
             }
             parallel {
@@ -38,6 +40,11 @@ pipeline {
         }
 
         stage('Test report') {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
                 echo 'Devise test report...'
             }
