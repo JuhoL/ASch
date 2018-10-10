@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Build'
-                buildResult = 'SUCCESS'
+                def buildResult = 'SUCCESS'
             }
         }
 
