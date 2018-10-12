@@ -35,6 +35,7 @@
 using namespace fakeit;
 
 #include <ASch_Scheduler.hpp>
+#include <ASch_Scheduler_Private.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -107,6 +108,8 @@ inline void CreateTask(ASch::Scheduler& scheduler, uint8_t taskId, uint16_t inte
     return;
 }
 
+static void RunTicks(uint32_t ticks);
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -133,7 +136,7 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             }
             AND_THEN ("scheduler tick handler shall be set as system tick handler")
             {
-                //REQUIRE_NOTHROW (Verify(Method(mockIsr, SetHandler).Using(Hal::interrupt_sysTick, ASch::SysTickHandler)).Exactly(1));
+                REQUIRE_NOTHROW (Verify(Method(mockIsr, SetHandler).Using(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler)).Exactly(1));
             }
             AND_THEN ("no tasks shall be running")
             {
@@ -206,22 +209,41 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
         
         ASch::Scheduler scheduler = ASch::Scheduler(mockSysTick.get(), mockIsr.get(), 1U);
 
-        WHEN ("a task is created")
+        WHEN ("a task with interval of one is created")
         {
             CreateTask(scheduler, 0, 1);
             THEN ("the task count shall be one")
             {
                 REQUIRE (scheduler.GetTaskCount() == 1);
             }
+            AND_THEN ("the task interval will be set to one")
+            {
+                REQUIRE (scheduler.GetTaskInterval(0) == 1);
+            }
             AND_WHEN ("SysTick triggers")
             {
-                //ASch::SysTickHandler();
+                RunTicks(1UL);
 
-                THEN ("Task1 shall be called")
+                THEN ("Task0 shall be called")
                 {
-                    ;
+                    REQUIRE (testTaskCalls[0] == 1U);
                 }
             }
         }
     }
+}
+
+namespace
+{
+
+static void RunTicks(uint32_t ticks)
+{
+    for (uint32_t i = 0UL; i < ticks; ++i)
+    {
+        Isr::Scheduler_SysTickHandler();
+        ASch::SchedulerLoop();
+    }
+    return;
+}
+
 }

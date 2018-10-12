@@ -32,14 +32,35 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <ASch_Scheduler.hpp>
+#include <ASch_Scheduler_Private.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace
+{
+
+typedef struct
+{
+    uint16_t msCounter;
+    bool run;
+} taskStatus_t;
+
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+
+ASch::Scheduler* pScheduler = 0;
+taskStatus_t taskStatuses[ASch::schedulerTasksMax];
+uint8_t msPerTick = 0U;
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
@@ -59,17 +80,19 @@ namespace ASch
 Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs)
     : sysTick(sysTickParameter),
       isr(isrParameter),
-      msPerTick(tickIntervalInMs),
       taskCount(0)
 {
     for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
     {
         tasks[i] = {.intervalInMs = 0, .Task = 0};
-        taskMsCounters[i] = 0;
+        taskStatuses[i] = {.msCounter = 0U, .run = false};
     }
 
     sysTick.SetInterval(tickIntervalInMs);
-    isr.SetHandler(Hal::interrupt_sysTick, Hal::Scheduler_SysTickHandler);
+    isr.SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
+
+    pScheduler = this;
+    msPerTick = tickIntervalInMs;
     return;
 }
 
@@ -97,8 +120,34 @@ void Scheduler::CreateTask(task_t task)
     if ((taskCount < schedulerTasksMax) && (task.Task != 0) && (task.intervalInMs > 0U))
     {
         tasks[taskCount] = task;
-        taskMsCounters[taskCount] = task.intervalInMs;
+        taskStatuses[taskCount].msCounter = task.intervalInMs;
+        taskStatuses[taskCount].run = false;
         ++taskCount;
+    }
+    return;
+}
+
+uint16_t Scheduler::GetTaskInterval(uint8_t taskId)
+{
+    uint16_t interval;
+
+    if (taskId < schedulerTasksMax)
+    {
+        interval = tasks[taskId].intervalInMs;
+    }
+    else
+    {
+        interval = 0UL;
+    }
+
+    return interval;
+}
+
+void Scheduler::RunTask(uint8_t taskId)
+{
+    if ((taskId < schedulerTasksMax) && (tasks[taskId].Task != 0))
+    {
+        tasks[taskId].Task();
     }
     return;
 }
@@ -109,11 +158,49 @@ void Scheduler::CreateTask(task_t task)
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
+namespace ASch
+{
+
+void SchedulerLoop(void)
+{
+    uint8_t taskCount = pScheduler->GetTaskCount();
+    do
+    {
+        for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+        {
+            if (taskStatuses[taskId].run == true)
+            {
+                taskStatuses[taskId].run = false;
+                pScheduler->RunTask(taskId);
+            }
+        }
+    } while (0);//(!UNIT_TEST);
+    return;
+}
+
+}
+
+namespace Isr
 {
 
 void Scheduler_SysTickHandler(void)
 {
+    if (pScheduler != 0)
+    {
+        uint8_t taskCount = pScheduler->GetTaskCount();
+        for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+        {
+            if (taskStatuses[taskId].msCounter > msPerTick)
+            {
+                taskStatuses[taskId].msCounter -= msPerTick;
+            }
+            else
+            {
+                taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
+                taskStatuses[taskId].run = true;
+            }
+        }
+    }
     return;
 }
 

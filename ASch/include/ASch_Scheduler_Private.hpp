@@ -17,53 +17,26 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Scheduler.hpp
+//! @file    ASch_Scheduler_Private.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    12 Oct 2018
 //!
-//! @class   Scheduler
-//! @brief   This is the scheduler module of ASch
+//! @brief   This is the private header for scheduler module of ASch
 //! 
-//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
-//! from the event module.
+//! This header provides prototype for SysTick handler for unit tests.
 
-#ifndef ASCH_SCHEDULER_HPP_
-#define ASCH_SCHEDULER_HPP_
+#ifndef ASCH_SCHEDULER_PRIVATE_HPP_
+#define ASCH_SCHEDULER_PRIVATE_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <cstdint>
-#include <ASch_Configuration.hpp>
-#include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
-#include <Hal_SysTick.hpp>
-#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
-{
-
-typedef void (*taskHandler_t)(void);
-typedef void (*eventHandler_t)(void*);
-
-typedef struct
-{
-    eventHandler_t Handler;
-    void* pPayload;
-} event_t;
-
-typedef struct
-{
-    uint16_t intervalInMs;
-    taskHandler_t Task;
-} task_t;
-
-} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -73,10 +46,13 @@ typedef struct
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Isr
 {
 
-void SchedulerLoop(void);
+/// @brief  SysTick interrupt handler.
+/// 
+/// This function handles SysTicks for the ASch scheduler.
+void Scheduler_SysTickHandler(void);
 
 }
 
@@ -84,35 +60,4 @@ void SchedulerLoop(void);
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-/// @class Scheduler
-class Scheduler
-{
-public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs);
-    
-    virtual void Start(void);
-    virtual void Stop(void);
-
-    virtual uint8_t GetTaskCount(void) const;
-    virtual void CreateTask(task_t task);
-
-    virtual uint16_t GetTaskInterval(uint8_t taskId);
-    virtual void RunTask(uint8_t taskId);
-
-private:
-    // Dependencies
-    Hal::SysTick& sysTick;
-    Hal::Isr& isr;
-
-    uint8_t taskCount;
-    task_t tasks[schedulerTasksMax];
-
-    Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
-};
-
-} // namespace ASch
-
-#endif // ASCH_SCHEDULER_HPP_
+#endif // ASCH_SCHEDULER_PRIVATE_HPP_

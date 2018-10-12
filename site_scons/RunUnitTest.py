@@ -12,7 +12,8 @@ from Utils import GetTestExecutableName
 def RunUnitTest(env, buildTarget):
     testRun = env.Command(target = './TestReports/UnitTestLogs/' + buildTarget + '_UTest.log',
                           source = "./Build/Tests/" + buildTarget + "_UTest.exe",
-                          action = ["$SOURCE -o $TARGET", "type $TARGET"])
+                          action = ["$SOURCE -o $TARGET"])
+    env.AddPostAction(testRun, "type $TARGET")
     executable = GetTestExecutableName(buildTarget)
     env.Depends(testRun, executable)
     return testRun
