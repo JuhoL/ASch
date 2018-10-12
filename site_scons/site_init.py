@@ -20,3 +20,13 @@ AddOption('--linux',
           dest = 'linux',
           nargs = 0,
           help = 'Disables mingw tool.')
+
+AddOption('--cpp_check',
+          dest = 'cpp_check',
+          nargs = 0,
+          help = 'Enables CppCheck.')
+
+AddOption('--coverage',
+          dest = 'coverage',
+          nargs = 0,
+          help = 'Enables Coverage report generation.')

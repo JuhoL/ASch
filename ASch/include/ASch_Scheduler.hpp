@@ -41,16 +41,12 @@
 #include <Hal_SysTick.hpp>
 #include <Hal_Isr.hpp>
 
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Typedefs, Structs, Enums and Constants
+//-----------------------------------------------------------------------------------------------------------------------------
+
 namespace ASch
 {
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs and Constants
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Structs and Enums
-//-----------------------------------------------------------------------------------------------------------------------------
 
 typedef void (*taskHandler_t)(void);
 typedef void (*eventHandler_t)(void*);
@@ -67,15 +63,29 @@ typedef struct
     taskHandler_t Task;
 } task_t;
 
+} // namespace ASch
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
+// 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-void SysTickHandler(void);
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+void SchedulerLoop(void);
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
 
 /// @class Scheduler
 class Scheduler
@@ -89,18 +99,16 @@ public:
     virtual uint8_t GetTaskCount(void) const;
     virtual void CreateTask(task_t task);
 
-private:
-    //static void SysTickHandler(void);
+    virtual uint16_t GetTaskInterval(uint8_t taskId);
+    virtual void RunTask(uint8_t taskId);
 
+private:
     // Dependencies
     Hal::SysTick& sysTick;
-    Hal::SysTick sysTickObject;
     Hal::Isr& isr;
 
-    const uint8_t msPerTick;
     uint8_t taskCount;
     task_t tasks[schedulerTasksMax];
-    int16_t taskMsCounters[schedulerTasksMax];
 
     Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
 };

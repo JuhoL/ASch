@@ -16,6 +16,26 @@ from CppCheck import *
 from RunUnitTest import *
 from Coverage import GenerateCoverageReport
 
+# This script builds given target
+def Build(target, env, parameters):
+    buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
+                  "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
+                  "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
+                  "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
+    BuildTarget(env, target, buildFiles)
+    
+    testRun = RunUnitTest(env, target)
+    env.Alias(target, testRun)
+    env.AlwaysBuild(testRun)
+    
+    if GetOption('cpp_check'):
+        cppcheck = CppCheck(env, target, buildFiles)
+        env.Alias(target, cppcheck)
+    
+    if GetOption('coverage'):
+        GenerateCoverageReport(env, target, parameters[target][0])
+
+#------------ SCons script run starts here ------------
 if GetOption('linux'):
     unitTest = Environment(tools = ['gcc', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
     release = Environment(tools = ['gcc'])
@@ -63,33 +83,9 @@ else:
 
     if 'all' in COMMAND_LINE_TARGETS:
         for target in parameters.keys():
-            buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
-                          "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
-                          "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
-                          "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
-            BuildTarget(unitTest, target, buildFiles)
-            
-            testRun = RunUnitTest(unitTest, target)
-            unitTest.Alias(target, testRun)
-            
-            cppcheck = CppCheck(unitTest, target, buildFiles)
-            unitTest.Alias(target, cppcheck)
-            
-            GenerateCoverageReport(unitTest, target, parameters[target][0])
+            Build(target, unitTest, parameters)
     else:
         # Build given targets.
         for target in COMMAND_LINE_TARGETS:
             if target in parameters.keys():
-                buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
-                              "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
-                              "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
-                              "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
-                BuildTarget(unitTest, target, buildFiles)
-                
-                testRun = RunUnitTest(unitTest, target)
-                unitTest.Alias(target, testRun)
-                
-                cppcheck = CppCheck(unitTest, target, buildFiles)
-                unitTest.Alias(target, cppcheck)
-                
-                GenerateCoverageReport(unitTest, target, parameters[target][0])
+                Build(target, unitTest, parameters)
