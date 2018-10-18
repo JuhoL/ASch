@@ -34,6 +34,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <cstdint>
+#include <ASch_Utils.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -74,6 +75,72 @@ private:
     uint8_t nextFreeIndex;
     uint8_t nextIndexInQueue;
 };
+
+template <typename ElementType, std::size_t size>
+Queue<ElementType, size>::Queue(void)
+{
+    this->Flush();
+
+    return;
+}
+
+template <typename ElementType, std::size_t size>
+bool Queue<ElementType, size>::Push(ElementType element)
+{
+    bool errors;
+
+    if (numberOfElements < queueSize)
+    {
+        elements[nextFreeIndex] = element;
+        numberOfElements++;
+        IncrementIndexWithRollover(nextFreeIndex, queueSize);
+
+        errors = false;
+    }
+    else
+    {
+        errors = true;
+    }
+    
+    return errors;
+}
+
+template <typename ElementType, std::size_t size>
+bool Queue<ElementType, size>::Pop(ElementType& element)
+{
+    bool errors;
+
+    if (numberOfElements > 0U)
+    {
+        element = elements[nextIndexInQueue];
+        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
+        numberOfElements--;
+
+        errors = false;
+    }
+    else
+    {
+        errors = true;
+    }
+
+    return errors;
+}
+
+template <typename ElementType, std::size_t size>
+uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
+{
+    return numberOfElements;
+}
+
+template <typename ElementType, std::size_t size>
+void Queue<ElementType, size>::Flush(void)
+{
+    numberOfElements = 0U;
+    nextFreeIndex = 0U;
+    nextIndexInQueue = 0U;
+
+    return;
+}
 
 } // namespace ASch
 

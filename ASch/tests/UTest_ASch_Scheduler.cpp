@@ -481,6 +481,10 @@ SCENARIO ("Developer configures tasks wrong", "[scheduler]")
             {
                 REQUIRE (scheduler.GetTaskCount() == 0U);
             }
+            AND_THEN ("no errors shall be triggered")
+            {
+                REQUIRE_CALLS (0, mockSystem, Error);
+            }
         }
     }
 
@@ -510,6 +514,10 @@ SCENARIO ("Developer configures tasks wrong", "[scheduler]")
                 THEN ("task count shall stay as three")
                 {
                     REQUIRE (scheduler.GetTaskCount() == 3U);
+                }
+                AND_THEN ("no errors shall be triggered")
+                {
+                    REQUIRE_CALLS (0, mockSystem, Error);
                 }
             }
         }

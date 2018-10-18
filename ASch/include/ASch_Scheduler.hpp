@@ -37,7 +37,6 @@
 #include <cstdint>
 #include <ASch_Configuration.hpp>
 #include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
 #include <ASch_System.hpp>
 #include <Hal_SysTick.hpp>
 #include <Hal_Isr.hpp>

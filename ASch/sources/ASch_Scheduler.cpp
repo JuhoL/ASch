@@ -47,6 +47,14 @@ typedef struct
     bool run;
 } taskStatus_t;
 
+typedef struct
+{
+    taskStatus_t taskStatuses[ASch::schedulerTasksMax];
+    volatile bool runTasks;
+    volatile bool runEvents;
+    uint8_t msPerTick;
+} schedulerStatus_t;
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -57,8 +65,7 @@ namespace
 {
 
 ASch::Scheduler* pScheduler = 0;
-taskStatus_t taskStatuses[ASch::schedulerTasksMax];
-uint8_t msPerTick = 0U;
+schedulerStatus_t schedulerStatus;
 
 }
 
@@ -69,6 +76,14 @@ uint8_t msPerTick = 0U;
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Static Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+static void Scheduler_RunTasks(void);
+static void Scheduler_RunEvents(void);
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
@@ -92,14 +107,17 @@ Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Sys
         for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
         {
             tasks[i] = {.intervalInMs = 0, .Task = 0};
-            taskStatuses[i] = {.msCounter = 0U, .run = false};
+            schedulerStatus.taskStatuses[i] = {.msCounter = 0U, .run = false};
         }
+
+        schedulerStatus.msPerTick = tickIntervalInMs;
+        schedulerStatus.runTasks = false;
+        schedulerStatus.runEvents = false;
 
         sysTick.SetInterval(tickIntervalInMs);
         isr.SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
 
         pScheduler = this;
-        msPerTick = tickIntervalInMs;
     }
     return;
 }
@@ -142,8 +160,8 @@ void Scheduler::CreateTask(task_t task)
             if (isDuplicate == false)
             {
                 tasks[taskCount] = task;
-                taskStatuses[taskCount].msCounter = task.intervalInMs;
-                taskStatuses[taskCount].run = false;
+                schedulerStatus.taskStatuses[taskCount].msCounter = task.intervalInMs;
+                schedulerStatus.taskStatuses[taskCount].run = false;
                 ++taskCount;
             }
         }
@@ -216,16 +234,17 @@ namespace ASch
 
 void SchedulerLoop(void)
 {
-    uint8_t taskCount = pScheduler->GetTaskCount();
     do
     {
-        for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+        if (schedulerStatus.runTasks == true)
         {
-            if (taskStatuses[taskId].run == true)
-            {
-                taskStatuses[taskId].run = false;
-                pScheduler->RunTask(taskId);
-            }
+            schedulerStatus.runTasks = false;
+            Scheduler_RunTasks();
+        }
+        if (schedulerStatus.runEvents == true)
+        {
+            schedulerStatus.runEvents = false;
+            Scheduler_RunEvents();
         }
     } while (UNIT_TEST == 0);
     return;
@@ -243,14 +262,15 @@ void Scheduler_SysTickHandler(void)
         uint8_t taskCount = pScheduler->GetTaskCount();
         for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
         {
-            if (taskStatuses[taskId].msCounter > msPerTick)
+            if (schedulerStatus.taskStatuses[taskId].msCounter > schedulerStatus.msPerTick)
             {
-                taskStatuses[taskId].msCounter -= msPerTick;
+                schedulerStatus.taskStatuses[taskId].msCounter -= schedulerStatus.msPerTick;
             }
             else
             {
-                taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
-                taskStatuses[taskId].run = true;
+                schedulerStatus.taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
+                schedulerStatus.taskStatuses[taskId].run = true;
+                schedulerStatus.runTasks = true;
             }
         }
     }
@@ -262,3 +282,27 @@ void Scheduler_SysTickHandler(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+static void Scheduler_RunTasks(void)
+{
+    uint8_t taskCount = pScheduler->GetTaskCount();
+    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+    {
+        if (schedulerStatus.taskStatuses[taskId].run == true)
+        {
+            schedulerStatus.taskStatuses[taskId].run = false;
+            pScheduler->RunTask(taskId);
+        }
+    }
+    return;
+}
+
+static void Scheduler_RunEvents(void)
+{
+    return;
+}
+
+}

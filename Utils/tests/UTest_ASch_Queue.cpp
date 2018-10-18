@@ -34,7 +34,6 @@
 #include <fakeit.hpp>
 
 #include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
 
 #include <typeinfo>
 
