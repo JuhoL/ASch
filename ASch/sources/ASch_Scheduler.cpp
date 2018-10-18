@@ -77,33 +77,41 @@ uint8_t msPerTick = 0U;
 namespace ASch
 {
 
-Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs)
+Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, System& systemParameter, uint16_t tickIntervalInMs)
     : sysTick(sysTickParameter),
       isr(isrParameter),
+      system(systemParameter),
       taskCount(0)
 {
-    for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
+    if (tickIntervalInMs == 0UL)
     {
-        tasks[i] = {.intervalInMs = 0, .Task = 0};
-        taskStatuses[i] = {.msCounter = 0U, .run = false};
+        system.Error(sysError_invalidParameters);
     }
+    else
+    {
+        for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
+        {
+            tasks[i] = {.intervalInMs = 0, .Task = 0};
+            taskStatuses[i] = {.msCounter = 0U, .run = false};
+        }
 
-    sysTick.SetInterval(tickIntervalInMs);
-    isr.SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
+        sysTick.SetInterval(tickIntervalInMs);
+        isr.SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
 
-    pScheduler = this;
-    msPerTick = tickIntervalInMs;
+        pScheduler = this;
+        msPerTick = tickIntervalInMs;
+    }
     return;
 }
 
-void Scheduler::Start(void)
+void Scheduler::Start(void) const
 {
     isr.Enable(Hal::interrupt_sysTick);
     sysTick.Start();
     return;
 }
 
-void Scheduler::Stop(void)
+void Scheduler::Stop(void) const
 {
     sysTick.Stop();
     isr.Disable(Hal::interrupt_sysTick);
@@ -117,17 +125,62 @@ uint8_t Scheduler::GetTaskCount(void) const
 
 void Scheduler::CreateTask(task_t task)
 {
-    if ((taskCount < schedulerTasksMax) && (task.Task != 0) && (task.intervalInMs > 0U))
+    if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
-        tasks[taskCount] = task;
-        taskStatuses[taskCount].msCounter = task.intervalInMs;
-        taskStatuses[taskCount].run = false;
-        ++taskCount;
+        if (taskCount < schedulerTasksMax)
+        {
+            bool isDuplicate = false;
+            for (uint8_t i = 0U; i < taskCount; ++i)
+            {
+                if (tasks[i].Task == task.Task)
+                {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (isDuplicate == false)
+            {
+                tasks[taskCount] = task;
+                taskStatuses[taskCount].msCounter = task.intervalInMs;
+                taskStatuses[taskCount].run = false;
+                ++taskCount;
+            }
+        }
+        else
+        {
+            system.Error(sysError_insufficientResources);
+        }
     }
     return;
 }
 
-uint16_t Scheduler::GetTaskInterval(uint8_t taskId)
+void Scheduler::DeleteTask(taskHandler_t taskHandler)
+{
+    bool taskIsRemoved = false;
+    for (uint8_t i = 0U; i < taskCount; ++i)
+    {
+        if (taskIsRemoved == false)
+        {
+            if (tasks[i].Task == taskHandler)
+            {
+                taskIsRemoved = true;
+            }
+        }
+        else
+        {
+            tasks[i - 1] = tasks[i];
+        }
+    }
+
+    if (taskIsRemoved == true)
+    {
+        --taskCount;
+    }
+    return;
+}
+
+uint16_t Scheduler::GetTaskInterval(uint8_t taskId) const
 {
     uint16_t interval;
 
@@ -143,7 +196,7 @@ uint16_t Scheduler::GetTaskInterval(uint8_t taskId)
     return interval;
 }
 
-void Scheduler::RunTask(uint8_t taskId)
+void Scheduler::RunTask(uint8_t taskId) const
 {
     if ((taskId < schedulerTasksMax) && (tasks[taskId].Task != 0))
     {
@@ -174,7 +227,7 @@ void SchedulerLoop(void)
                 pScheduler->RunTask(taskId);
             }
         }
-    } while (0);//(!UNIT_TEST);
+    } while (UNIT_TEST == 0);
     return;
 }
 

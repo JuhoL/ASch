@@ -17,23 +17,18 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.hpp
+//! @file    Catch_Utils.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    12 Oct 2018
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
-//! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! @brief   Utility functions and macros for Catch2.
 
-#ifndef ASCH_SYSTEM_HPP_
-#define ASCH_SYSTEM_HPP_
+#ifndef CATCH_UTILS_HPP_
+#define CATCH_UTILS_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
-
-#include <cstdint>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -42,15 +37,13 @@
 namespace ASch
 {
 
-typedef enum
-{
-    sysError_invalidParameters = 0,
-    sysError_bufferOverflow,
-    sysError_insufficientResources,
-    sysError_unknownError
-} sysError_e;
+//! This function is used to "prettify" FakeIt mock checks of members without parameters.
+#define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
 
-}
+//! This function is used to "prettify" FakeIt mock checks of members with parameters.
+#define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
+
+} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -64,21 +57,4 @@ typedef enum
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-/// @class System
-class System
-{
-public:
-    explicit System(void);
-
-    virtual void Error(sysError_e error);
-
-private:
-    
-};
-
-} // namespace ASch
-
-#endif // ASCH_SYSTEM_HPP_
+#endif // CATCH_UTILS_HPP_

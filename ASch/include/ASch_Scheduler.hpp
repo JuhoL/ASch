@@ -38,6 +38,7 @@
 #include <ASch_Configuration.hpp>
 #include <ASch_Queue.hpp>
 #include <ASch_Queue.cpp>
+#include <ASch_System.hpp>
 #include <Hal_SysTick.hpp>
 #include <Hal_Isr.hpp>
 
@@ -91,21 +92,23 @@ namespace ASch
 class Scheduler
 {
 public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs);
+    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, System& systemParameter, uint16_t tickIntervalInMs);
     
-    virtual void Start(void);
-    virtual void Stop(void);
+    virtual void Start(void) const;
+    virtual void Stop(void) const;
 
     virtual uint8_t GetTaskCount(void) const;
     virtual void CreateTask(task_t task);
+    virtual void DeleteTask(taskHandler_t taskHandler);
 
-    virtual uint16_t GetTaskInterval(uint8_t taskId);
-    virtual void RunTask(uint8_t taskId);
+    virtual uint16_t GetTaskInterval(uint8_t taskId) const;
+    virtual void RunTask(uint8_t taskId) const;
 
 private:
     // Dependencies
     Hal::SysTick& sysTick;
     Hal::Isr& isr;
+    System& system;
 
     uint8_t taskCount;
     task_t tasks[schedulerTasksMax];

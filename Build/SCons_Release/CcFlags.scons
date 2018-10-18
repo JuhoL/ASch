@@ -1,2 +1,3 @@
 -Wall
 -Werror
+-DUNIT_TEST=0
