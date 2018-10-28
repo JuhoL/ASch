@@ -17,56 +17,48 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_SysTick.hpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
-//!
-//! @class   SysTick
-//! @brief   HAL interface for SysTick
+//! @file    UTest_Hal_System.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    28 Oct 2018
 //! 
-//! This module configures SysTick peripheral that is used by the Scheduler module.
-
-#ifndef HAL_SYSTICK_HPP_
-#define HAL_SYSTICK_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <cstdint>
+//! @brief   These are unit tests for Hal_System.cpp
+//! 
+//! These are unit tests for Hal_System.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
+// 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
+namespace
 {
 
-/// @class SysTick
-class SysTick
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Test Cases
+//-----------------------------------------------------------------------------------------------------------------------------
+
+SCENARIO ("Some test", "[feature_tag]")
 {
-public:
-    explicit SysTick(void);
-    virtual void SetInterval(uint16_t intervalIn01Ms);
-    virtual void Start(void);
-    virtual void Stop(void);
-
-private:
-    
-};
-
-} // namespace Hal
-
-#endif // HAL_SYSTICK_HPP_
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}

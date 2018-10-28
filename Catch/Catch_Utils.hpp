@@ -37,11 +37,20 @@
 namespace ASch
 {
 
-//! This function is used to "prettify" FakeIt mock checks of members without parameters.
+//! This macro is used to "prettify" FakeIt mock fake call.
+#define CALL(mockClass, member)                                 Method(mockClass, member)
+
+//! This macro is used to "prettify" FakeIt mock fake call with parameters.
+#define PARAM_CALL(mockClass, member, ...)                      Method(mockClass, member).Using(__VA_ARGS__)
+
+//! This macro is used to "prettify" FakeIt mock checks of members without parameters.
 #define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
 
-//! This function is used to "prettify" FakeIt mock checks of members with parameters.
+//! This macro is used to "prettify" FakeIt mock checks of members with parameters.
 #define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
+
+//! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
+#define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
 
 } // namespace ASch
 

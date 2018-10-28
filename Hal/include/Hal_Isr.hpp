@@ -49,6 +49,7 @@ typedef enum
 {
     interrupt_sysTick = 0,  //! SysTick vector.
 
+    interrupt_global,
     interrupt_vectorsMax    //! The total number of vectors. Must be last on the enum!
 } interruptType_t;
 
@@ -75,10 +76,13 @@ namespace Hal
 class Isr
 {
 public:
-    Isr(void);
+    explicit Isr(void);
+    
     virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
     virtual void Enable(interruptType_t type);
     virtual void Disable(interruptType_t type);
+
+    // ToDo: Atomic ISR enable/disable for global interrupt control.
 
 private:
     interruptHandler_t Handlers[interrupt_vectorsMax];

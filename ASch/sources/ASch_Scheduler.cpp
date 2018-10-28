@@ -77,14 +77,6 @@ schedulerStatus_t schedulerStatus;
 // 5. Static Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-static void Scheduler_RunTasks(void);
-static void Scheduler_RunEvents(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -92,9 +84,10 @@ static void Scheduler_RunEvents(void);
 namespace ASch
 {
 
-Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, System& systemParameter, uint16_t tickIntervalInMs)
+Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs)
     : sysTick(sysTickParameter),
       isr(isrParameter),
+      halSystem(halSystemParameter),
       system(systemParameter),
       taskCount(0)
 {
@@ -145,6 +138,7 @@ void Scheduler::CreateTask(task_t task)
 {
     if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
+        isr.Disable(Hal::interrupt_global);
         if (taskCount < schedulerTasksMax)
         {
             bool isDuplicate = false;
@@ -152,6 +146,8 @@ void Scheduler::CreateTask(task_t task)
             {
                 if (tasks[i].Task == task.Task)
                 {
+                    // In case of duplicates, just update the interval.
+                    tasks[i].intervalInMs = task.intervalInMs;
                     isDuplicate = true;
                     break;
                 }
@@ -169,6 +165,7 @@ void Scheduler::CreateTask(task_t task)
         {
             system.Error(sysError_insufficientResources);
         }
+        isr.Enable(Hal::interrupt_global);
     }
     return;
 }
@@ -214,11 +211,59 @@ uint16_t Scheduler::GetTaskInterval(uint8_t taskId) const
     return interval;
 }
 
-void Scheduler::RunTask(uint8_t taskId) const
+void Scheduler::RunTasks(void) const
 {
-    if ((taskId < schedulerTasksMax) && (tasks[taskId].Task != 0))
+    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        tasks[taskId].Task();
+        if (schedulerStatus.taskStatuses[taskId].run == true)
+        {
+            schedulerStatus.taskStatuses[taskId].run = false;
+            tasks[taskId].Task();
+        }
+    }
+    return;
+}
+
+void Scheduler::Sleep(void) const
+{
+    halSystem.Sleep();
+    return;
+}
+
+void Scheduler::WakeUp(void) const
+{
+    halSystem.WakeUp();
+    return;
+}
+
+void Scheduler::PushEvent(event_t const& event)
+{
+    if (event.Handler != 0)
+    {
+        isr.Disable(Hal::interrupt_global);
+        bool errors = eventQueue.Push(event);
+
+        if (errors == true)
+        {
+            system.Error(sysError_insufficientResources);
+        }
+        else
+        {
+            schedulerStatus.runEvents = true;
+            halSystem.WakeUp();
+        }
+        isr.Enable(Hal::interrupt_global);
+    }
+    return;
+}
+
+void Scheduler::RunEvents(void)
+{
+    while (eventQueue.GetNumberOfElements() > 0)
+    {
+        event_t event;
+        eventQueue.Pop(event);
+        event.Handler(event.pPayload);
     }
     return;
 }
@@ -236,15 +281,24 @@ void SchedulerLoop(void)
 {
     do
     {
+        bool isIdle = true;
         if (schedulerStatus.runTasks == true)
         {
             schedulerStatus.runTasks = false;
-            Scheduler_RunTasks();
+            pScheduler->RunTasks();
+            isIdle = false;
         }
         if (schedulerStatus.runEvents == true)
         {
             schedulerStatus.runEvents = false;
-            Scheduler_RunEvents();
+            pScheduler->RunEvents();
+            isIdle = false;
+        }
+
+        // Enter sleep only after one idle run to ensure system is ready to sleep.
+        if (isIdle == true)
+        {
+            pScheduler->Sleep();
         }
     } while (UNIT_TEST == 0);
     return;
@@ -257,22 +311,24 @@ namespace Isr
 
 void Scheduler_SysTickHandler(void)
 {
-    if (pScheduler != 0)
+    uint8_t taskCount = pScheduler->GetTaskCount();
+    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        uint8_t taskCount = pScheduler->GetTaskCount();
-        for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+        if (schedulerStatus.taskStatuses[taskId].msCounter > schedulerStatus.msPerTick)
         {
-            if (schedulerStatus.taskStatuses[taskId].msCounter > schedulerStatus.msPerTick)
-            {
-                schedulerStatus.taskStatuses[taskId].msCounter -= schedulerStatus.msPerTick;
-            }
-            else
-            {
-                schedulerStatus.taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
-                schedulerStatus.taskStatuses[taskId].run = true;
-                schedulerStatus.runTasks = true;
-            }
+            schedulerStatus.taskStatuses[taskId].msCounter -= schedulerStatus.msPerTick;
         }
+        else
+        {
+            schedulerStatus.taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
+            schedulerStatus.taskStatuses[taskId].run = true;
+            schedulerStatus.runTasks = true;
+        }
+    }
+
+    if (schedulerStatus.runTasks == true)
+    {
+        pScheduler->WakeUp();
     }
     return;
 }
@@ -283,26 +339,3 @@ void Scheduler_SysTickHandler(void)
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-static void Scheduler_RunTasks(void)
-{
-    uint8_t taskCount = pScheduler->GetTaskCount();
-    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
-    {
-        if (schedulerStatus.taskStatuses[taskId].run == true)
-        {
-            schedulerStatus.taskStatuses[taskId].run = false;
-            pScheduler->RunTask(taskId);
-        }
-    }
-    return;
-}
-
-static void Scheduler_RunEvents(void)
-{
-    return;
-}
-
-}
