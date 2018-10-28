@@ -2,3 +2,4 @@
 -Werror
 -fprofile-arcs
 -ftest-coverage
+-DUNIT_TEST=1

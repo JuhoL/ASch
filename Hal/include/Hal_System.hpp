@@ -17,17 +17,15 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_SysTick.hpp
+//! @file    Hal_System.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    28 Oct 2018
 //!
-//! @class   SysTick
-//! @brief   HAL interface for SysTick
-//! 
-//! This module configures SysTick peripheral that is used by the Scheduler module.
+//! @class   System
+//! @brief   This is HAL interface for system level functionality.
 
-#ifndef HAL_SYSTICK_HPP_
-#define HAL_SYSTICK_HPP_
+#ifndef HAL_SYSTEM_HPP_
+#define HAL_SYSTEM_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
@@ -54,14 +52,14 @@
 namespace Hal
 {
 
-/// @class SysTick
-class SysTick
+/// @class System
+class System
 {
 public:
-    explicit SysTick(void);
-    virtual void SetInterval(uint16_t intervalIn01Ms);
-    virtual void Start(void);
-    virtual void Stop(void);
+    explicit System(void);
+
+    virtual Sleep(void);
+    virtual WakeUp(void);
 
 private:
     
@@ -69,4 +67,4 @@ private:
 
 } // namespace Hal
 
-#endif // HAL_SYSTICK_HPP_
+#endif // HAL_SYSTEM_HPP_

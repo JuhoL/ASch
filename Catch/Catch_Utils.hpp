@@ -17,27 +17,42 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_SysTick.hpp
+//! @file    Catch_Utils.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    12 Oct 2018
 //!
-//! @class   SysTick
-//! @brief   HAL interface for SysTick
-//! 
-//! This module configures SysTick peripheral that is used by the Scheduler module.
+//! @brief   Utility functions and macros for Catch2.
 
-#ifndef HAL_SYSTICK_HPP_
-#define HAL_SYSTICK_HPP_
+#ifndef CATCH_UTILS_HPP_
+#define CATCH_UTILS_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+//! This macro is used to "prettify" FakeIt mock fake call.
+#define CALL(mockClass, member)                                 Method(mockClass, member)
+
+//! This macro is used to "prettify" FakeIt mock fake call with parameters.
+#define PARAM_CALL(mockClass, member, ...)                      Method(mockClass, member).Using(__VA_ARGS__)
+
+//! This macro is used to "prettify" FakeIt mock checks of members without parameters.
+#define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
+
+//! This macro is used to "prettify" FakeIt mock checks of members with parameters.
+#define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
+
+//! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
+#define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
+
+} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -51,22 +66,4 @@
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
-{
-
-/// @class SysTick
-class SysTick
-{
-public:
-    explicit SysTick(void);
-    virtual void SetInterval(uint16_t intervalIn01Ms);
-    virtual void Start(void);
-    virtual void Stop(void);
-
-private:
-    
-};
-
-} // namespace Hal
-
-#endif // HAL_SYSTICK_HPP_
+#endif // CATCH_UTILS_HPP_

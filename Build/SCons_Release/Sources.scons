@@ -4,3 +4,4 @@
 ./ASch/sources/ASch_Scheduler.cpp
 ./Hal/sources/Hal_SysTick.cpp
 ./Hal/sources/Hal_Isr.cpp
+./Hal/sources/Hal_System.cpp

@@ -37,9 +37,10 @@
 #include <cstdint>
 #include <ASch_Configuration.hpp>
 #include <ASch_Queue.hpp>
-#include <ASch_Queue.cpp>
+#include <ASch_System.hpp>
 #include <Hal_SysTick.hpp>
 #include <Hal_Isr.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -91,21 +92,30 @@ namespace ASch
 class Scheduler
 {
 public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, int16_t tickIntervalInMs);
+    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
     
-    virtual void Start(void);
-    virtual void Stop(void);
+    virtual void Start(void) const;
+    virtual void Stop(void) const;
 
     virtual uint8_t GetTaskCount(void) const;
     virtual void CreateTask(task_t task);
+    virtual void DeleteTask(taskHandler_t taskHandler);
 
-    virtual uint16_t GetTaskInterval(uint8_t taskId);
-    virtual void RunTask(uint8_t taskId);
+    virtual uint16_t GetTaskInterval(uint8_t taskId) const;
+    virtual void RunTasks(void) const;
+
+    virtual void Sleep(void) const;
+    virtual void WakeUp(void) const;
+
+    virtual void PushEvent(event_t const& event);
+    virtual void RunEvents(void);
 
 private:
     // Dependencies
     Hal::SysTick& sysTick;
     Hal::Isr& isr;
+    Hal::System& halSystem;
+    System& system;
 
     uint8_t taskCount;
     task_t tasks[schedulerTasksMax];

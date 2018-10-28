@@ -39,6 +39,19 @@
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace ASch
+{
+
+typedef enum
+{
+    sysError_invalidParameters = 0,
+    sysError_bufferOverflow,
+    sysError_insufficientResources,
+    sysError_unknownError
+} sysError_e;
+
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -58,7 +71,9 @@ namespace ASch
 class System
 {
 public:
-    System(void);
+    explicit System(void);
+
+    virtual void Error(sysError_e error);
 
 private:
     

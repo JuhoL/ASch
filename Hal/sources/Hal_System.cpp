@@ -17,21 +17,18 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Queue.cpp
+//! @file    Hal_System.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    16 Aug 2018
+//! @date    28 Oct 2018
 //!
-//! @class   Queue
-//! @brief   This is a generic queue class.
-//! 
-//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+//! @class   System
+//! @brief   This is HAL interface for system level functionality.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Queue.hpp>
-#include <ASch_Utils.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -53,72 +50,21 @@
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Hal
 {
 
-template <typename ElementType, std::size_t size>
-Queue<ElementType, size>::Queue(void)
+System::System(void)
 {
-    this->Flush();
-
     return;
 }
 
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Push(ElementType element)
+void System::Sleep(void)
 {
-    bool errors;
-
-    if (numberOfElements < queueSize)
-    {
-        elements[nextFreeIndex] = element;
-        numberOfElements++;
-        IncrementIndexWithRollover(nextFreeIndex, queueSize);
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-    
-    return errors;
+    return;
 }
 
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Pop(ElementType& element)
+void System::WakeUp(void)
 {
-    bool errors;
-
-    if (numberOfElements > 0U)
-    {
-        element = elements[nextIndexInQueue];
-        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
-        numberOfElements--;
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
-{
-    return numberOfElements;
-}
-
-template <typename ElementType, std::size_t size>
-void Queue<ElementType, size>::Flush(void)
-{
-    numberOfElements = 0U;
-    nextFreeIndex = 0U;
-    nextIndexInQueue = 0U;
-
     return;
 }
 
@@ -131,3 +77,4 @@ void Queue<ElementType, size>::Flush(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
