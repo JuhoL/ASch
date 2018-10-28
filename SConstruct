@@ -28,15 +28,16 @@ def Build(target, env, parameters):
     env.Alias(target, testRun)
     env.AlwaysBuild(testRun)
     
-    if GetOption('cpp_check'):
+    if GetOption('cpp_check') != None:
         cppcheck = CppCheck(env, target, buildFiles)
+        env.AlwaysBuild(cppcheck)
         env.Alias(target, cppcheck)
     
-    if GetOption('coverage'):
+    if GetOption('coverage') != None:
         GenerateCoverageReport(env, target, parameters[target][0])
 
 #------------ SCons script run starts here ------------
-if GetOption('linux'):
+if GetOption('linux') != None:
     unitTest = Environment(tools = ['gcc', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
     release = Environment(tools = ['gcc'])
 else:
@@ -52,7 +53,7 @@ SetOption('num_jobs', cores)
 print("running with -j %s" % GetOption('num_jobs'))
 
 step = GetOption('step')
-if GetOption('step'):
+if step != None:
     jenkinsDebugTargets = ["ASch_Queue", "ASch_System"]
     for target in jenkinsDebugTargets:
         buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
