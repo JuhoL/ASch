@@ -51,6 +51,12 @@ namespace ASch
 
 typedef void (*taskHandler_t)(void);
 typedef void (*eventHandler_t)(void*);
+typedef void (*messageHandler_t)(void*);
+
+typedef enum
+{
+    message_test = 0
+} messageType_t;
 
 typedef struct
 {
@@ -63,6 +69,12 @@ typedef struct
     uint16_t intervalInMs;
     taskHandler_t Task;
 } task_t;
+
+typedef struct
+{
+    messageType_t type;
+    messageHandler_t Handler;
+} messageListener_t;
 
 } // namespace ASch
 
@@ -110,6 +122,10 @@ public:
     virtual void PushEvent(event_t const& event);
     virtual void RunEvents(void);
 
+    virtual void RegisterMessageListener(messageListener_t listener);
+    virtual void UnregisterMessageListener(messageListener_t listener);
+    virtual void PostMessage(messageType_t type, void* pPayload);
+
 private:
     // Dependencies
     Hal::SysTick& sysTick;
@@ -121,6 +137,9 @@ private:
     task_t tasks[schedulerTasksMax];
 
     Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
+
+    uint8_t messageListenerCount;
+    messageListener_t messageListeners[messageListenersMax];
 };
 
 } // namespace ASch

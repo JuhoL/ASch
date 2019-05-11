@@ -17,21 +17,29 @@ from RunUnitTest import *
 from Coverage import GenerateCoverageReport
 
 # This script builds given target
-def Build(target, env, parameters):
+def BuildTest(target, env, parameters, buildAll):
     buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
                   "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
                   "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
                   "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
-    BuildTarget(env, target, buildFiles)
     
-    testRun = RunUnitTest(env, target)
-    env.Alias(target, testRun)
-    env.AlwaysBuild(testRun)
+    if GetOption('test') != None:
+        # Build and run the tests
+        BuildTarget(env, target, buildFiles)
+        testRun = RunUnitTest(env, target)
+        env.AlwaysBuild(testRun)
+        if buildAll == True:
+            env.Alias("all", testRun)
+        else:
+            env.Alias(target, testRun)
     
     if GetOption('cpp_check') != None:
         cppcheck = CppCheck(env, target, buildFiles)
         env.AlwaysBuild(cppcheck)
-        env.Alias(target, cppcheck)
+        if buildAll == True:
+            env.Alias("all", cppcheck)
+        else:
+            env.Alias(target, cppcheck)
     
     if GetOption('coverage') != None:
         GenerateCoverageReport(env, target, parameters[target][0])
@@ -52,28 +60,24 @@ if cores == 0:
 SetOption('num_jobs', cores)
 print("running with -j %s" % GetOption('num_jobs'))
 
-step = GetOption('step')
-if step != None:
-    jenkinsDebugTargets = ["ASch_Queue", "ASch_System"]
-    for target in jenkinsDebugTargets:
+if GetOption('test') != None or GetOption('cpp_check') != None or GetOption('coverage') != None:
+    # Create list of targets depending on comman line arguments
+    targetList = []
+    buildAll = False
+    if 'all' in COMMAND_LINE_TARGETS or COMMAND_LINE_TARGETS == []:
+        targetList = list(parameters.keys())
+        buildAll = True
+    else:
+        targetList = COMMAND_LINE_TARGETS
+
+    # Build all targets from the list.
+    for target in targetList:
         buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
                        "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
                        "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
                        "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
-                        
-        if step == 'build':
-            BuildTarget(unitTest, target, buildFiles)
-        elif step == 'unit_test':
-            testRun = RunUnitTest(unitTest, target)
-            unitTest.AlwaysBuild(testRun)
-        elif step == 'cppcheck':
-            cppcheck = CppCheck(unitTest, target, buildFiles)
-            unitTest.AlwaysBuild(cppcheck)
-        elif step == 'coverage':
-            GenerateCoverageReport(unitTest, target, parameters[target][0])
-        else:
-            print ("ERROR: Invalid step parameter value " + step)
-            sys.exit(1)
+        BuildTest(target, unitTest, parameters, buildAll)
+
 else:
     buildFiles = {"sources" : "./Build/SCons_Release/Sources.scons",
                   "include" : "./Build/SCons_Release/Include.scons",
@@ -81,12 +85,3 @@ else:
                   "ldFlags" : "./Build/SCons_Release/LdFlags.scons"}
     asch = BuildTarget(release, 'ASch', buildFiles)
     release.Default(asch)
-
-    if 'all' in COMMAND_LINE_TARGETS:
-        for target in parameters.keys():
-            Build(target, unitTest, parameters)
-    else:
-        # Build given targets.
-        for target in COMMAND_LINE_TARGETS:
-            if target in parameters.keys():
-                Build(target, unitTest, parameters)

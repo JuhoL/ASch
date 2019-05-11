@@ -24,25 +24,29 @@
 ### Building Release
 To build all:
 ```
-python ./build.py
+scons all
 ```
 To clean all
 ```
-python ./build.py clean
+scons all --clean
 ```
 
-### Building Modules and Running Unit Tests
-To build a module and run its unit tests:
+### Building Modules and Running Tests
+To build a module, run its unit tests, and generate coverage report:
 ```
-python ./build.py <module_name>
+scons <module_name> --test --coverage
 ```
 To run all the tests and generate a coverage report:
 ```
-python ./build.py testall
+scons all --test --coverage
 ```
 To clean build and unit test artifacts
 ```
-python ./build.py <module_name/tessall> clean
+scons <module_name/all> --test --clean
+```
+To run static code analysis (CppCheck)
+```
+scons <module_name/all> --cpp_check
 ```
 
 ## Authors

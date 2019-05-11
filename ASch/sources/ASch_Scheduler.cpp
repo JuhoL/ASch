@@ -89,7 +89,8 @@ Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal
       isr(isrParameter),
       halSystem(halSystemParameter),
       system(systemParameter),
-      taskCount(0)
+      taskCount(0U),
+      messageListenerCount(0U)
 {
     if (tickIntervalInMs == 0UL)
     {
@@ -267,6 +268,72 @@ void Scheduler::RunEvents(void)
     }
     return;
 }
+
+void Scheduler::RegisterMessageListener(messageListener_t listener)
+{
+    if (messageListenerCount < messageListenersMax)
+    {
+        if (listener.Handler != 0)
+        {
+            bool isDuplicate = false;
+            for (uint8_t i = 0U; (i < messageListenerCount) && (isDuplicate == false); ++i)
+            {
+                isDuplicate = (messageListeners[i].Handler == listener.Handler);
+            }
+
+            if (isDuplicate == false)
+            {
+                messageListeners[messageListenerCount] = listener;
+                ++messageListenerCount;
+            }
+        }
+    }
+    else
+    {
+        system.Error(sysError_insufficientResources);
+    }
+    return;
+}
+
+void Scheduler::UnregisterMessageListener(messageListener_t listener)
+{
+    bool isFound = false;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (isFound == false)
+        {
+            if (messageListeners[i].Handler == listener.Handler)
+            {
+                isFound = true;
+            }
+        }
+        else
+        {
+            messageListeners[i - 1].Handler = messageListeners[i].Handler;
+        }
+    }
+    if (isFound == true)
+    {
+        --messageListenerCount;
+    }
+    return;
+}
+
+void Scheduler::PostMessage(messageType_t type, void* pPayload)
+{
+    event_t event;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (messageListeners[i].type == type)
+        {
+            event.Handler = messageListeners[i].Handler;
+            event.pPayload = pPayload;
+            PushEvent(event);
+        }
+    }
+    return;
+}
+
 
 } // namespace ASch
 
