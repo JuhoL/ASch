@@ -26,18 +26,21 @@ class Template:
     keywords = {"<__DATE__>": date.strftime("%d %b %Y"), \
                 "<__YEAR__>": date.strftime("%Y")}
 
+    halMode = ""
+
     # Initialise by constructing the keyword dictionary based on given parameters.
     def __init__(self):
         print ("\nASch automatic template generator and build configurator\n(C) Juho Lepistö 2018\n")
         if sys.argv[1] == "-h":
             print ("\nUsage:")
-            print ("    --module=MyModule               - Mandatory field. Name of the module. E.g. module name MyModule results in MyModule.cpp file.")
-            print ("                                      Replaces <__MODULE__> tag in the template.")
-            print ("    --path=MyModulePath             - Subfolder path of the module. E.g. path MyModulePath creates a subfolders ./MyModulePath/sources,")
-            print ("                                      ./MyModulePath/include, and ./MyModulePath/tests")
-            print ("    --author=\"John Jackson\"         - Author(s) of the code. Replaces <__AUTHOR__> tag in the template.")
-            print ("    --email=\"john.jackson(a)jj.com\" - Author's contact email. Replaces <__EMAIL__> tag in the template.")
-            print ("    --namespace=MyNamespace         - Namespace of the module. Replaces <__NAMESPACE__> tag in the template.")
+            print ("    --module=MyModule                       - Mandatory field. Name of the module. E.g. module name MyModule results in MyModule.cpp file.")
+            print ("                                              Replaces <__MODULE__> tag in the template.")
+            print ("    --path=MyModulePath                     - Subfolder path of the module. E.g. path MyModulePath creates a subfolders ./MyModulePath/sources,")
+            print ("                                              ./MyModulePath/include, and ./MyModulePath/tests")
+            print ("    --author=\"John Jackson\"               - Author(s) of the code. Replaces <__AUTHOR__> tag in the template.")
+            print ("    --email=\"john.jackson(a)jj.com\"       - Author's contact email. Replaces <__EMAIL__> tag in the template.")
+            print ("    --namespace=MyNamespace                 - Namespace of the module. Replaces <__NAMESPACE__> tag in the template.")
+            print ("    --hal=<source/header/header_with_tests> - Optional tag. Add this when you are creating HAL sources or API headers.")
             print ("")
             sys.exit(0)
 
@@ -45,6 +48,8 @@ class Template:
             for parameterId in self.argumentParameters.keys():
                 if argument.startswith(parameterId):
                     self.keywords[self.argumentParameters[parameterId]] = argument.split(parameterId,1)[1]
+            if argument.startswith("--hal="):
+                self.halMode = argument.split("--hal=",1)[1]
 
         if "<__MODULE__>" not in self.keywords.keys():
             print ("ERROR: Module name is mandatory! See -h for help.")
@@ -77,26 +82,43 @@ class Template:
 
     # Generates SCons files used for building.
     def GenerateSconsFiles(self):
-        # Unit test include SCons
-        sconsFile = open("./Build/SCons_UTest/UTest_" + self.keywords["<__MODULE__>"] + "_Include.scons", 'w')
-        sconsFile.write("./" + self.keywords["<__PATH__>"] + "/sources\n")
-        sconsFile.write("./" + self.keywords["<__PATH__>"] + "/include")
-        sconsFile.close()
-
-        # Unit test sources SCons
-        sconsFile = open("./Build/SCons_UTest/UTest_" + self.keywords["<__MODULE__>"] + "_Sources.scons", 'w')
-        sconsFile.write("./" + self.keywords["<__PATH__>"] + "/sources/" + self.keywords["<__MODULE__>"] + ".cpp\n")
-        sconsFile.write("./" + self.keywords["<__PATH__>"] + "/tests/UTest_" + self.keywords["<__MODULE__>"] + ".cpp")
-        sconsFile.close()
-
-        # Unit test target names SCons
-        sconsFile = open("./Build/SCons_UTest/UTestTargets.scons", 'r')
-        targetConfig = self.keywords["<__MODULE__>"] + " " + ".\\" + self.keywords["<__PATH__>"]
-        if targetConfig not in sconsFile.read():
+        # Do not create build scripts if only header is created.
+        if self.halMode != "header":
+            # Unit test include SCons
+            sconsFile = open("./Build/SCons_UTest/UTest_" + self.keywords["<__MODULE__>"] + "_Include.scons", 'w')
+            sconsFile.write("./Config/include\n")
+            sconsFile.write("./" + self.keywords["<__PATH__>"] + "/sources\n")
+            # If only source file is created, no need to add the include path.
+            if self.halMode != "source":
+                sconsFile.write("./" + self.keywords["<__PATH__>"] + "/include")
             sconsFile.close()
-            sconsFile = open("./Build/SCons_UTest/UTestTargets.scons", 'a')
-            sconsFile.write("\n" + targetConfig)
-        sconsFile.close()
+
+            # Unit test sources SCons
+            sconsFile = open("./Build/SCons_UTest/UTest_" + self.keywords["<__MODULE__>"] + "_Sources.scons", 'w')
+            # Skip the module source if only header with tests is created.
+            if self.halMode != "header_with_tests":
+                sconsFile.write("./" + self.keywords["<__PATH__>"] + "/sources/" + self.keywords["<__MODULE__>"] + ".cpp\n")
+            sconsFile.write("./" + self.keywords["<__PATH__>"] + "/tests/UTest_" + self.keywords["<__MODULE__>"] + ".cpp")
+            sconsFile.close()
+
+            # Unit test target names SCons
+            sconsFile = open("./Build/SCons_UTest/UTestTargets.scons", 'r')
+            targetConfig = self.keywords["<__MODULE__>"] + " " + ".\\" + self.keywords["<__PATH__>"]
+            if targetConfig not in sconsFile.read():
+                sconsFile.close()
+                sconsFile = open("./Build/SCons_UTest/UTestTargets.scons", 'a')
+                sconsFile.write("\n" + targetConfig)
+            sconsFile.close()
+
+            if self.halMode != "header_with_tests":
+                # Release sources SCons
+                sconsFile = open("./Build/SCons_Release/Sources.scons", 'r')
+                sourceFile = "./" + self.keywords["<__PATH__>"] + "/sources/" + self.keywords["<__MODULE__>"] + ".cpp"
+                if sourceFile not in sconsFile.read():
+                    sconsFile.close()
+                    sconsFile = open("./Build/SCons_Release/Sources.scons", 'a')
+                    sconsFile.write("\n" + sourceFile)
+                sconsFile.close()
 
         # Release include SCons
         sconsFile = open("./Build/SCons_Release/Include.scons", 'r')
@@ -106,22 +128,15 @@ class Template:
             sconsFile = open("./Build/SCons_Release/Include.scons", 'a')
             sconsFile.write("\n" + includePath)
         sconsFile.close()
-
-        # Release sources SCons
-        sconsFile = open("./Build/SCons_Release/Sources.scons", 'r')
-        sourceFile = "./" + self.keywords["<__PATH__>"] + "/sources/" + self.keywords["<__MODULE__>"] + ".cpp"
-        if sourceFile not in sconsFile.read():
-            sconsFile.close()
-            sconsFile = open("./Build/SCons_Release/Sources.scons", 'a')
-            sconsFile.write("\n" + sourceFile)
-        sconsFile.close()
         return
 
     # Generates all files
-    def GenerateAll(self): 
-        # Check that the .cpp file does not exist yet.
-        targetFile = "./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp"
-        if os.path.isfile(targetFile):
+    def GenerateAll(self):
+        targetSourceFile = "./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp"
+        targetHeaderFile = "./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp"
+
+        # Check that the .cpp and .hpp files do not exist yet.
+        if (self.halMode != "header" and self.halMode != "header_with_tests" and os.path.isfile(targetSourceFile)) or (self.halMode != "sources" and os.path.isfile(targetHeaderFile)):
             print ("Module " + self.keywords['<__MODULE__>'] + " in ./" + self.keywords['<__PATH__>'] + " already exists!")
             response = input("Answer YES if you want to overwrite (WARNING: the existing file(s) will be lost): ")
             if response.upper()[:3] != "YES":
@@ -135,9 +150,12 @@ class Template:
                 sys.exit(1)
 
         print ("\nGenerating template files...")
-        self.GenerateFromTemplate(targetFile, "./Templates/cpptemplate.tmp")
-        self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp", "./Templates/hpptemplate.tmp")
-        self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
+        if self.halMode != "header":
+            if self.halMode != "header_with_tests":
+                self.GenerateFromTemplate(targetSourceFile, "./Templates/cpptemplate.tmp")
+            self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
+        if self.halMode != "source":
+            self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp", "./Templates/hpptemplate.tmp")
         
         print ("Reconfiguring SCons...")
         self.GenerateSconsFiles()

@@ -269,7 +269,7 @@ void Scheduler::RunEvents(void)
     return;
 }
 
-void Scheduler::RegisterMessageListener(messageListener_t listener)
+void Scheduler::RegisterMessageListener(messageListener_t const& listener)
 {
     if (messageListenerCount < messageListenersMax)
     {
@@ -295,21 +295,22 @@ void Scheduler::RegisterMessageListener(messageListener_t listener)
     return;
 }
 
-void Scheduler::UnregisterMessageListener(messageListener_t listener)
+void Scheduler::UnregisterMessageListener(messageListener_t const& listener)
 {
     bool isFound = false;
     for (uint8_t i = 0U; i < messageListenerCount; ++i)
     {
         if (isFound == false)
         {
-            if (messageListeners[i].Handler == listener.Handler)
+            if ((messageListeners[i].Handler == listener.Handler)
+                && (messageListeners[i].type == listener.type))
             {
                 isFound = true;
             }
         }
         else
         {
-            messageListeners[i - 1].Handler = messageListeners[i].Handler;
+            messageListeners[i - 1U] = messageListeners[i];
         }
     }
     if (isFound == true)
@@ -319,15 +320,28 @@ void Scheduler::UnregisterMessageListener(messageListener_t listener)
     return;
 }
 
-void Scheduler::PostMessage(messageType_t type, void* pPayload)
+uint8_t Scheduler::GetNumberOfMessageListeners(messageType_t type)
 {
-    event_t event;
+    uint8_t listeners = 0U;
     for (uint8_t i = 0U; i < messageListenerCount; ++i)
     {
         if (messageListeners[i].type == type)
         {
+            ++listeners;
+        }
+    }
+    return listeners;
+}
+
+void Scheduler::PushMessage(message_t const& message)
+{
+    event_t event;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (messageListeners[i].type == message.type)
+        {
             event.Handler = messageListeners[i].Handler;
-            event.pPayload = pPayload;
+            event.pPayload = message.pPayload;
             PushEvent(event);
         }
     }

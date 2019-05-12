@@ -17,30 +17,22 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Scheduler.hpp
+//! @file    ASch_Configuration.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    28 Aug 2018
 //!
-//! @class   Scheduler
-//! @brief   This is the scheduler module of ASch
+//! @brief   Ssytem configuration header for ASch.
 //! 
-//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
-//! from the event module.
+//! This class configures certain system parameters
 
-#ifndef ASCH_SCHEDULER_HPP_
-#define ASCH_SCHEDULER_HPP_
+#ifndef ASCH_RELEASE_CONFIGURATION_HPP_
+#define ASCH_RELEASE_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <cstdint>
-#include <ASch_Configuration.hpp>
-#include <ASch_Queue.hpp>
-#include <ASch_System.hpp>
-#include <Hal_SysTick.hpp>
-#include <Hal_Isr.hpp>
-#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -49,33 +41,16 @@
 namespace ASch
 {
 
-typedef void (*taskHandler_t)(void);
-typedef void (*eventHandler_t)(const void*);
-typedef void (*messageHandler_t)(const void*);
-
-typedef struct
+typedef enum
 {
-    eventHandler_t Handler;
-    const void* pPayload;
-} event_t;
+    message_test = 0
+} messageType_t;
 
-typedef struct
-{
-    uint16_t intervalInMs;
-    taskHandler_t Task;
-} task_t;
+const std::size_t schedulerTasksMax = 5;
+const std::size_t schedulerEventsMax = 10;
+const std::size_t messageListenersMax = 10;
 
-typedef struct
-{
-    messageType_t type;
-    messageHandler_t Handler;
-} messageListener_t;
-
-typedef struct
-{
-    messageType_t type;
-    const void* pPayload;
-} message_t;
+const uint16_t schedulerTickInterval = 1UL;
 
 } // namespace ASch
 
@@ -87,63 +62,8 @@ typedef struct
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-void SchedulerLoop(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-/// @class Scheduler
-class Scheduler
-{
-public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    
-    virtual void Start(void) const;
-    virtual void Stop(void) const;
-
-    virtual uint8_t GetTaskCount(void) const;
-    virtual void CreateTask(task_t task);
-    virtual void DeleteTask(taskHandler_t taskHandler);
-
-    virtual uint16_t GetTaskInterval(uint8_t taskId) const;
-    virtual void RunTasks(void) const;
-
-    virtual void Sleep(void) const;
-    virtual void WakeUp(void) const;
-
-    virtual void PushEvent(event_t const& event);
-    virtual void RunEvents(void);
-
-    virtual void RegisterMessageListener(messageListener_t const& listener);
-    virtual void UnregisterMessageListener(messageListener_t const& listener);
-    virtual uint8_t GetNumberOfMessageListeners(messageType_t type);
-    virtual void PushMessage(message_t const& message);
-
-private:
-    // Dependencies
-    Hal::SysTick& sysTick;
-    Hal::Isr& isr;
-    Hal::System& halSystem;
-    System& system;
-
-    uint8_t taskCount;
-    task_t tasks[schedulerTasksMax];
-
-    Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
-
-    uint8_t messageListenerCount;
-    messageListener_t messageListeners[messageListenersMax];
-};
-
-} // namespace ASch
-
-#endif // ASCH_SCHEDULER_HPP_
+#endif // ASCH_RELEASE_CONFIGURATION_HPP_

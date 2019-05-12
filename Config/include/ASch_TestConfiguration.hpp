@@ -21,12 +21,12 @@
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    28 Aug 2018
 //!
-//! @brief   Ssytem configuration header for ASch.
+//! @brief   System configuration header for ASch.
 //! 
 //! This class configures certain system parameters
 
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
+#ifndef ASCH_TEST_CONFIGURATION_HPP_
+#define ASCH_TEST_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
@@ -41,9 +41,15 @@
 namespace ASch
 {
 
+typedef enum
+{
+    message_test_0 = 0,
+    message_test_1
+} messageType_t;
+
 const std::size_t schedulerTasksMax = 5;
 const std::size_t schedulerEventsMax = 10;
-const std::size_t messageListenersMax = 10;
+const std::size_t messageListenersMax = 3;
 
 const uint16_t schedulerTickInterval = 1UL;
 
@@ -61,4 +67,4 @@ const uint16_t schedulerTickInterval = 1UL;
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#endif // ASCH_CONFIGURATION_HPP_
+#endif // ASCH_TEST_CONFIGURATION_HPP_
