@@ -36,7 +36,7 @@
 
 #include <Utils_Types.hpp>
 #include <ASch_Configuration.hpp>
-#include <ASch_Queue.hpp>
+#include <Utils_Queue.hpp>
 #include <ASch_System.hpp>
 #include <Hal_SysTick.hpp>
 #include <Hal_Isr.hpp>
@@ -138,7 +138,7 @@ private:
     uint8_t taskCount;
     task_t tasks[schedulerTasksMax];
 
-    Queue<event_t, schedulerEventsMax> eventQueue = Queue<event_t, schedulerEventsMax>();
+    Utils::Queue<event_t, schedulerEventsMax> eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
 
     uint8_t messageListenerCount;
     messageListener_t messageListeners[messageListenersMax];

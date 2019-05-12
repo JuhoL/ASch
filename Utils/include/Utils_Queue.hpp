@@ -17,7 +17,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Queue.hpp
+//! @file    Utils_Queue.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    16 Aug 2018
 //!
@@ -26,15 +26,15 @@
 //! 
 //! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
 
-#ifndef ASCH_QUEUE_HPP_
-#define ASCH_QUEUE_HPP_
+#ifndef UTILS_QUEUE_HPP_
+#define UTILS_QUEUE_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <ASch_Utils.hpp>
+#include <Utils_Misc.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -52,7 +52,7 @@
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Utils
 {
 
 template <typename ElementType, std::size_t size>
@@ -142,6 +142,6 @@ void Queue<ElementType, size>::Flush(void)
     return;
 }
 
-} // namespace ASch
+} // namespace Utils
 
-#endif // ASCH_QUEUE_HPP_
+#endif // UTILS_QUEUE_HPP_
