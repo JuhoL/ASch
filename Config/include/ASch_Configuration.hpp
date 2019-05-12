@@ -32,7 +32,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#ifdef UNIT_TEST
+#if (UNIT_TEST == 1)
     #include <ASch_TestConfiguration.hpp>
 #else
     #include <ASch_ReleaseConfiguration.hpp>

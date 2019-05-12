@@ -17,28 +17,30 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Queue.hpp
+//! @file    Utils_Types.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    16 Aug 2018
+//! @date    12 May 2019
 //!
-//! @class   Queue
-//! @brief   This is a generic queue class.
-//! 
-//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+//! @brief   Type definitions with some custom defines for unit testing purposes.
 
-#ifndef ASCH_QUEUE_HPP_
-#define ASCH_QUEUE_HPP_
+#ifndef UTILS_TYPES_HPP_
+#define UTILS_TYPES_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
-#include <ASch_Utils.hpp>
+#include <cstdint>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
+
+#if (UNIT_TEST == 1)
+    #define test_virtual        virtual
+#else
+    #define test_virtual
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -52,96 +54,4 @@
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-template <typename ElementType, std::size_t size>
-class Queue
-{
-public:
-    Queue(void);
-
-    bool Push(ElementType element);
-    bool Pop(ElementType& element);
-    
-    uint8_t GetNumberOfElements(void) const;
-    void Flush(void);
-
-private:
-    ElementType elements[size];
-    std::size_t queueSize = size;
-
-    uint8_t numberOfElements;
-    uint8_t nextFreeIndex;
-    uint8_t nextIndexInQueue;
-};
-
-template <typename ElementType, std::size_t size>
-Queue<ElementType, size>::Queue(void)
-{
-    this->Flush();
-
-    return;
-}
-
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Push(ElementType element)
-{
-    bool errors;
-
-    if (numberOfElements < queueSize)
-    {
-        elements[nextFreeIndex] = element;
-        numberOfElements++;
-        IncrementIndexWithRollover(nextFreeIndex, queueSize);
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-    
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Pop(ElementType& element)
-{
-    bool errors;
-
-    if (numberOfElements > 0U)
-    {
-        element = elements[nextIndexInQueue];
-        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
-        numberOfElements--;
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
-{
-    return numberOfElements;
-}
-
-template <typename ElementType, std::size_t size>
-void Queue<ElementType, size>::Flush(void)
-{
-    numberOfElements = 0U;
-    nextFreeIndex = 0U;
-    nextIndexInQueue = 0U;
-
-    return;
-}
-
-} // namespace ASch
-
-#endif // ASCH_QUEUE_HPP_
+#endif // UTILS_TYPES_HPP_

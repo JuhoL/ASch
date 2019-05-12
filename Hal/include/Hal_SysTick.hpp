@@ -33,7 +33,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -59,9 +59,9 @@ class SysTick
 {
 public:
     explicit SysTick(void);
-    virtual void SetInterval(uint16_t intervalIn01Ms);
-    virtual void Start(void);
-    virtual void Stop(void);
+    test_virtual void SetInterval(uint16_t intervalIn01Ms);
+    test_virtual void Start(void);
+    test_virtual void Stop(void);
 
 private:
     

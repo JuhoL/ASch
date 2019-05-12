@@ -31,7 +31,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -58,8 +58,8 @@ class System
 public:
     explicit System(void);
 
-    virtual Sleep(void);
-    virtual WakeUp(void);
+    test_virtual void Sleep(void);
+    test_virtual void WakeUp(void);
 
 private:
     

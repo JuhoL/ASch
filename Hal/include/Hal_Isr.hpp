@@ -33,7 +33,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -78,9 +78,9 @@ class Isr
 public:
     explicit Isr(void);
     
-    virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
-    virtual void Enable(interruptType_t type);
-    virtual void Disable(interruptType_t type);
+    test_virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
+    test_virtual void Enable(interruptType_t type);
+    test_virtual void Disable(interruptType_t type);
 
     // ToDo: Atomic ISR enable/disable for global interrupt control.
 

@@ -34,7 +34,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 #include <ASch_Configuration.hpp>
 #include <ASch_Queue.hpp>
 #include <ASch_System.hpp>
@@ -107,26 +107,26 @@ class Scheduler
 public:
     explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
     
-    virtual void Start(void) const;
-    virtual void Stop(void) const;
+    test_virtual void Start(void) const;
+    test_virtual void Stop(void) const;
 
-    virtual uint8_t GetTaskCount(void) const;
-    virtual void CreateTask(task_t task);
-    virtual void DeleteTask(taskHandler_t taskHandler);
+    test_virtual uint8_t GetTaskCount(void) const;
+    test_virtual void CreateTask(task_t task);
+    test_virtual void DeleteTask(taskHandler_t taskHandler);
 
-    virtual uint16_t GetTaskInterval(uint8_t taskId) const;
-    virtual void RunTasks(void) const;
+    test_virtual uint16_t GetTaskInterval(uint8_t taskId) const;
+    test_virtual void RunTasks(void) const;
 
-    virtual void Sleep(void) const;
-    virtual void WakeUp(void) const;
+    test_virtual void Sleep(void) const;
+    test_virtual void WakeUp(void) const;
 
-    virtual void PushEvent(event_t const& event);
-    virtual void RunEvents(void);
+    test_virtual void PushEvent(event_t const& event);
+    test_virtual void RunEvents(void);
 
-    virtual void RegisterMessageListener(messageListener_t const& listener);
-    virtual void UnregisterMessageListener(messageListener_t const& listener);
-    virtual uint8_t GetNumberOfMessageListeners(messageType_t type);
-    virtual void PushMessage(message_t const& message);
+    test_virtual void RegisterMessageListener(messageListener_t const& listener);
+    test_virtual void UnregisterMessageListener(messageListener_t const& listener);
+    test_virtual uint8_t GetNumberOfMessageListeners(messageType_t type);
+    test_virtual void PushMessage(message_t const& message);
 
 private:
     // Dependencies

@@ -33,7 +33,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -73,7 +73,7 @@ class System
 public:
     explicit System(void);
 
-    virtual void Error(sysError_e error);
+    test_virtual void Error(sysError_e error);
 
 private:
     
