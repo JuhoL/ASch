@@ -142,7 +142,7 @@ public:
 
 private:
     static void InitStaticMembers(void);
-    static void ThrowError(sysError_e error);
+    static void ThrowError(SysError error);
 
     // Dependencies
     static Hal::SysTick* pSysTick;

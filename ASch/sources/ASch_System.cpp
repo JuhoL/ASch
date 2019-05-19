@@ -63,7 +63,7 @@ System::System(void)
     return;
 }
 
-void System::Error(sysError_e error)
+void System::Error(SysError error)
 {
     return;
 }

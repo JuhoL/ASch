@@ -121,11 +121,11 @@ Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal
 
     if (tickIntervalInMs == 0UL)
     {
-        ThrowError(sysError_invalidParameters);
+        ThrowError(SysError::invalidParameters);
     }
     else if (pScheduler != 0)
     {
-        ThrowError(sysError_multipleSchedulerInstances);
+        ThrowError(SysError::multipleSchedulerInstances);
     }
     else
     {
@@ -219,7 +219,7 @@ void Scheduler::CreateTask(task_t task)
         }
         else
         {
-            ThrowError(sysError_insufficientResources);
+            ThrowError(SysError::insufficientResources);
         }
         pIsr->Enable(Hal::interrupt_global);
     }
@@ -301,7 +301,7 @@ void Scheduler::PushEvent(event_t const& event)
 
         if (errors == true)
         {
-            ThrowError(sysError_insufficientResources);
+            ThrowError(SysError::insufficientResources);
         }
         else
         {
@@ -345,7 +345,7 @@ void Scheduler::RegisterMessageListener(messageListener_t const& listener)
     }
     else
     {
-        ThrowError(sysError_insufficientResources);
+        ThrowError(SysError::insufficientResources);
     }
     return;
 }
@@ -417,7 +417,7 @@ void Scheduler::InitStaticMembers(void)
     return;
 }
 
-void Scheduler::ThrowError(sysError_e error)
+void Scheduler::ThrowError(SysError error)
 {
     status = SchedulerStatus::error;
     pSystem->Error(error);

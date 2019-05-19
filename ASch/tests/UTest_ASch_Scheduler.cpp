@@ -310,7 +310,7 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 
             THEN ("a system error shall occur")
             {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_invalidParameters);
+                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::invalidParameters);
                 REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
@@ -351,7 +351,7 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 
             THEN ("a system error shall occur")
             {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_multipleSchedulerInstances);
+                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::multipleSchedulerInstances);
                 REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
@@ -777,7 +777,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
                 THEN ("system error shall trigger")
                 {
-                    REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                    REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
                     REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
                 }
             }
@@ -983,7 +983,7 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 
                     THEN ("a system error shall occur")
                     {
-                        REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                        REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
                         REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
                     }
                 }
@@ -1200,7 +1200,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
             THEN ("a system error shall occur")
             {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
                 REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
