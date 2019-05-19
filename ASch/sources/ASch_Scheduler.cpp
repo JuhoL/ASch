@@ -45,15 +45,15 @@ typedef struct
 {
     uint16_t msCounter;
     bool run;
-} taskStatus_t;
+} taskState_t;
 
 typedef struct
 {
-    taskStatus_t taskStatuses[ASch::schedulerTasksMax];
+    taskState_t taskStates[ASch::schedulerTasksMax];
     volatile bool runTasks;
     volatile bool runEvents;
     uint8_t msPerTick;
-} schedulerStatus_t;
+} schedulerState_t;
 
 }
 
@@ -65,7 +65,14 @@ namespace
 {
 
 ASch::Scheduler* pScheduler = 0;
-schedulerStatus_t schedulerStatus;
+schedulerState_t schedulerState;
+
+}
+
+namespace ASch
+{
+
+extern void CriticalSystemError(void);
 
 }
 
@@ -84,49 +91,98 @@ schedulerStatus_t schedulerStatus;
 namespace ASch
 {
 
+//---------------------------------------
+// Initialise static members
+//---------------------------------------
+Hal::SysTick* Scheduler::pSysTick = 0;
+Hal::Isr* Scheduler::pIsr = 0;
+Hal::System* Scheduler::pHalSystem = 0;
+System* Scheduler::pSystem = 0;
+
+SchedulerStatus Scheduler::status = SchedulerStatus::idle;
+
+uint8_t Scheduler::taskCount = 0U;
+task_t Scheduler::tasks[schedulerTasksMax] = {{.intervalInMs = 0, .Task = 0}};
+
+Utils::Queue<event_t, schedulerEventsMax> Scheduler::eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
+
+uint8_t Scheduler::messageListenerCount = 0U;
+messageListener_t Scheduler::messageListeners[messageListenersMax] = {{.type = invalid_message_type, .Handler = 0}};
+
+//---------------------------------------
+// Functions
+//---------------------------------------
 Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs)
-    : sysTick(sysTickParameter),
-      isr(isrParameter),
-      halSystem(halSystemParameter),
-      system(systemParameter),
-      taskCount(0)
 {
+    pSysTick = &sysTickParameter;
+    pIsr = &isrParameter;
+    pHalSystem = &halSystemParameter;
+    pSystem = &systemParameter;
+
     if (tickIntervalInMs == 0UL)
     {
-        system.Error(sysError_invalidParameters);
+        ThrowError(SysError::invalidParameters);
+    }
+    else if (pScheduler != 0)
+    {
+        ThrowError(SysError::multipleSchedulerInstances);
     }
     else
     {
         for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
         {
             tasks[i] = {.intervalInMs = 0, .Task = 0};
-            schedulerStatus.taskStatuses[i] = {.msCounter = 0U, .run = false};
+            schedulerState.taskStates[i] = {.msCounter = 0U, .run = false};
         }
 
-        schedulerStatus.msPerTick = tickIntervalInMs;
-        schedulerStatus.runTasks = false;
-        schedulerStatus.runEvents = false;
+        schedulerState.msPerTick = tickIntervalInMs;
+        schedulerState.runTasks = false;
+        schedulerState.runEvents = false;
 
-        sysTick.SetInterval(tickIntervalInMs);
-        isr.SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
+        pSysTick->SetInterval(tickIntervalInMs);
+        pIsr->SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
 
         pScheduler = this;
     }
     return;
 }
 
+Scheduler::Scheduler(void)
+{
+    if (pScheduler == 0)
+    {
+        CriticalSystemError();
+    }
+    return;
+}
+
+Scheduler::~Scheduler(void)
+{
+    InitStaticMembers();
+    pScheduler = 0;
+
+    return;
+}
+
 void Scheduler::Start(void) const
 {
-    isr.Enable(Hal::interrupt_sysTick);
-    sysTick.Start();
+    pIsr->Enable(Hal::interrupt_sysTick);
+    pSysTick->Start();
+    status = SchedulerStatus::running;
     return;
 }
 
 void Scheduler::Stop(void) const
 {
-    sysTick.Stop();
-    isr.Disable(Hal::interrupt_sysTick);
+    pSysTick->Stop();
+    pIsr->Disable(Hal::interrupt_sysTick);
+    status = SchedulerStatus::stopped;
     return;
+}
+
+SchedulerStatus Scheduler::GetStatus(void) const
+{
+    return status;
 }
 
 uint8_t Scheduler::GetTaskCount(void) const
@@ -138,7 +194,7 @@ void Scheduler::CreateTask(task_t task)
 {
     if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
-        isr.Disable(Hal::interrupt_global);
+        pIsr->Disable(Hal::interrupt_global);
         if (taskCount < schedulerTasksMax)
         {
             bool isDuplicate = false;
@@ -156,16 +212,16 @@ void Scheduler::CreateTask(task_t task)
             if (isDuplicate == false)
             {
                 tasks[taskCount] = task;
-                schedulerStatus.taskStatuses[taskCount].msCounter = task.intervalInMs;
-                schedulerStatus.taskStatuses[taskCount].run = false;
+                schedulerState.taskStates[taskCount].msCounter = task.intervalInMs;
+                schedulerState.taskStates[taskCount].run = false;
                 ++taskCount;
             }
         }
         else
         {
-            system.Error(sysError_insufficientResources);
+            ThrowError(SysError::insufficientResources);
         }
-        isr.Enable(Hal::interrupt_global);
+        pIsr->Enable(Hal::interrupt_global);
     }
     return;
 }
@@ -215,9 +271,9 @@ void Scheduler::RunTasks(void) const
 {
     for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        if (schedulerStatus.taskStatuses[taskId].run == true)
+        if (schedulerState.taskStates[taskId].run == true)
         {
-            schedulerStatus.taskStatuses[taskId].run = false;
+            schedulerState.taskStates[taskId].run = false;
             tasks[taskId].Task();
         }
     }
@@ -226,13 +282,13 @@ void Scheduler::RunTasks(void) const
 
 void Scheduler::Sleep(void) const
 {
-    halSystem.Sleep();
+    pHalSystem->Sleep();
     return;
 }
 
 void Scheduler::WakeUp(void) const
 {
-    halSystem.WakeUp();
+    pHalSystem->WakeUp();
     return;
 }
 
@@ -240,19 +296,19 @@ void Scheduler::PushEvent(event_t const& event)
 {
     if (event.Handler != 0)
     {
-        isr.Disable(Hal::interrupt_global);
+        pIsr->Disable(Hal::interrupt_global);
         bool errors = eventQueue.Push(event);
 
         if (errors == true)
         {
-            system.Error(sysError_insufficientResources);
+            ThrowError(SysError::insufficientResources);
         }
         else
         {
-            schedulerStatus.runEvents = true;
-            halSystem.WakeUp();
+            schedulerState.runEvents = true;
+            pHalSystem->WakeUp();
         }
-        isr.Enable(Hal::interrupt_global);
+        pIsr->Enable(Hal::interrupt_global);
     }
     return;
 }
@@ -266,6 +322,105 @@ void Scheduler::RunEvents(void)
         event.Handler(event.pPayload);
     }
     return;
+}
+
+void Scheduler::RegisterMessageListener(messageListener_t const& listener)
+{
+    if (messageListenerCount < messageListenersMax)
+    {
+        if (listener.Handler != 0)
+        {
+            bool isDuplicate = false;
+            for (uint8_t i = 0U; (i < messageListenerCount) && (isDuplicate == false); ++i)
+            {
+                isDuplicate = (messageListeners[i].Handler == listener.Handler);
+            }
+
+            if (isDuplicate == false)
+            {
+                messageListeners[messageListenerCount] = listener;
+                ++messageListenerCount;
+            }
+        }
+    }
+    else
+    {
+        ThrowError(SysError::insufficientResources);
+    }
+    return;
+}
+
+void Scheduler::UnregisterMessageListener(messageListener_t const& listener)
+{
+    bool isFound = false;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (isFound == false)
+        {
+            if ((messageListeners[i].Handler == listener.Handler)
+                && (messageListeners[i].type == listener.type))
+            {
+                isFound = true;
+            }
+        }
+        else
+        {
+            messageListeners[i - 1U] = messageListeners[i];
+        }
+    }
+    if (isFound == true)
+    {
+        --messageListenerCount;
+    }
+    return;
+}
+
+uint8_t Scheduler::GetNumberOfMessageListeners(messageType_t type)
+{
+    uint8_t listeners = 0U;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (messageListeners[i].type == type)
+        {
+            ++listeners;
+        }
+    }
+    return listeners;
+}
+
+void Scheduler::PushMessage(message_t const& message)
+{
+    event_t event;
+    for (uint8_t i = 0U; i < messageListenerCount; ++i)
+    {
+        if (messageListeners[i].type == message.type)
+        {
+            event.Handler = messageListeners[i].Handler;
+            event.pPayload = message.pPayload;
+            PushEvent(event);
+        }
+    }
+    return;
+}
+
+void Scheduler::InitStaticMembers(void)
+{
+    pSysTick = 0;
+    pIsr = 0;
+    pHalSystem = 0;
+    pSystem = 0;
+    taskCount = 0U;
+    eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
+    messageListenerCount = 0U;
+    status = SchedulerStatus::idle;
+
+    return;
+}
+
+void Scheduler::ThrowError(SysError error)
+{
+    status = SchedulerStatus::error;
+    pSystem->Error(error);
 }
 
 } // namespace ASch
@@ -282,15 +437,15 @@ void SchedulerLoop(void)
     do
     {
         bool isIdle = true;
-        if (schedulerStatus.runTasks == true)
+        if (schedulerState.runTasks == true)
         {
-            schedulerStatus.runTasks = false;
+            schedulerState.runTasks = false;
             pScheduler->RunTasks();
             isIdle = false;
         }
-        if (schedulerStatus.runEvents == true)
+        if (schedulerState.runEvents == true)
         {
-            schedulerStatus.runEvents = false;
+            schedulerState.runEvents = false;
             pScheduler->RunEvents();
             isIdle = false;
         }
@@ -304,6 +459,11 @@ void SchedulerLoop(void)
     return;
 }
 
+Scheduler* pGetSchedulerPointer(void)
+{
+    return pScheduler;
+}
+
 }
 
 namespace Isr
@@ -314,19 +474,19 @@ void Scheduler_SysTickHandler(void)
     uint8_t taskCount = pScheduler->GetTaskCount();
     for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        if (schedulerStatus.taskStatuses[taskId].msCounter > schedulerStatus.msPerTick)
+        if (schedulerState.taskStates[taskId].msCounter > schedulerState.msPerTick)
         {
-            schedulerStatus.taskStatuses[taskId].msCounter -= schedulerStatus.msPerTick;
+            schedulerState.taskStates[taskId].msCounter -= schedulerState.msPerTick;
         }
         else
         {
-            schedulerStatus.taskStatuses[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
-            schedulerStatus.taskStatuses[taskId].run = true;
-            schedulerStatus.runTasks = true;
+            schedulerState.taskStates[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
+            schedulerState.taskStates[taskId].run = true;
+            schedulerState.runTasks = true;
         }
     }
 
-    if (schedulerStatus.runTasks == true)
+    if (schedulerState.runTasks == true)
     {
         pScheduler->WakeUp();
     }

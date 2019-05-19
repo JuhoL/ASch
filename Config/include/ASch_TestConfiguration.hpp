@@ -17,28 +17,44 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Queue.hpp
+//! @file    ASch_Configuration.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    16 Aug 2018
+//! @date    28 Aug 2018
 //!
-//! @class   Queue
-//! @brief   This is a generic queue class.
+//! @brief   System configuration header for ASch.
 //! 
-//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
+//! This class configures certain system parameters
 
-#ifndef ASCH_QUEUE_HPP_
-#define ASCH_QUEUE_HPP_
+#ifndef ASCH_TEST_CONFIGURATION_HPP_
+#define ASCH_TEST_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
-#include <ASch_Utils.hpp>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+typedef enum
+{
+    message_test_0 = 0,
+    message_test_1,
+    invalid_message_type
+} messageType_t;
+
+const std::size_t schedulerTasksMax = 5;
+const std::size_t schedulerEventsMax = 10;
+const std::size_t messageListenersMax = 3;
+
+const uint16_t schedulerTickInterval = 1UL;
+
+} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -52,96 +68,4 @@
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-template <typename ElementType, std::size_t size>
-class Queue
-{
-public:
-    Queue(void);
-
-    bool Push(ElementType element);
-    bool Pop(ElementType& element);
-    
-    uint8_t GetNumberOfElements(void) const;
-    void Flush(void);
-
-private:
-    ElementType elements[size];
-    std::size_t queueSize = size;
-
-    uint8_t numberOfElements;
-    uint8_t nextFreeIndex;
-    uint8_t nextIndexInQueue;
-};
-
-template <typename ElementType, std::size_t size>
-Queue<ElementType, size>::Queue(void)
-{
-    this->Flush();
-
-    return;
-}
-
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Push(ElementType element)
-{
-    bool errors;
-
-    if (numberOfElements < queueSize)
-    {
-        elements[nextFreeIndex] = element;
-        numberOfElements++;
-        IncrementIndexWithRollover(nextFreeIndex, queueSize);
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-    
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-bool Queue<ElementType, size>::Pop(ElementType& element)
-{
-    bool errors;
-
-    if (numberOfElements > 0U)
-    {
-        element = elements[nextIndexInQueue];
-        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
-        numberOfElements--;
-
-        errors = false;
-    }
-    else
-    {
-        errors = true;
-    }
-
-    return errors;
-}
-
-template <typename ElementType, std::size_t size>
-uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
-{
-    return numberOfElements;
-}
-
-template <typename ElementType, std::size_t size>
-void Queue<ElementType, size>::Flush(void)
-{
-    numberOfElements = 0U;
-    nextFreeIndex = 0U;
-    nextIndexInQueue = 0U;
-
-    return;
-}
-
-} // namespace ASch
-
-#endif // ASCH_QUEUE_HPP_
+#endif // ASCH_TEST_CONFIGURATION_HPP_

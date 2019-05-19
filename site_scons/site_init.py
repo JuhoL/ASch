@@ -8,13 +8,10 @@
 # SCons version   : 3.0.1  
 #==============================================================================
 
-AddOption('--step',
-          dest = 'step',
-          type = 'string',
-          nargs = 1,
-          action = 'store',
-          help = 'Runs the given step of the build. Available steps: \
-                  build, unit_test, cppcheck, coverage')
+AddOption('--test',
+          dest = 'test',
+          nargs = 0,
+          help = 'Runs unit tests to the target.')
 
 AddOption('--linux',
           dest = 'linux',

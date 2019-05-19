@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,46 +17,48 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
-//!
-//! @brief   Ssytem configuration header for ASch.
+//! @file    UTest_ASch_Main.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    13 May 2019
 //! 
-//! This class configures certain system parameters
-
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <cstdint>
+//! @brief   These are unit tests for ASch_Main.cpp
+//! 
+//! These are unit tests for ASch_Main.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+#include <ASch_Main.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Test Structs and Variables
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace
 {
 
-const std::size_t schedulerTasksMax = 5;
-const std::size_t schedulerEventsMax = 10;
-const uint16_t schedulerTickInterval = 1UL;
-
-} // namespace ASch
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
+// 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#endif // ASCH_CONFIGURATION_HPP_
+SCENARIO ("Some test", "[feature_tag]")
+{
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}

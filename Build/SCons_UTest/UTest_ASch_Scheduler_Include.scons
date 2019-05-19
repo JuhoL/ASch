@@ -1,4 +1,5 @@
 ./ASch/include
+./Config/include
 ./Hal/include
 ./Utils/include
 ./Utils/sources

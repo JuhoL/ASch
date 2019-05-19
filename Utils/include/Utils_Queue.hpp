@@ -17,75 +17,28 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Scheduler.hpp
+//! @file    Utils_Queue.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    16 Aug 2018
 //!
-//! @class   Scheduler
-//! @brief   This is the scheduler module of ASch
+//! @class   Queue
+//! @brief   This is a generic queue class.
 //! 
-//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
-//! from the event module.
+//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
 
-#ifndef ASCH_SCHEDULER_HPP_
-#define ASCH_SCHEDULER_HPP_
+#ifndef UTILS_QUEUE_HPP_
+#define UTILS_QUEUE_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <ASch_Configuration.hpp>
-#include <Utils_Queue.hpp>
-#include <ASch_System.hpp>
-#include <Hal_SysTick.hpp>
-#include <Hal_Isr.hpp>
-#include <Hal_System.hpp>
+#include <Utils_Misc.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
-{
-
-typedef void (*taskHandler_t)(void);
-typedef void (*eventHandler_t)(const void*);
-typedef void (*messageHandler_t)(const void*);
-
-typedef struct
-{
-    eventHandler_t Handler;
-    const void* pPayload;
-} event_t;
-
-typedef struct
-{
-    uint16_t intervalInMs;
-    taskHandler_t Task;
-} task_t;
-
-typedef struct
-{
-    messageType_t type;
-    messageHandler_t Handler;
-} messageListener_t;
-
-typedef struct
-{
-    messageType_t type;
-    const void* pPayload;
-} message_t;
-
-enum class SchedulerStatus
-{
-    idle = 0,
-    running,
-    stopped,
-    error
-};
-
-} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -95,74 +48,100 @@ enum class SchedulerStatus
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-void SchedulerLoop(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Utils
 {
 
-/// @class Scheduler
-class Scheduler
+template <typename ElementType, std::size_t size>
+class Queue
 {
 public:
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    explicit Scheduler(void);
-    ~Scheduler(void);
+    Queue(void);
 
-    static_mf void Start(void) const;
-    static_mf void Stop(void) const;
-
-    static_mf SchedulerStatus GetStatus(void) const;
-
-    static_mf uint8_t GetTaskCount(void) const;
-    static_mf void CreateTask(task_t task);
-    static_mf void DeleteTask(taskHandler_t taskHandler);
-
-    static_mf uint16_t GetTaskInterval(uint8_t taskId) const;
-    static_mf void RunTasks(void) const;
-
-    static_mf void Sleep(void) const;
-    static_mf void WakeUp(void) const;
-
-    static_mf void PushEvent(event_t const& event);
-    static_mf void RunEvents(void);
-
-    static_mf void RegisterMessageListener(messageListener_t const& listener);
-    static_mf void UnregisterMessageListener(messageListener_t const& listener);
-    static_mf uint8_t GetNumberOfMessageListeners(messageType_t type);
-    static_mf void PushMessage(message_t const& message);
+    bool Push(ElementType element);
+    bool Pop(ElementType& element);
+    
+    uint8_t GetNumberOfElements(void) const;
+    void Flush(void);
 
 private:
-    static void InitStaticMembers(void);
-    static void ThrowError(SysError error);
+    ElementType elements[size];
+    std::size_t queueSize = size;
 
-    // Dependencies
-    static Hal::SysTick* pSysTick;
-    static Hal::Isr* pIsr;
-    static Hal::System* pHalSystem;
-    static System* pSystem;
-
-    static SchedulerStatus status;
-    
-    static uint8_t taskCount;
-    static task_t tasks[schedulerTasksMax];
-
-    static Utils::Queue<event_t, schedulerEventsMax> eventQueue;
-
-    static uint8_t messageListenerCount;
-    static messageListener_t messageListeners[messageListenersMax];
+    uint8_t numberOfElements;
+    uint8_t nextFreeIndex;
+    uint8_t nextIndexInQueue;
 };
 
-Scheduler* pGetSchedulerPointer(void);
+template <typename ElementType, std::size_t size>
+Queue<ElementType, size>::Queue(void)
+{
+    this->Flush();
 
-} // namespace ASch
+    return;
+}
 
-#endif // ASCH_SCHEDULER_HPP_
+template <typename ElementType, std::size_t size>
+bool Queue<ElementType, size>::Push(ElementType element)
+{
+    bool errors;
+
+    if (numberOfElements < queueSize)
+    {
+        elements[nextFreeIndex] = element;
+        numberOfElements++;
+        IncrementIndexWithRollover(nextFreeIndex, queueSize);
+
+        errors = false;
+    }
+    else
+    {
+        errors = true;
+    }
+    
+    return errors;
+}
+
+template <typename ElementType, std::size_t size>
+bool Queue<ElementType, size>::Pop(ElementType& element)
+{
+    bool errors;
+
+    if (numberOfElements > 0U)
+    {
+        element = elements[nextIndexInQueue];
+        IncrementIndexWithRollover(nextIndexInQueue, queueSize);
+        numberOfElements--;
+
+        errors = false;
+    }
+    else
+    {
+        errors = true;
+    }
+
+    return errors;
+}
+
+template <typename ElementType, std::size_t size>
+uint8_t Queue<ElementType, size>::GetNumberOfElements(void) const
+{
+    return numberOfElements;
+}
+
+template <typename ElementType, std::size_t size>
+void Queue<ElementType, size>::Flush(void)
+{
+    numberOfElements = 0U;
+    nextFreeIndex = 0U;
+    nextIndexInQueue = 0U;
+
+    return;
+}
+
+} // namespace Utils
+
+#endif // UTILS_QUEUE_HPP_

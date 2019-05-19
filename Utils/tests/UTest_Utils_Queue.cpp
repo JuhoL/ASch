@@ -23,7 +23,7 @@
 //! 
 //! @brief   This is a generic queue class.
 //! 
-//! These are unit tests for ASch_Queue.cpp
+//! These are unit tests for Utils_Queue.hpp
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
@@ -33,7 +33,7 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
-#include <ASch_Queue.hpp>
+#include <Utils_Queue.hpp>
 
 #include <typeinfo>
 
@@ -62,7 +62,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
     {
         WHEN ("the developer creates a new queue")
         {
-            ASch::Queue<testStruct_t, 3> queue = ASch::Queue<testStruct_t, 3>();
+            Utils::Queue<testStruct_t, 3> queue = Utils::Queue<testStruct_t, 3>();
 
             THEN ("the new queue shall be empty")
             {
@@ -71,7 +71,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
         }
         AND_WHEN ("the developer creates another type of queue")
         {
-            ASch::Queue<uint32_t, 5> queue = ASch::Queue<uint32_t, 5>();
+            Utils::Queue<uint32_t, 5> queue = Utils::Queue<uint32_t, 5>();
 
             THEN ("it shall succeed and the new queue shall be empty")
             {
@@ -82,7 +82,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
 
     GIVEN ("the queue is created and empty")
     {
-        ASch::Queue<testStruct_t, 3> queue = ASch::Queue<testStruct_t, 3>();
+        Utils::Queue<testStruct_t, 3> queue = Utils::Queue<testStruct_t, 3>();
         WHEN ("the developer pushes an element into the queue")
         {
             testStruct_t testData = {.number = 1UL, .character = 'A'};
@@ -123,7 +123,7 @@ SCENARIO ("Developer successfully uses queue", "[queue]")
 
     GIVEN ("the queue is created and full")
     {
-        ASch::Queue<testStruct_t, 3> queue = ASch::Queue<testStruct_t, 3>();
+        Utils::Queue<testStruct_t, 3> queue = Utils::Queue<testStruct_t, 3>();
         testStruct_t testData = {.number = 1UL, .character = 'J'};
         bool errors = queue.Push(testData);
 
@@ -228,7 +228,7 @@ SCENARIO ("Developer misuses queue", "[queue]")
 {
     GIVEN ("The queue is created and full")
     {
-        ASch::Queue<testStruct_t, 3> queue = ASch::Queue<testStruct_t, 3>();
+        Utils::Queue<testStruct_t, 3> queue = Utils::Queue<testStruct_t, 3>();
         testStruct_t testData = {.number = 1UL, .character = 'J'};
         bool errors = queue.Push(testData);
 
@@ -258,7 +258,7 @@ SCENARIO ("Developer misuses queue", "[queue]")
 
     GIVEN ("the queue is created and empty")
     {
-        ASch::Queue<testStruct_t, 3> queue = ASch::Queue<testStruct_t, 3>();
+        Utils::Queue<testStruct_t, 3> queue = Utils::Queue<testStruct_t, 3>();
         WHEN ("the developer pops an element from the queue")
         {
             testStruct_t testData = {.number = 0UL, .character = '\0'};

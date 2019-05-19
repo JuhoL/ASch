@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  *****************************************************************************************************************************/
 
-//! @file    ASch_Utils.hpp
+//! @file    Utils_Misc.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    16 Aug 2018
 //!
@@ -25,14 +25,14 @@
 //! 
 //! This is a collection of generic constants and utility inline functions that are used in ASch.
 
-#ifndef ASCH_UTILS_HPP_
-#define ASCH_UTILS_HPP_
+#ifndef UTILS_MISC_HPP_
+#define UTILS_MISC_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -42,7 +42,7 @@
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Utils
 {
 
 template <typename type>
@@ -79,4 +79,4 @@ inline void DecrementIndexWithRollover(type &index, std::size_t maxLimit)
 // 5. Class Declaration
 //----------------------------------------------------------------------------------------------------------------------------
 
-#endif // ASCH_UTILS_HPP_
+#endif // UTILS_MISC_HPP_

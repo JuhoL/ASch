@@ -17,78 +17,41 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.cpp
+//! @file    ASch_Configuration.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    28 Aug 2018
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @brief   System configuration header for ASch.
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! This class configures certain system parameters
+
+#ifndef ASCH_CONFIGURATION_HPP_
+#define ASCH_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
-#include <ASch_Scheduler.hpp>
+#if (UNIT_TEST == 1)
+    #include <ASch_TestConfiguration.hpp>
+#else
+    #include <ASch_ReleaseConfiguration.hpp>
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
+// 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
+// 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
+// 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
-{
-
-System::System(void)
-{
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    return;
-}
-
-void System::Error(SysError error)
-{
-    return;
-}
-
-void System::Init(void)
-{
-    return;
-}
-
-void System::PreStartConfig(void)
-{
-    return;
-}
-
-void System::PostStartConfig(void)
-{
-    return;
-}
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 8. Static Functions
-//-----------------------------------------------------------------------------------------------------------------------------
+#endif // ASCH_CONFIGURATION_HPP_

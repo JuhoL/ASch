@@ -52,7 +52,7 @@
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Hal
 {
 
 Isr::Isr(void)
@@ -83,7 +83,7 @@ void Isr::Disable(interruptType_t type)
     return;
 }
 
-} // namespace ASch
+} // namespace Hal
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions

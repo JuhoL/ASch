@@ -33,7 +33,7 @@
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <cstdint>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -42,13 +42,14 @@
 namespace ASch
 {
 
-typedef enum
+enum class SysError
 {
-    sysError_invalidParameters = 0,
-    sysError_bufferOverflow,
-    sysError_insufficientResources,
-    sysError_unknownError
-} sysError_e;
+    invalidParameters = 0,
+    bufferOverflow,
+    insufficientResources,
+    multipleSchedulerInstances,
+    unknownError
+};
 
 }
 
@@ -73,7 +74,10 @@ class System
 public:
     explicit System(void);
 
-    virtual void Error(sysError_e error);
+    static_mf void Error(SysError error);
+    static_mf void Init(void);
+    static_mf void PreStartConfig(void);
+    static_mf void PostStartConfig(void);
 
 private:
     

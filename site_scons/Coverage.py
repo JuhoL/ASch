@@ -10,7 +10,7 @@
 from Utils import GetTestExecutableName
 
 def Gcov(env, buildTarget, targetPath):
-    testSource = targetPath + "/tests/UTest_" + buildTarget + ".cpp"
+    testSource = targetPath + "/sources/" + buildTarget + ".cpp"
     objectsDir = "./Build/Objects/" + buildTarget
 
     gcov = env.Gcov(testSource, GCOV_OBJECTS_DIR = objectsDir)
@@ -18,7 +18,7 @@ def Gcov(env, buildTarget, targetPath):
     return gcov
 
 def GenerateCoverageXml(env, buildTarget, targetPath):
-    testSource = targetPath[2:] + "/tests/UTest_" + buildTarget + ".cpp"
+    testSource = targetPath[2:] + "/sources/" + buildTarget + ".cpp"
     reportFile = "./TestReports/CoverageLogs/" + buildTarget + "_TestCoverage"
 
     gcovXml = env.Gcovr(reportFile, testSource, GCOVR_SOURCE = testSource)
@@ -45,7 +45,7 @@ def GenerateCoverageReport(env, buildTarget, targetPath):
     env.Alias(buildTarget, gcovXml)
     env.AlwaysBuild(gcovXml)
 
-    coverageHtml = ShowModuleCoverage(env, buildTarget)
-    env.Depends(coverageHtml, gcovXml)
-    env.Alias(buildTarget, coverageHtml)
-    env.AlwaysBuild(coverageHtml)
+    # coverageHtml = ShowModuleCoverage(env, buildTarget)
+    # env.Depends(coverageHtml, gcovXml)
+    # env.Alias(buildTarget, coverageHtml)
+    # env.AlwaysBuild(coverageHtml)

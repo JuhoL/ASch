@@ -17,22 +17,19 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.cpp
+//! @file    Utils_Misc.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 Aug 2018
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @brief   This is a collection of generic constants and utility inline functions.
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! This is a collection of generic constants and utility inline functions that are used in ASch.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
-#include <ASch_Scheduler.hpp>
+#include <Utils_Misc.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -54,40 +51,38 @@
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-System::System(void)
-{
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    return;
-}
-
-void System::Error(SysError error)
-{
-    return;
-}
-
-void System::Init(void)
-{
-    return;
-}
-
-void System::PreStartConfig(void)
-{
-    return;
-}
-
-void System::PostStartConfig(void)
-{
-    return;
-}
-
-} // namespace ASch
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+/// @brief  This is blocker for new.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
+void* NewOperatorBlocker(void);
+
+/// @brief  This is blocker for delete.
+///
+/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
+void DeleteOperatorBlocker(void);
+
+/// @brief  This is overload for new operator
+///
+/// This function overloads new in C++ with a call of NewOperatorBlocker() which is not defined causing a linker error.
+/// This will prevent hidden dynamic memory implementations, e.g. in C++ STL, by preventing linkage.
+/// This devious trick is courtesy of Dan Saks.
+void* operator new(std::size_t)
+{
+    return NewOperatorBlocker();
+}
+
+/// @brief  This is overload for delete operator
+///
+/// This function overloads new in C++ with a call of DeleteOperatorBlocker() which is not defined causing a linker error.
+/// This is implemented only for sake of consistency. Intentionally breaking new is enough, but might just make sure it's dead.
+void operator delete(void*)
+{
+    return DeleteOperatorBlocker();
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions

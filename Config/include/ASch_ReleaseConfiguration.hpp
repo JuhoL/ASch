@@ -17,73 +17,54 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Utils.cpp
+//! @file    ASch_Configuration.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    28 Aug 2018
 //!
-//! @brief   This is a collection of generic constants and utility inline functions.
+//! @brief   Ssytem configuration header for ASch.
 //! 
-//! This is a collection of generic constants and utility inline functions that are used in ASch.
+//! This class configures certain system parameters
+
+#ifndef ASCH_RELEASE_CONFIGURATION_HPP_
+#define ASCH_RELEASE_CONFIGURATION_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Utils.hpp>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-/// @brief  This is blocker for new.
-///
-/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
-void* NewOperatorBlocker(void);
-
-/// @brief  This is blocker for delete.
-///
-/// Got a linker error? Good! This function declaration is intentionally missing definition! See below for reasoning.
-void DeleteOperatorBlocker(void);
-
-/// @brief  This is overload for new operator
-///
-/// This function overloads new in C++ with a call of NewOperatorBlocker() which is not defined causing a linker error.
-/// This will prevent hidden dynamic memory implementations, e.g. in C++ STL, by preventing linkage.
-/// This devious trick is courtesy of Dan Saks.
-void* operator new(std::size_t)
+namespace ASch
 {
-    return NewOperatorBlocker();
-}
 
-/// @brief  This is overload for delete operator
-///
-/// This function overloads new in C++ with a call of DeleteOperatorBlocker() which is not defined causing a linker error.
-/// This is implemented only for sake of consistency. Intentionally breaking new is enough, but might just make sure it's dead.
-void operator delete(void*)
+typedef enum
 {
-    return DeleteOperatorBlocker();
-}
+    message_test = 0,
+    invalid_message_type
+} messageType_t;
+
+const std::size_t schedulerTasksMax = 5;
+const std::size_t schedulerEventsMax = 10;
+const std::size_t messageListenersMax = 10;
+
+const uint16_t schedulerTickInterval = 1UL;
+
+} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 8. Static Functions
+// 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#endif // ASCH_RELEASE_CONFIGURATION_HPP_

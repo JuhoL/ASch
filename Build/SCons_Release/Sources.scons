@@ -5,3 +5,4 @@
 ./Hal/sources/Hal_SysTick.cpp
 ./Hal/sources/Hal_Isr.cpp
 ./Hal/sources/Hal_System.cpp
+./ASch/sources/ASch_Main.cpp
