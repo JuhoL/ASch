@@ -42,6 +42,18 @@ using namespace fakeit;
 // 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace ASch
+{
+
+uint8_t criticalSystemErrorCount = 0U;
+void CriticalSystemError(void)
+{
+    ++criticalSystemErrorCount;
+    return;
+}
+
+}
+
 namespace
 {
 
@@ -287,6 +299,46 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
             THEN ("a system error shall occur")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_invalidParameters);
+            }
+        }
+    }
+    GIVEN ("a scheduler is not yet created")
+    {
+        WHEN ("a scheduler is created using the simple constructor")
+        {
+            ASch::Scheduler scheduler = ASch::Scheduler();
+            (void)scheduler; // Get rid of unused variable warning.
+
+            THEN ("a critical system error shall occur")
+            {
+                REQUIRE (ASch::criticalSystemErrorCount == 1U);
+            }
+        }
+    }
+
+    GIVEN ("a scheduler is created")
+    {
+        Mock<Hal::SysTick> mockSysTick;
+        InitSysTickMock(mockSysTick);
+
+        Mock<Hal::Isr> mockIsr;
+        InitIsrMock(mockIsr);
+
+        Mock<Hal::System> mockHalSystem;
+        InitHalSystemMock(mockHalSystem);
+
+        Mock<ASch::System> mockSystem;
+        InitSystemMock(mockSystem);
+        
+        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+
+        WHEN ("developer creates another instance of scheduler")
+        {
+            ASch::Scheduler anotherScheduler = MOCK_SCHEDULER(1UL);
+
+            THEN ("a system error shall occur")
+            {
+                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_multipleSchedulerInstances);
             }
         }
     }
@@ -1126,6 +1178,36 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
             THEN ("a system error shall occur")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+            }
+        }
+    }
+}
+
+SCENARIO ("Developer fetches scheduler instance", "[scheduler]")
+{
+    GIVEN ("the scheduler is running and task list is empty")
+    {
+        Mock<Hal::SysTick> mockSysTick;
+        InitSysTickMock(mockSysTick);
+
+        Mock<Hal::Isr> mockIsr;
+        InitIsrMock(mockIsr);
+
+        Mock<Hal::System> mockHalSystem;
+        InitHalSystemMock(mockHalSystem);
+
+        Mock<ASch::System> mockSystem;
+        InitSystemMock(mockSystem);
+        
+        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+
+        WHEN ("developer requests scheduler instance pointer")
+        {
+            ASch::Scheduler* pScheduler = ASch::pGetSchedulerPointer();
+
+            THEN ("the pointer shall match with the scheduler instance")
+            {
+                REQUIRE (pScheduler == &scheduler);
             }
         }
     }

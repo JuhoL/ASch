@@ -59,9 +59,9 @@ class SysTick
 {
 public:
     explicit SysTick(void);
-    test_virtual void SetInterval(uint16_t intervalIn01Ms);
-    test_virtual void Start(void);
-    test_virtual void Stop(void);
+    static_mf void SetInterval(uint16_t intervalIn01Ms);
+    static_mf void Start(void);
+    static_mf void Stop(void);
 
 private:
     

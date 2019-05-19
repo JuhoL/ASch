@@ -58,8 +58,8 @@ class System
 public:
     explicit System(void);
 
-    test_virtual void Sleep(void);
-    test_virtual void WakeUp(void);
+    static_mf void Sleep(void);
+    static_mf void WakeUp(void);
 
 private:
     

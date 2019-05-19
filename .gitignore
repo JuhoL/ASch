@@ -4,7 +4,7 @@
 *.pyc
 TestReports/
 *.log
-*.gcno
-*.gcda
-*.gcov
+Build/Objects/
+Build/Release/
+Build/Tests/
 *.exe

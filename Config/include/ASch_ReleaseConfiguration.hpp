@@ -43,7 +43,8 @@ namespace ASch
 
 typedef enum
 {
-    message_test = 0
+    message_test = 0,
+    invalid_message_type
 } messageType_t;
 
 const std::size_t schedulerTasksMax = 5;

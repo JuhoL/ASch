@@ -105,44 +105,50 @@ namespace ASch
 class Scheduler
 {
 public:
+    explicit Scheduler(void);
     explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    
-    test_virtual void Start(void) const;
-    test_virtual void Stop(void) const;
+    ~Scheduler(void);
 
-    test_virtual uint8_t GetTaskCount(void) const;
-    test_virtual void CreateTask(task_t task);
-    test_virtual void DeleteTask(taskHandler_t taskHandler);
+    static_mf void Start(void) const;
+    static_mf void Stop(void) const;
 
-    test_virtual uint16_t GetTaskInterval(uint8_t taskId) const;
-    test_virtual void RunTasks(void) const;
+    static_mf uint8_t GetTaskCount(void) const;
+    static_mf void CreateTask(task_t task);
+    static_mf void DeleteTask(taskHandler_t taskHandler);
 
-    test_virtual void Sleep(void) const;
-    test_virtual void WakeUp(void) const;
+    static_mf uint16_t GetTaskInterval(uint8_t taskId) const;
+    static_mf void RunTasks(void) const;
 
-    test_virtual void PushEvent(event_t const& event);
-    test_virtual void RunEvents(void);
+    static_mf void Sleep(void) const;
+    static_mf void WakeUp(void) const;
 
-    test_virtual void RegisterMessageListener(messageListener_t const& listener);
-    test_virtual void UnregisterMessageListener(messageListener_t const& listener);
-    test_virtual uint8_t GetNumberOfMessageListeners(messageType_t type);
-    test_virtual void PushMessage(message_t const& message);
+    static_mf void PushEvent(event_t const& event);
+    static_mf void RunEvents(void);
+
+    static_mf void RegisterMessageListener(messageListener_t const& listener);
+    static_mf void UnregisterMessageListener(messageListener_t const& listener);
+    static_mf uint8_t GetNumberOfMessageListeners(messageType_t type);
+    static_mf void PushMessage(message_t const& message);
 
 private:
+    static void InitStaticMembers(void);
+
     // Dependencies
-    Hal::SysTick& sysTick;
-    Hal::Isr& isr;
-    Hal::System& halSystem;
-    System& system;
+    static Hal::SysTick* pSysTick;
+    static Hal::Isr* pIsr;
+    static Hal::System* pHalSystem;
+    static System* pSystem;
 
-    uint8_t taskCount;
-    task_t tasks[schedulerTasksMax];
+    static uint8_t taskCount;
+    static task_t tasks[schedulerTasksMax];
 
-    Utils::Queue<event_t, schedulerEventsMax> eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
+    static Utils::Queue<event_t, schedulerEventsMax> eventQueue;
 
-    uint8_t messageListenerCount;
-    messageListener_t messageListeners[messageListenersMax];
+    static uint8_t messageListenerCount;
+    static messageListener_t messageListeners[messageListenersMax];
 };
+
+Scheduler* pGetSchedulerPointer(void);
 
 } // namespace ASch
 

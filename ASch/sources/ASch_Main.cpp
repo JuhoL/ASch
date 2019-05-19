@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,21 +17,21 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.cpp
+//! @file    ASch_Main.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    13 May 2019
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @class   Main
+//! @brief   !!!!! Brief file description here !!!!!
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! !!!!! Detailed file description here !!!!!
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#include <Utils_Types.hpp>
 #include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
 #include <ASch_Scheduler.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -57,29 +57,25 @@
 namespace ASch
 {
 
-System::System(void)
+int main(void)
 {
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-    return;
-}
+    {
+        System system = System();
+        system.Init();
+        
+        system.PreStartConfig();
 
-void System::Error(sysError_e error)
-{
-    return;
-}
+        Scheduler* pScheduler = pGetSchedulerPointer();
+        pScheduler->Start();
 
-void System::Init(void)
-{
-    return;
-}
+        system.PostStartConfig();
+    }
 
-void System::PreStartConfig(void)
-{
-    return;
-}
+    while (UNIT_TEST == 0)
+    {
+        __NOP(); // Let the scheduler run.
+    }
 
-void System::PostStartConfig(void)
-{
     return;
 }
 
@@ -92,3 +88,4 @@ void System::PostStartConfig(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+

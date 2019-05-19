@@ -78,9 +78,9 @@ class Isr
 public:
     explicit Isr(void);
     
-    test_virtual void SetHandler(interruptType_t type, interruptHandler_t Handler);
-    test_virtual void Enable(interruptType_t type);
-    test_virtual void Disable(interruptType_t type);
+    static_mf void SetHandler(interruptType_t type, interruptHandler_t Handler);
+    static_mf void Enable(interruptType_t type);
+    static_mf void Disable(interruptType_t type);
 
     // ToDo: Atomic ISR enable/disable for global interrupt control.
 

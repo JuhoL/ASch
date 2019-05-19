@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,53 +17,48 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    <__MODULE__>.hpp
-//! @author  <__AUTHOR__> <<__EMAIL__>>
-//! @date    <__DATE__>
-//!
-//! @class   <__CLASS__>
-//! @brief   !!!!! Brief file description here !!!!!
+//! @file    UTest_ASch_Main.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    13 May 2019
 //! 
-//! !!!!! Detailed file description here !!!!!
-
-#ifndef <__HEADERGUARD__>
-#define <__HEADERGUARD__>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <Utils_Types.hpp>
+//! @brief   These are unit tests for ASch_Main.cpp
+//! 
+//! These are unit tests for ASch_Main.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+#include <ASch_Main.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
+// 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace <__NAMESPACE__>
+namespace
 {
 
-/// @class <__CLASS__>
-class <__CLASS__>
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Test Cases
+//-----------------------------------------------------------------------------------------------------------------------------
+
+SCENARIO ("Some test", "[feature_tag]")
 {
-public:
-    <__CLASS__>(void);
-
-private:
-    
-};
-
-} // namespace <__NAMESPACE__>
-
-#endif // <__HEADERGUARD__>
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}

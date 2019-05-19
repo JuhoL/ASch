@@ -45,7 +45,7 @@ def GenerateCoverageReport(env, buildTarget, targetPath):
     env.Alias(buildTarget, gcovXml)
     env.AlwaysBuild(gcovXml)
 
-    coverageHtml = ShowModuleCoverage(env, buildTarget)
-    env.Depends(coverageHtml, gcovXml)
-    env.Alias(buildTarget, coverageHtml)
-    env.AlwaysBuild(coverageHtml)
+    # coverageHtml = ShowModuleCoverage(env, buildTarget)
+    # env.Depends(coverageHtml, gcovXml)
+    # env.Alias(buildTarget, coverageHtml)
+    # env.AlwaysBuild(coverageHtml)

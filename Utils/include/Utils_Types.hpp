@@ -37,9 +37,11 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #if (UNIT_TEST == 1)
-    #define test_virtual        virtual
+    #define static_mf       virtual
+    #define static_mv       
 #else
-    #define test_virtual
+    #define static_mf       static
+    #define static_mv       static
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------
