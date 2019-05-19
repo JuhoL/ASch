@@ -77,6 +77,14 @@ typedef struct
     const void* pPayload;
 } message_t;
 
+enum class SchedulerStatus
+{
+    idle = 0,
+    running,
+    stopped,
+    error
+};
+
 } // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -105,12 +113,14 @@ namespace ASch
 class Scheduler
 {
 public:
-    explicit Scheduler(void);
     explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
+    explicit Scheduler(void);
     ~Scheduler(void);
 
     static_mf void Start(void) const;
     static_mf void Stop(void) const;
+
+    static_mf SchedulerStatus GetStatus(void) const;
 
     static_mf uint8_t GetTaskCount(void) const;
     static_mf void CreateTask(task_t task);
@@ -132,6 +142,7 @@ public:
 
 private:
     static void InitStaticMembers(void);
+    static void ThrowError(sysError_e error);
 
     // Dependencies
     static Hal::SysTick* pSysTick;
@@ -139,6 +150,8 @@ private:
     static Hal::System* pHalSystem;
     static System* pSystem;
 
+    static SchedulerStatus status;
+    
     static uint8_t taskCount;
     static task_t tasks[schedulerTasksMax];
 

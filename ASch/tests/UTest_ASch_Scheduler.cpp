@@ -208,6 +208,10 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             {
                 REQUIRE (scheduler.GetTaskCount() == 0U);
             }
+            AND_THEN ("scheduler state shall be idle")
+            {
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::idle);
+            }
         }
     }
 
@@ -238,6 +242,10 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             AND_THEN ("SysTick is started")
             {
                 REQUIRE_CALLS (1, mockSysTick, Start);
+            }
+            AND_THEN ("scheduler state shall be running")
+            {
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::running);
             }
         }
     }
@@ -271,6 +279,10 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             {
                 REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::interrupt_sysTick);
             }
+            AND_THEN ("scheduler state shall be stopped")
+            {
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::stopped);
+            }
         }
     }
 }
@@ -299,6 +311,7 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
             THEN ("a system error shall occur")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_invalidParameters);
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
     }
@@ -339,6 +352,7 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
             THEN ("a system error shall occur")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_multipleSchedulerInstances);
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
     }
@@ -585,6 +599,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
             AND_THEN ("no errors shall be triggered")
             {
                 REQUIRE_CALLS (0, mockSystem, Error);
+                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
             }
         }
     }
@@ -624,6 +639,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
                 AND_THEN ("no errors shall be triggered")
                 {
                     REQUIRE_CALLS (0, mockSystem, Error);
+                    REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
                 }
                 AND_THEN ("Task1 time shall be updated")
                 {
@@ -725,6 +741,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
             AND_THEN ("no errors shall be triggered")
             {
                 REQUIRE_CALLS (0, mockSystem, Error);
+                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
             }
         }
     }
@@ -761,6 +778,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
                 THEN ("system error shall trigger")
                 {
                     REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                    REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
                 }
             }
         }
@@ -957,6 +975,7 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
             THEN ("no error shall be triggered")
             {
                 REQUIRE_CALLS (0, mockSystem, Error);
+                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("another event is pushed")
                 {
@@ -965,6 +984,7 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
                     THEN ("a system error shall occur")
                     {
                         REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                        REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
                     }
                 }
             }
@@ -1013,6 +1033,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
             AND_THEN ("no errors shall be triggered")
             {
                 REQUIRE_CALLS (0, mockSystem, Error);
+                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("a message_test_0 is posted")
                 {
@@ -1021,6 +1042,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
                     THEN ("no errors shall be triggered")
                     {
                         REQUIRE_CALLS (0, mockSystem, Error);
+                        REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
                     
                         AND_WHEN ("scheduler runs one cycle")
                         {
@@ -1130,6 +1152,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
             AND_THEN ("no errors shall be triggered")
             {
                 REQUIRE_CALLS (0, mockSystem, Error);
+                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("a message_test_0 is posted and scheduler runs one cycle")
                 {
@@ -1178,6 +1201,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
             THEN ("a system error shall occur")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::sysError_insufficientResources);
+                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
             }
         }
     }
