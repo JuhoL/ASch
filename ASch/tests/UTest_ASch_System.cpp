@@ -29,11 +29,11 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <Catch_Utils.hpp>
 
 #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
+
+#include <Hal_Mock.hpp>
 
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
@@ -44,6 +44,8 @@
 
 namespace
 {
+
+#define MOCK_SYSTEM()       ASch::System(mockSysTick.get())
 
 // Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
 uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
@@ -121,13 +123,13 @@ void CriticalSystemError(void)
 SCENARIO ("A system is configured", "[system]")
 {
     Mock<Hal::SysTick> mockSysTick;
-    InitSysTickMock(mockSysTick);
+    HalMock::InitSysTick(mockSysTick);
     
     InitConfigCallCounts();
     
     GIVEN ("a system object is created")
     {
-        ASch::System system = ASch::System();
+        ASch::System system = MOCK_SYSTEM();
 
         WHEN ("pre-start config is called")
         {
@@ -149,7 +151,7 @@ SCENARIO ("A system is configured", "[system]")
 
     GIVEN ("a system object is created")
     {
-        ASch::System system = ASch::System();
+        ASch::System system = MOCK_SYSTEM();
 
         WHEN ("post-start config is called")
         {
