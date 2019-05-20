@@ -17,48 +17,55 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    ASch_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    20 May 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @brief   Mocks for ASch classes.
 //! 
-//! This class configures certain system parameters
-
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#include <ASch_Mock.hpp>
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Init Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace ASchMock
 {
 
-typedef void (*configFunction_t)(void);
-
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Post Includes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-    #include <ASch_TestConfiguration.hpp>
-#else
-    #include <ASch_ReleaseConfiguration.hpp>
-#endif
-
-namespace ASch
+void InitScheduler(Mock<ASch::Scheduler>& mockScheduler)
 {
-
-const std::size_t preStartConfigurationFunctionsMax = sizeof(apPreStartConfigFunctions)/sizeof(configFunction_t);
-const std::size_t postStartConfigurationFunctionsMax = sizeof(apPostStartConfigFunctions)/sizeof(configFunction_t);
-
+    Fake(Method(mockScheduler, Start));
+    Fake(Method(mockScheduler, Stop));
+    Fake(Method(mockScheduler, GetStatus));
+    Fake(Method(mockScheduler, GetTaskCount));
+    Fake(Method(mockScheduler, CreateTask));
+    Fake(Method(mockScheduler, DeleteTask));
+    Fake(Method(mockScheduler, GetTaskInterval));
+    Fake(Method(mockScheduler, RunTasks));
+    Fake(Method(mockScheduler, Sleep));
+    Fake(Method(mockScheduler, WakeUp));
+    Fake(Method(mockScheduler, PushEvent));
+    Fake(Method(mockScheduler, RunEvents));
+    Fake(Method(mockScheduler, RegisterMessageListener));
+    Fake(Method(mockScheduler, UnregisterMessageListener));
+    Fake(Method(mockScheduler, GetNumberOfMessageListeners));
+    Fake(Method(mockScheduler, PushMessage));
+    return;
 }
 
-#endif // ASCH_CONFIGURATION_HPP_
+void InitSystem(Mock<ASch::System>& mockSystem)
+{
+    Fake(Method(mockSystem, Error));
+    Fake(Method(mockSystem, Init));
+    Fake(Method(mockSystem, PreStartConfig));
+    Fake(Method(mockSystem, PostStartConfig));
+    return;
+}
+
+} // namespace ASchMock

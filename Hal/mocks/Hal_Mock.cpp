@@ -17,48 +17,48 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    Hal_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    20 May 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @brief   Mocks for HAL classes.
 //! 
-//! This class configures certain system parameters
-
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#include <Hal_Mock.hpp>
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Init Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace HalMock
 {
 
-typedef void (*configFunction_t)(void);
-
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Post Includes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-    #include <ASch_TestConfiguration.hpp>
-#else
-    #include <ASch_ReleaseConfiguration.hpp>
-#endif
-
-namespace ASch
+void InitIsr(Mock<Hal::Isr>& mockIsr)
 {
-
-const std::size_t preStartConfigurationFunctionsMax = sizeof(apPreStartConfigFunctions)/sizeof(configFunction_t);
-const std::size_t postStartConfigurationFunctionsMax = sizeof(apPostStartConfigFunctions)/sizeof(configFunction_t);
-
+    Fake(Method(mockIsr, SetHandler));
+    Fake(Method(mockIsr, Enable));
+    Fake(Method(mockIsr, Disable));
+    return;
 }
 
-#endif // ASCH_CONFIGURATION_HPP_
+void InitSystem(Mock<Hal::System>& mockHalSystem)
+{
+    Fake(Method(mockHalSystem, Sleep));
+    Fake(Method(mockHalSystem, WakeUp));
+    return;
+}
+
+void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
+{
+    Fake(Method(mockSysTick, SetInterval));
+    Fake(Method(mockSysTick, Start));
+    Fake(Method(mockSysTick, Stop));
+    return;
+}
+
+} // namespace HalMock

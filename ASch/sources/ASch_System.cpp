@@ -30,9 +30,13 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#if (UNIT_TEST == 1)
+    #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
+#endif
+
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
-#include <ASch_Scheduler.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -57,9 +61,26 @@
 namespace ASch
 {
 
+//---------------------------------------
+// Initialise static members
+//---------------------------------------
+Hal::SysTick* System::pSysTick = 0;
+
+//---------------------------------------
+// Functions
+//---------------------------------------
+System::System(Hal::SysTick& sysTickParameter)
+{
+    pSysTick = &sysTickParameter;
+    return;
+}
+
 System::System(void)
 {
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
+    if (pSysTick == 0)
+    {
+        Hal::CriticalSystemError();
+    }
     return;
 }
 
@@ -75,11 +96,19 @@ void System::Init(void)
 
 void System::PreStartConfig(void)
 {
+    for (std::size_t i = 0; i < preStartConfigurationFunctionsMax; ++i)
+    {
+        apPreStartConfigFunctions[i]();
+    }
     return;
 }
 
 void System::PostStartConfig(void)
 {
+    for (std::size_t i = 0; i < postStartConfigurationFunctionsMax; ++i)
+    {
+        apPostStartConfigFunctions[i]();
+    }
     return;
 }
 
@@ -88,6 +117,16 @@ void System::PostStartConfig(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+void CriticalSystemError(void)
+{
+    return;
+}
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions

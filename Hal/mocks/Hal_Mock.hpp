@@ -17,48 +17,44 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    Hal_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    20 May 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @brief   Mocks for HAL classes.
 //! 
-//! This class configures certain system parameters
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
+#ifndef HAL_MOCK_HPP_
+#define HAL_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Module Headers
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#include <Hal_Isr.hpp>
+#include <Hal_System.hpp>
+#include <Hal_SysTick.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace HalMock
 {
 
-typedef void (*configFunction_t)(void);
+void InitIsr(Mock<Hal::Isr>& mockIsr);
+void InitSystem(Mock<Hal::System>& mockHalSystem);
+void InitSysTick(Mock<Hal::SysTick>& mockSysTick);
 
-}
+} // namespace HalMock
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Post Includes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-    #include <ASch_TestConfiguration.hpp>
-#else
-    #include <ASch_ReleaseConfiguration.hpp>
-#endif
-
-namespace ASch
-{
-
-const std::size_t preStartConfigurationFunctionsMax = sizeof(apPreStartConfigFunctions)/sizeof(configFunction_t);
-const std::size_t postStartConfigurationFunctionsMax = sizeof(apPostStartConfigFunctions)/sizeof(configFunction_t);
-
-}
-
-#endif // ASCH_CONFIGURATION_HPP_
+#endif // HAL_MOCK_HPP_

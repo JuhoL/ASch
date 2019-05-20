@@ -17,48 +17,42 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    ASch_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    20 May 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @brief   Mocks for ASch classes.
 //! 
-//! This class configures certain system parameters
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef ASCH_CONFIGURATION_HPP_
-#define ASCH_CONFIGURATION_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
+#ifndef ASCH_MOCK_HPP_
+#define ASCH_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Module Headers
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#include <ASch_Scheduler.hpp>
+#include <ASch_System.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASchMock
 {
 
-typedef void (*configFunction_t)(void);
+void InitScheduler(Mock<ASch::Scheduler>& mockScheduler);
+void InitSystem(Mock<ASch::System>& mockSystem);
 
-}
+} // namespace ASchMock
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Post Includes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-    #include <ASch_TestConfiguration.hpp>
-#else
-    #include <ASch_ReleaseConfiguration.hpp>
-#endif
-
-namespace ASch
-{
-
-const std::size_t preStartConfigurationFunctionsMax = sizeof(apPreStartConfigFunctions)/sizeof(configFunction_t);
-const std::size_t postStartConfigurationFunctionsMax = sizeof(apPostStartConfigFunctions)/sizeof(configFunction_t);
-
-}
-
-#endif // ASCH_CONFIGURATION_HPP_
+#endif // ASCH_MOCK_HPP_

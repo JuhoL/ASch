@@ -34,19 +34,19 @@
 
 #include <Utils_Types.hpp>
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
-//-----------------------------------------------------------------------------------------------------------------------------
-
 namespace ASch
 {
 
-typedef enum
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Scheduler Configuration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+enum class Message
 {
-    message_test_0 = 0,
-    message_test_1,
-    invalid_message_type
-} messageType_t;
+    test_0 = 0,
+    test_1,
+    invalid // Do not remove! Leave last.
+};
 
 const std::size_t schedulerTasksMax = 5;
 const std::size_t schedulerEventsMax = 10;
@@ -54,18 +54,42 @@ const std::size_t messageListenersMax = 3;
 
 const uint16_t schedulerTickInterval = 1UL;
 
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Pre-start Configuration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#ifdef SYSTEM_UNIT_TEST
+    // Test function prototypes
+    void PreStartConfig0(void);
+    void PreStartConfig1(void);
+
+    const configFunction_t apPreStartConfigFunctions[] =
+    {
+        PreStartConfig0,
+        PreStartConfig1
+    };
+#else
+    const configFunction_t apPreStartConfigFunctions[] = {0};
+#endif
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Post-start Configuration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#ifdef SYSTEM_UNIT_TEST
+    // Test function prototypes
+    void PostStartConfig0(void);
+    void PostStartConfig1(void);
+    void PostStartConfig2(void);
+
+    const configFunction_t apPostStartConfigFunctions[] =
+    {
+        PostStartConfig0,
+        PostStartConfig1,
+        PostStartConfig2
+    };
+#else
+    const configFunction_t apPostStartConfigFunctions[] = {0};
+#endif
 } // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
 
 #endif // ASCH_TEST_CONFIGURATION_HPP_
