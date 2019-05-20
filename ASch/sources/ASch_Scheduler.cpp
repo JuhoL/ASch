@@ -107,7 +107,7 @@ task_t Scheduler::tasks[schedulerTasksMax] = {{.intervalInMs = 0, .Task = 0}};
 Utils::Queue<event_t, schedulerEventsMax> Scheduler::eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
 
 uint8_t Scheduler::messageListenerCount = 0U;
-messageListener_t Scheduler::messageListeners[messageListenersMax] = {{.type = invalid_message_type, .Handler = 0}};
+messageListener_t Scheduler::messageListeners[messageListenersMax] = {{.type = Message::invalid, .Handler = 0}};
 
 //---------------------------------------
 // Functions
@@ -164,7 +164,7 @@ Scheduler::~Scheduler(void)
     return;
 }
 
-void Scheduler::Start(void) const
+void Scheduler::Start(void)
 {
     pIsr->Enable(Hal::interrupt_sysTick);
     pSysTick->Start();
@@ -172,7 +172,7 @@ void Scheduler::Start(void) const
     return;
 }
 
-void Scheduler::Stop(void) const
+void Scheduler::Stop(void)
 {
     pSysTick->Stop();
     pIsr->Disable(Hal::interrupt_sysTick);
@@ -180,12 +180,12 @@ void Scheduler::Stop(void) const
     return;
 }
 
-SchedulerStatus Scheduler::GetStatus(void) const
+SchedulerStatus Scheduler::GetStatus(void)
 {
     return status;
 }
 
-uint8_t Scheduler::GetTaskCount(void) const
+uint8_t Scheduler::GetTaskCount(void)
 {
     return taskCount;
 }
@@ -251,7 +251,7 @@ void Scheduler::DeleteTask(taskHandler_t taskHandler)
     return;
 }
 
-uint16_t Scheduler::GetTaskInterval(uint8_t taskId) const
+uint16_t Scheduler::GetTaskInterval(uint8_t taskId)
 {
     uint16_t interval;
 
@@ -267,7 +267,7 @@ uint16_t Scheduler::GetTaskInterval(uint8_t taskId) const
     return interval;
 }
 
-void Scheduler::RunTasks(void) const
+void Scheduler::RunTasks(void)
 {
     for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
@@ -280,13 +280,13 @@ void Scheduler::RunTasks(void) const
     return;
 }
 
-void Scheduler::Sleep(void) const
+void Scheduler::Sleep(void)
 {
     pHalSystem->Sleep();
     return;
 }
 
-void Scheduler::WakeUp(void) const
+void Scheduler::WakeUp(void)
 {
     pHalSystem->WakeUp();
     return;
@@ -375,7 +375,7 @@ void Scheduler::UnregisterMessageListener(messageListener_t const& listener)
     return;
 }
 
-uint8_t Scheduler::GetNumberOfMessageListeners(messageType_t type)
+uint8_t Scheduler::GetNumberOfMessageListeners(Message type)
 {
     uint8_t listeners = 0U;
     for (uint8_t i = 0U; i < messageListenerCount; ++i)

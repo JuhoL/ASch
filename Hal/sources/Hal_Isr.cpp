@@ -55,6 +55,14 @@
 namespace Hal
 {
 
+//---------------------------------------
+// Initialise static members
+//---------------------------------------
+interruptHandler_t Isr::Handlers[interrupt_vectorsMax] = {0};
+
+//---------------------------------------
+// Functions
+//---------------------------------------
 Isr::Isr(void)
 {
     for (uint8_t i; i < static_cast<uint8_t>(interrupt_vectorsMax); ++i)

@@ -67,13 +67,13 @@ typedef struct
 
 typedef struct
 {
-    messageType_t type;
+    Message type;
     messageHandler_t Handler;
 } messageListener_t;
 
 typedef struct
 {
-    messageType_t type;
+    Message type;
     const void* pPayload;
 } message_t;
 
@@ -117,27 +117,27 @@ public:
     explicit Scheduler(void);
     ~Scheduler(void);
 
-    static_mf void Start(void) const;
-    static_mf void Stop(void) const;
+    static_mf void Start(void);
+    static_mf void Stop(void);
 
-    static_mf SchedulerStatus GetStatus(void) const;
+    static_mf SchedulerStatus GetStatus(void);
 
-    static_mf uint8_t GetTaskCount(void) const;
+    static_mf uint8_t GetTaskCount(void);
     static_mf void CreateTask(task_t task);
     static_mf void DeleteTask(taskHandler_t taskHandler);
 
-    static_mf uint16_t GetTaskInterval(uint8_t taskId) const;
-    static_mf void RunTasks(void) const;
+    static_mf uint16_t GetTaskInterval(uint8_t taskId);
+    static_mf void RunTasks(void);
 
-    static_mf void Sleep(void) const;
-    static_mf void WakeUp(void) const;
+    static_mf void Sleep(void);
+    static_mf void WakeUp(void);
 
     static_mf void PushEvent(event_t const& event);
     static_mf void RunEvents(void);
 
     static_mf void RegisterMessageListener(messageListener_t const& listener);
     static_mf void UnregisterMessageListener(messageListener_t const& listener);
-    static_mf uint8_t GetNumberOfMessageListeners(messageType_t type);
+    static_mf uint8_t GetNumberOfMessageListeners(Message type);
     static_mf void PushMessage(message_t const& message);
 
 private:

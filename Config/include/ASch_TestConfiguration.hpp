@@ -41,12 +41,12 @@
 namespace ASch
 {
 
-typedef enum
+enum class Message
 {
-    message_test_0 = 0,
-    message_test_1,
-    invalid_message_type
-} messageType_t;
+    test_0 = 0,
+    test_1,
+    invalid // Do not remove! Leave last.
+};
 
 const std::size_t schedulerTasksMax = 5;
 const std::size_t schedulerEventsMax = 10;

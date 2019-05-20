@@ -1016,19 +1016,19 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 
         WHEN ("developer registers two message listeners for message_test_0 and one listener for message_test_1")
         {
-            ASch::messageListener_t listener = {.type = ASch::message_test_0, .Handler = TestEventHandler0};
+            ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
             scheduler.RegisterMessageListener(listener);
 
-            listener = {.type = ASch::message_test_1, .Handler = TestEventHandler1};
+            listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
             scheduler.RegisterMessageListener(listener);
 
-            listener = {.type = ASch::message_test_0, .Handler = TestEventHandler2};
+            listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
             scheduler.RegisterMessageListener(listener);
 
             THEN ("listener counts shall match with the registered listeners")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::message_test_0) == 2U);
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::message_test_1) == 1U);
+                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
+                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_1) == 1U);
             }
             AND_THEN ("no errors shall be triggered")
             {
@@ -1037,7 +1037,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 
                 AND_WHEN ("a message_test_0 is posted")
                 {
-                    scheduler.PushMessage({.type = ASch::message_test_0, .pPayload = static_cast<void*>(&testData)});
+                    scheduler.PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
 
                     THEN ("no errors shall be triggered")
                     {
@@ -1084,28 +1084,28 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
         
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
-        ASch::messageListener_t listener = {.type = ASch::message_test_0, .Handler = TestEventHandler0};
+        ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
         scheduler.RegisterMessageListener(listener);
 
-        listener = {.type = ASch::message_test_1, .Handler = TestEventHandler1};
+        listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
         scheduler.RegisterMessageListener(listener);
 
-        listener = {.type = ASch::message_test_0, .Handler = TestEventHandler2};
+        listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
         scheduler.RegisterMessageListener(listener);
 
         WHEN ("developer unregisters listener for message_test_1")
         {
-            listener = {.type = ASch::message_test_1, .Handler = TestEventHandler1};
+            listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
             scheduler.UnregisterMessageListener(listener);
 
             THEN ("listener counts shall match with the registered listeners")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::message_test_0) == 2U);
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::message_test_1) == 0U);
+                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
+                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_1) == 0U);
             }
             AND_WHEN ("a message_test_1 is posted and scheduler runs one cycle")
             {
-                scheduler.PushMessage({.type = ASch::message_test_1, .pPayload = static_cast<void*>(&testData)});
+                scheduler.PushMessage({.type = ASch::Message::test_1, .pPayload = static_cast<void*>(&testData)});
                 ASch::SchedulerLoop();
 
                 THEN ("remvoed message_test_1 listeners shall not be called")
@@ -1141,13 +1141,13 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
         WHEN ("developer tries to register same listener twice")
         {
-            ASch::messageListener_t listener = {.type = ASch::message_test_0, .Handler = TestEventHandler0};
+            ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
             scheduler.RegisterMessageListener(listener);
             scheduler.RegisterMessageListener(listener);
 
             THEN ("the duplicate listener shall be ignored")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::message_test_0) == 1U);
+                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 1U);
             }
             AND_THEN ("no errors shall be triggered")
             {
@@ -1156,7 +1156,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
                 AND_WHEN ("a message_test_0 is posted and scheduler runs one cycle")
                 {
-                    scheduler.PushMessage({.type = ASch::message_test_0, .pPayload = static_cast<void*>(&testData)});
+                    scheduler.PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
                     ASch::SchedulerLoop();
 
                     THEN ("the duplicated listener shall be called only once")
@@ -1184,18 +1184,18 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
         
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
-        ASch::messageListener_t listener = {.type = ASch::message_test_0, .Handler = TestEventHandler0};
+        ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
         scheduler.RegisterMessageListener(listener);
 
-        listener = {.type = ASch::message_test_1, .Handler = TestEventHandler1};
+        listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
         scheduler.RegisterMessageListener(listener);
 
-        listener = {.type = ASch::message_test_0, .Handler = TestEventHandler2};
+        listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
         scheduler.RegisterMessageListener(listener);
 
         WHEN ("developer registers another listener")
         {
-            listener = {.type = ASch::message_test_1, .Handler = TestEventHandler2};
+            listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler2};
             scheduler.RegisterMessageListener(listener);
 
             THEN ("a system error shall occur")

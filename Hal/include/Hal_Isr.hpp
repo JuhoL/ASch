@@ -85,7 +85,7 @@ public:
     // ToDo: Atomic ISR enable/disable for global interrupt control.
 
 private:
-    interruptHandler_t Handlers[interrupt_vectorsMax];
+    static interruptHandler_t Handlers[interrupt_vectorsMax];
 };
 
 } // namespace Hal

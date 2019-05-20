@@ -50,42 +50,53 @@
 // 5. Static Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace
+{
+
+void Init(void);
+
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
-{
-
-int main(void)
-{
-    {
-        System system = System();
-        system.Init();
-        
-        system.PreStartConfig();
-
-        Scheduler* pScheduler = pGetSchedulerPointer();
-        pScheduler->Start();
-
-        system.PostStartConfig();
-    }
-
-    while (UNIT_TEST == 0)
-    {
-        __NOP(); // Let the scheduler run.
-    }
-
-    return;
-}
-
-} // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+int main(void)
+{
+    Init();
+
+    while (UNIT_TEST == 0)
+    {
+        ; // Let the scheduler run.
+    }
+
+    return 0;
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace
+{
+
+void Init(void)
+{
+    ASch::System system = ASch::System();
+    system.Init();
+    
+    system.PreStartConfig();
+
+    ASch::Scheduler scheduler = ASch::Scheduler();
+    scheduler.Start();
+
+    system.PostStartConfig();
+
+    return;
+}
+
+} // namespace ASch

@@ -59,7 +59,6 @@ namespace ASch
 
 System::System(void)
 {
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
     return;
 }
 
@@ -88,6 +87,16 @@ void System::PostStartConfig(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch
+{
+
+void CriticalSystemError(void)
+{
+    return;
+}
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
