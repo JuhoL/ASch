@@ -42,24 +42,12 @@ using namespace fakeit;
 // 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-uint8_t criticalSystemErrorCount = 0U;
-void CriticalSystemError(void)
-{
-    ++criticalSystemErrorCount;
-    return;
-}
-
-}
-
 namespace
 {
 
 #define MOCK_SCHEDULER(interval)    ASch::Scheduler(mockSysTick.get(), mockIsr.get(), mockHalSystem.get(), mockSystem.get(), interval)
 
-inline void InitSysTickMock(Mock<Hal::SysTick>& mockSysTick)
+static void InitSysTickMock(Mock<Hal::SysTick>& mockSysTick)
 {
     Fake(Method(mockSysTick, SetInterval));
     Fake(Method(mockSysTick, Start));
@@ -67,7 +55,7 @@ inline void InitSysTickMock(Mock<Hal::SysTick>& mockSysTick)
     return;
 }
 
-inline void InitIsrMock(Mock<Hal::Isr>& mockIsr)
+static void InitIsrMock(Mock<Hal::Isr>& mockIsr)
 {
     Fake(Method(mockIsr, SetHandler));
     Fake(Method(mockIsr, Enable));
@@ -75,14 +63,14 @@ inline void InitIsrMock(Mock<Hal::Isr>& mockIsr)
     return;
 }
 
-inline void InitHalSystemMock(Mock<Hal::System>& mockHalSystem)
+static void InitHalSystemMock(Mock<Hal::System>& mockHalSystem)
 {
     Fake(Method(mockHalSystem, Sleep));
     Fake(Method(mockHalSystem, WakeUp));
     return;
 }
 
-inline void InitSystemMock(Mock<ASch::System>& mockSystem)
+static void InitSystemMock(Mock<ASch::System>& mockSystem)
 {
     Fake(Method(mockSystem, Error));
     return;
@@ -170,7 +158,21 @@ static void InitCallCounters(void)
 
 static void RunTicks(uint32_t ticks);
 
+uint8_t criticalSystemErrorCount = 0U;
+
+} // anonymous namespace
+
+namespace Hal
+{
+
+void CriticalSystemError(void)
+{
+    ++criticalSystemErrorCount;
+    return;
 }
+
+}
+
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
@@ -300,7 +302,7 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 
             THEN ("a critical system error shall occur")
             {
-                REQUIRE (ASch::criticalSystemErrorCount == 1U);
+                REQUIRE (criticalSystemErrorCount == 1U);
             }
         }
     }

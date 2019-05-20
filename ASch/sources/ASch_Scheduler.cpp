@@ -69,13 +69,6 @@ schedulerState_t schedulerState;
 
 }
 
-namespace ASch
-{
-
-extern void CriticalSystemError(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -151,7 +144,7 @@ Scheduler::Scheduler(void)
 {
     if (pScheduler == 0)
     {
-        CriticalSystemError();
+        Hal::CriticalSystemError();
     }
     return;
 }

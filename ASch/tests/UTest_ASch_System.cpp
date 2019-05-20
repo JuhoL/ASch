@@ -64,7 +64,9 @@ void InitConfigCallCounts(void)
     return;
 }
 
-}
+uint8_t criticalSystemErrorCount = 0U;
+
+} // anonymous namespace
 
 namespace ASch
 {
@@ -99,7 +101,18 @@ void PostStartConfig2(void)
     return;
 }
 
+} // namespace ASch
+
+namespace Hal
+{
+
+void CriticalSystemError(void)
+{
+    ++criticalSystemErrorCount;
+    return;
 }
+
+} // namespace Hal
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
@@ -107,6 +120,9 @@ void PostStartConfig2(void)
 
 SCENARIO ("A system is configured", "[system]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+    
     InitConfigCallCounts();
     
     GIVEN ("a system object is created")

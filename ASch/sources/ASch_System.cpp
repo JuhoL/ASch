@@ -36,6 +36,7 @@
 
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -60,8 +61,26 @@
 namespace ASch
 {
 
+//---------------------------------------
+// Initialise static members
+//---------------------------------------
+Hal::SysTick* System::pSysTick = 0;
+
+//---------------------------------------
+// Functions
+//---------------------------------------
+System::System(Hal::SysTick& sysTickParameter)
+{
+    pSysTick = &sysTickParameter;
+    return;
+}
+
 System::System(void)
 {
+    if (pSysTick == 0)
+    {
+        Hal::CriticalSystemError();
+    }
     return;
 }
 
