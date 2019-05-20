@@ -178,22 +178,22 @@ static void RunTicks(uint32_t ticks);
 
 SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
     GIVEN ("a scheduler is not yet created")
     {
         WHEN ("a scheduler is created")
         {
-            Mock<Hal::SysTick> mockSysTick;
-            InitSysTickMock(mockSysTick);
-
-            Mock<Hal::Isr> mockIsr;
-            InitIsrMock(mockIsr);
-
-            Mock<Hal::System> mockHalSystem;
-            InitHalSystemMock(mockHalSystem);
-
-            Mock<ASch::System> mockSystem;
-            InitSystemMock(mockSystem);
-
             ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
             THEN ("the scheduler shall configure system tick")
@@ -217,18 +217,6 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
     GIVEN ("a scheduler is created")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer starts the scheduler")
@@ -252,18 +240,6 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
     GIVEN ("a scheduler is running")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
         scheduler.Start();
 
@@ -289,22 +265,22 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
 SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
     GIVEN ("a scheduler is not yet created")
     {
         WHEN ("a scheduler is created with interval of 0ms")
         {
-            Mock<Hal::SysTick> mockSysTick;
-            InitSysTickMock(mockSysTick);
-
-            Mock<Hal::Isr> mockIsr;
-            InitIsrMock(mockIsr);
-
-            Mock<Hal::System> mockHalSystem;
-            InitHalSystemMock(mockHalSystem);
-
-            Mock<ASch::System> mockSystem;
-            InitSystemMock(mockSystem);
-
             ASch::Scheduler scheduler = MOCK_SCHEDULER(0UL);
             (void)scheduler; // Get rid of unused variable warning.
 
@@ -331,18 +307,6 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 
     GIVEN ("a scheduler is created")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer creates another instance of scheduler")
@@ -360,22 +324,22 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 
 SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
+    InitCallCounters();
+
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("a task (Task0) with interval of one is created")
@@ -419,20 +383,6 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("a task (Task0) with interval three is created")
@@ -511,20 +461,6 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and three tasks are created with different intervals")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
@@ -569,20 +505,6 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer fills the scheduler up to task limit")
@@ -606,20 +528,6 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer creates few tasks")
@@ -651,20 +559,6 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("a task (Task0) with interval three is created and SysTick triggers twice")
@@ -714,20 +608,22 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
 SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
+    InitCallCounters();
+
     GIVEN ("the scheduler is running and task list is empty")
-    {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
+    {        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer tries to delete random task")
@@ -748,20 +644,6 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer fills the scheduler task limit")
@@ -786,18 +668,6 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer tries to read task interval with an invalid ID")
@@ -814,22 +684,22 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
 SCENARIO ("Developer pushes events successfully", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
+    InitCallCounters();
+    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("an event is pushed")
@@ -877,20 +747,6 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("three events are pushed and scheduler loop runs once")
@@ -946,20 +802,20 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
 SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("maximum number of events is pushed")
@@ -994,24 +850,24 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 
 SCENARIO ("Developer manages message system successfully", "[scheduler]")
 {
+    uint8_t testData = 0x12U;
+    
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
+    InitCallCounters();
+    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        uint8_t testData = 0x12U;
-        
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer registers two message listeners for message_test_0 and one listener for message_test_1")
@@ -1068,20 +924,6 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running, task list is empty, and there are two message listeners for message_test_0 and one listener for message_test_1")
     {
-        uint8_t testData = 0x12U;
-        
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
@@ -1119,24 +961,24 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 
 SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 {
+    uint8_t testData = 0x12U;
+    
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+
+    InitCallCounters();
+    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        uint8_t testData = 0x12U;
-        
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-
-        InitCallCounters();
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer tries to register same listener twice")
@@ -1170,18 +1012,6 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
     GIVEN ("the scheduler is running, task list is empty, and the message listener list is full")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
@@ -1209,20 +1039,20 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
 SCENARIO ("Developer fetches scheduler instance", "[scheduler]")
 {
+    Mock<Hal::SysTick> mockSysTick;
+    InitSysTickMock(mockSysTick);
+
+    Mock<Hal::Isr> mockIsr;
+    InitIsrMock(mockIsr);
+
+    Mock<Hal::System> mockHalSystem;
+    InitHalSystemMock(mockHalSystem);
+
+    Mock<ASch::System> mockSystem;
+    InitSystemMock(mockSystem);
+    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        Mock<Hal::SysTick> mockSysTick;
-        InitSysTickMock(mockSysTick);
-
-        Mock<Hal::Isr> mockIsr;
-        InitIsrMock(mockIsr);
-
-        Mock<Hal::System> mockHalSystem;
-        InitHalSystemMock(mockHalSystem);
-
-        Mock<ASch::System> mockSystem;
-        InitSystemMock(mockSystem);
-        
         ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
 
         WHEN ("developer requests scheduler instance pointer")

@@ -33,7 +33,10 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
+#define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
+
 #include <ASch_System.hpp>
+#include <ASch_Configuration.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -42,21 +45,110 @@
 namespace
 {
 
+// Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
+uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
+uint8_t postStartConfigCallCount[ASch::postStartConfigurationFunctionsMax] = {0U};
+
+void InitConfigCallCounts(void)
+{
+    for (std::size_t i = 0; i < ASch::preStartConfigurationFunctionsMax; ++i)
+    {
+        preStartConfigCallCount[i] = 0U;
+    }
+
+    for (std::size_t i = 0; i < ASch::postStartConfigurationFunctionsMax; ++i)
+    {
+        postStartConfigCallCount[i] = 0U;
+    }
+
+    return;
+}
+
+}
+
+namespace ASch
+{
+
+void PreStartConfig0(void)
+{
+    ++preStartConfigCallCount[0];
+    return;
+}
+
+void PreStartConfig1(void)
+{
+    ++preStartConfigCallCount[1];
+    return;
+}
+
+void PostStartConfig0(void)
+{
+    ++postStartConfigCallCount[0];
+    return;
+}
+
+void PostStartConfig1(void)
+{
+    ++postStartConfigCallCount[1];
+    return;
+}
+
+void PostStartConfig2(void)
+{
+    ++postStartConfigCallCount[2];
+    return;
+}
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO("A system error occurs", "[system]")
+SCENARIO ("A system is configured", "[system]")
 {
-    GIVEN("a_premise")
+    InitConfigCallCounts();
+    
+    GIVEN ("a system object is created")
     {
-        WHEN("doing_something")
+        ASch::System system = ASch::System();
+
+        WHEN ("pre-start config is called")
         {
-            THEN("something_shall_happen")
+            system.PreStartConfig();
+
+            THEN ("all pre-start config functions shall be called once")
             {
-                REQUIRE (1 == 1);
+                REQUIRE (preStartConfigCallCount[0] == 1U);
+                REQUIRE (preStartConfigCallCount[1] == 1U);
+            }
+            AND_THEN ("no post-start config functions shall be called")
+            {
+                REQUIRE (postStartConfigCallCount[0] == 0U);
+                REQUIRE (postStartConfigCallCount[1] == 0U);
+                REQUIRE (postStartConfigCallCount[2] == 0U);
+            }
+        }
+    }
+
+    GIVEN ("a system object is created")
+    {
+        ASch::System system = ASch::System();
+
+        WHEN ("post-start config is called")
+        {
+            system.PostStartConfig();
+
+            THEN ("all post-start config functions shall be called once")
+            {
+                REQUIRE (postStartConfigCallCount[0] == 1U);
+                REQUIRE (postStartConfigCallCount[1] == 1U);
+                REQUIRE (postStartConfigCallCount[2] == 1U);
+            }
+            AND_THEN ("no pre-start config functions shall be called")
+            {
+                REQUIRE (preStartConfigCallCount[0] == 0U);
+                REQUIRE (preStartConfigCallCount[1] == 0U);
             }
         }
     }

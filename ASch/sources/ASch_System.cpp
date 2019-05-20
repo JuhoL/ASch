@@ -30,9 +30,12 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#if (UNIT_TEST == 1)
+    #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
+#endif
+
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
-#include <ASch_Scheduler.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -74,11 +77,19 @@ void System::Init(void)
 
 void System::PreStartConfig(void)
 {
+    for (std::size_t i = 0; i < preStartConfigurationFunctionsMax; ++i)
+    {
+        apPreStartConfigFunctions[i]();
+    }
     return;
 }
 
 void System::PostStartConfig(void)
 {
+    for (std::size_t i = 0; i < postStartConfigurationFunctionsMax; ++i)
+    {
+        apPostStartConfigFunctions[i]();
+    }
     return;
 }
 
