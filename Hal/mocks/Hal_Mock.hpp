@@ -17,56 +17,44 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Catch_Utils.hpp
+//! @file    Hal_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    12 Oct 2018
+//! @date    20 May 2019
 //!
-//! @brief   Utility functions and macros for Catch2.
+//! @brief   Mocks for HAL classes.
+//! 
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef CATCH_UTILS_HPP_
-#define CATCH_UTILS_HPP_
+#ifndef HAL_MOCK_HPP_
+#define HAL_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
 #include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Module Headers
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#include <Hal_Isr.hpp>
+#include <Hal_System.hpp>
+#include <Hal_SysTick.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace HalMock
 {
 
-//! This macro is used to "prettify" FakeIt mock fake call.
-#define CALL(mockClass, member)                                 Method(mockClass, member)
+void InitIsr(Mock<Hal::Isr>& mockIsr);
+void InitSystem(Mock<Hal::System>& mockHalSystem);
+void InitSysTick(Mock<Hal::SysTick>& mockSysTick);
 
-//! This macro is used to "prettify" FakeIt mock fake call with parameters.
-#define PARAM_CALL(mockClass, member, ...)                      Method(mockClass, member).Using(__VA_ARGS__)
+} // namespace HalMock
 
-//! This macro is used to "prettify" FakeIt mock checks of members without parameters.
-#define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
-
-//! This macro is used to "prettify" FakeIt mock checks of members with parameters.
-#define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
-
-//! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
-#define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#endif // CATCH_UTILS_HPP_
+#endif // HAL_MOCK_HPP_

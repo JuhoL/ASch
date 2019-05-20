@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,45 +17,55 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_<__MODULE__>.cpp
-//! @author  <__AUTHOR__> <__EMAIL__>
-//! @date    <__DATE__>
+//! @file    ASch_Mock.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    20 May 2019
+//!
+//! @brief   Mocks for ASch classes.
 //! 
-//! @brief   These are unit tests for <__MODULE__>.cpp
-//! 
-//! These are unit tests for <__MODULE__>.cpp utilising Catch2 and FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Catch_Utils.hpp>
-
-#include <<__MODULE__>.hpp>
+#include <ASch_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Mock Init Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+namespace ASchMock
 {
 
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("Some test", "[feature_tag]")
+void InitScheduler(Mock<ASch::Scheduler>& mockScheduler)
 {
-    GIVEN ("a_premise")
-    {
-        WHEN ("doing_something")
-        {
-            THEN ("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
+    Fake(Method(mockScheduler, Start));
+    Fake(Method(mockScheduler, Stop));
+    Fake(Method(mockScheduler, GetStatus));
+    Fake(Method(mockScheduler, GetTaskCount));
+    Fake(Method(mockScheduler, CreateTask));
+    Fake(Method(mockScheduler, DeleteTask));
+    Fake(Method(mockScheduler, GetTaskInterval));
+    Fake(Method(mockScheduler, RunTasks));
+    Fake(Method(mockScheduler, Sleep));
+    Fake(Method(mockScheduler, WakeUp));
+    Fake(Method(mockScheduler, PushEvent));
+    Fake(Method(mockScheduler, RunEvents));
+    Fake(Method(mockScheduler, RegisterMessageListener));
+    Fake(Method(mockScheduler, UnregisterMessageListener));
+    Fake(Method(mockScheduler, GetNumberOfMessageListeners));
+    Fake(Method(mockScheduler, PushMessage));
+    return;
 }
+
+void InitSystem(Mock<ASch::System>& mockSystem)
+{
+    Fake(Method(mockSystem, Error));
+    Fake(Method(mockSystem, Init));
+    Fake(Method(mockSystem, PreStartConfig));
+    Fake(Method(mockSystem, PostStartConfig));
+    return;
+}
+
+} // namespace ASchMock

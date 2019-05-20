@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) <__YEAR__> <__AUTHOR__>
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,45 +17,48 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_<__MODULE__>.cpp
-//! @author  <__AUTHOR__> <__EMAIL__>
-//! @date    <__DATE__>
+//! @file    Hal_Mock.cpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    20 May 2019
+//!
+//! @brief   Mocks for HAL classes.
 //! 
-//! @brief   These are unit tests for <__MODULE__>.cpp
-//! 
-//! These are unit tests for <__MODULE__>.cpp utilising Catch2 and FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Catch_Utils.hpp>
-
-#include <<__MODULE__>.hpp>
+#include <Hal_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Mock Init Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+namespace HalMock
 {
 
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("Some test", "[feature_tag]")
+void InitIsr(Mock<Hal::Isr>& mockIsr)
 {
-    GIVEN ("a_premise")
-    {
-        WHEN ("doing_something")
-        {
-            THEN ("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
+    Fake(Method(mockIsr, SetHandler));
+    Fake(Method(mockIsr, Enable));
+    Fake(Method(mockIsr, Disable));
+    return;
 }
+
+void InitSystem(Mock<Hal::System>& mockHalSystem)
+{
+    Fake(Method(mockHalSystem, Sleep));
+    Fake(Method(mockHalSystem, WakeUp));
+    return;
+}
+
+void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
+{
+    Fake(Method(mockSysTick, SetInterval));
+    Fake(Method(mockSysTick, Start));
+    Fake(Method(mockSysTick, Stop));
+    return;
+}
+
+} // namespace HalMock

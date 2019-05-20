@@ -17,45 +17,31 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_<__MODULE__>.cpp
-//! @author  <__AUTHOR__> <__EMAIL__>
+//! @file    <__MODULE__>_Mock.cpp
+//! @author  <__AUTHOR__> <<__EMAIL__>>
 //! @date    <__DATE__>
+//!
+//! @brief   Mocks for <__MODULE__> classes.
 //! 
-//! @brief   These are unit tests for <__MODULE__>.cpp
-//! 
-//! These are unit tests for <__MODULE__>.cpp utilising Catch2 and FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Catch_Utils.hpp>
-
-#include <<__MODULE__>.hpp>
+#include <<__MODULE__>_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Mock Init Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+namespace <__MODULE__>Mock
 {
 
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("Some test", "[feature_tag]")
+void InitMyFunc(Mock<<__NAMESPACE__>::MyFunc>& mockMyFunc)
 {
-    GIVEN ("a_premise")
-    {
-        WHEN ("doing_something")
-        {
-            THEN ("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
+    Fake(Method(mockMyFunc, MemberFunction));
+    return;
 }
+
+} // namespace <__MODULE__>Mock

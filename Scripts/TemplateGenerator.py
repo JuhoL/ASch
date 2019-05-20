@@ -27,6 +27,7 @@ class Template:
                 "<__YEAR__>": date.strftime("%Y")}
 
     halMode = ""
+    isMock = False
 
     # Initialise by constructing the keyword dictionary based on given parameters.
     def __init__(self):
@@ -40,7 +41,8 @@ class Template:
             print ("    --author=\"John Jackson\"               - Author(s) of the code. Replaces <__AUTHOR__> tag in the template.")
             print ("    --email=\"john.jackson(a)jj.com\"       - Author's contact email. Replaces <__EMAIL__> tag in the template.")
             print ("    --namespace=MyNamespace                 - Namespace of the module. Replaces <__NAMESPACE__> tag in the template.")
-            print ("    --hal=<source/header/header_with_tests> - Optional tag. Add this when you are creating HAL sources or API headers.")
+            print ("    --hal=<source/header/header_with_tests> - Optional flag. Add this when you are creating HAL sources or API headers.")
+            print ("    --mock                                  - Optional flag. Add this when you want to create a mock for the module.")
             print ("")
             sys.exit(0)
 
@@ -50,6 +52,8 @@ class Template:
                     self.keywords[self.argumentParameters[parameterId]] = argument.split(parameterId,1)[1]
             if argument.startswith("--hal="):
                 self.halMode = argument.split("--hal=",1)[1]
+            if argument == "--mock":
+                self.isMock = True
 
         if "<__MODULE__>" not in self.keywords.keys():
             print ("ERROR: Module name is mandatory! See -h for help.")
@@ -132,34 +136,56 @@ class Template:
 
     # Generates all files
     def GenerateAll(self):
-        targetSourceFile = "./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp"
-        targetHeaderFile = "./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp"
+        if self.isMock:
+            targetSourceFile = "./" + self.keywords['<__PATH__>'] + "/mocks/" + self.keywords['<__MODULE__>'] + "_Mock.cpp"
+            targetHeaderFile = "./" + self.keywords['<__PATH__>'] + "/mocks/" + self.keywords['<__MODULE__>'] + "_Mock.hpp"
 
-        # Check that the .cpp and .hpp files do not exist yet.
-        if (self.halMode != "header" and self.halMode != "header_with_tests" and os.path.isfile(targetSourceFile)) or (self.halMode != "sources" and os.path.isfile(targetHeaderFile)):
-            print ("Module " + self.keywords['<__MODULE__>'] + " in ./" + self.keywords['<__PATH__>'] + " already exists!")
-            response = input("Answer YES if you want to overwrite (WARNING: the existing file(s) will be lost): ")
-            if response.upper()[:3] != "YES":
-                print ("Aborting file generation...\n")
-                sys.exit(1)
+            # Check that the .cpp and .hpp files do not exist yet.
+            if os.path.isfile(targetSourceFile) or os.path.isfile(targetHeaderFile):
+                print ("Module " + self.keywords['<__MODULE__>'] + " in ./" + self.keywords['<__PATH__>'] + " already exists!")
+                response = input("Answer YES if you want to overwrite (WARNING: the existing file(s) will be lost): ")
+                if response.upper()[:3] != "YES":
+                    print ("Aborting file generation...\n")
+                    sys.exit(1)
+            else:
+                print ("Are you sure you want to create a mock for " + self.keywords['<__MODULE__>'] + " to ./" + self.keywords['<__PATH__>'] + "?")
+                response = input("Answer y/Y to confirm: ")
+                if response.upper()[0] != "Y":
+                    print ("Aborting file generation...\n")
+                    sys.exit(1)
+
+            print ("\nGenerating template files...")
+            self.GenerateFromTemplate(targetSourceFile, "./Templates/mockcpptemplate.tmp")
+            self.GenerateFromTemplate(targetHeaderFile, "./Templates/mockhpptemplate.tmp")
         else:
-            print ("Are you sure you want to create a module name " + self.keywords['<__MODULE__>'] + " to ./" + self.keywords['<__PATH__>'] + "?")
-            response = input("Answer y/Y to confirm: ")
-            if response.upper()[0] != "Y":
-                print ("Aborting file generation...\n")
-                sys.exit(1)
+            targetSourceFile = "./" + self.keywords['<__PATH__>'] + "/sources/" + self.keywords['<__MODULE__>'] + ".cpp"
+            targetHeaderFile = "./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp"
 
-        print ("\nGenerating template files...")
-        if self.halMode != "header":
-            if self.halMode != "header_with_tests":
-                self.GenerateFromTemplate(targetSourceFile, "./Templates/cpptemplate.tmp")
-            self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
-        if self.halMode != "source":
-            self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/include/" + self.keywords['<__MODULE__>'] + ".hpp", "./Templates/hpptemplate.tmp")
-        
-        print ("Reconfiguring SCons...")
-        self.GenerateSconsFiles()
-        print ("\nAll done!\n")
+            # Check that the .cpp and .hpp files do not exist yet.
+            if (self.halMode != "header" and self.halMode != "header_with_tests" and os.path.isfile(targetSourceFile)) or (self.halMode != "sources" and os.path.isfile(targetHeaderFile)):
+                print ("Module " + self.keywords['<__MODULE__>'] + " in ./" + self.keywords['<__PATH__>'] + " already exists!")
+                response = input("Answer YES if you want to overwrite (WARNING: the existing file(s) will be lost): ")
+                if response.upper()[:3] != "YES":
+                    print ("Aborting file generation...\n")
+                    sys.exit(1)
+            else:
+                print ("Are you sure you want to create a module name " + self.keywords['<__MODULE__>'] + " to ./" + self.keywords['<__PATH__>'] + "?")
+                response = input("Answer y/Y to confirm: ")
+                if response.upper()[0] != "Y":
+                    print ("Aborting file generation...\n")
+                    sys.exit(1)
+
+            print ("\nGenerating template files...")
+            if self.halMode != "header":
+                if self.halMode != "header_with_tests":
+                    self.GenerateFromTemplate(targetSourceFile, "./Templates/cpptemplate.tmp")
+                self.GenerateFromTemplate("./" + self.keywords['<__PATH__>'] + "/tests/UTest_" + self.keywords['<__MODULE__>'] + ".cpp", "./Templates/utesttemplate.tmp")
+            if self.halMode != "source":
+                self.GenerateFromTemplate(targetHeaderFile, "./Templates/hpptemplate.tmp")
+            
+            print ("Reconfiguring SCons...")
+            self.GenerateSconsFiles()
+            print ("\nAll done!\n")
 
         return
 

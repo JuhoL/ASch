@@ -17,56 +17,42 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Catch_Utils.hpp
+//! @file    ASch_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    12 Oct 2018
+//! @date    20 May 2019
 //!
-//! @brief   Utility functions and macros for Catch2.
+//! @brief   Mocks for ASch classes.
+//! 
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef CATCH_UTILS_HPP_
-#define CATCH_UTILS_HPP_
+#ifndef ASCH_MOCK_HPP_
+#define ASCH_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
 #include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Module Headers
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#include <ASch_Scheduler.hpp>
+#include <ASch_System.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASchMock
 {
 
-//! This macro is used to "prettify" FakeIt mock fake call.
-#define CALL(mockClass, member)                                 Method(mockClass, member)
+void InitScheduler(Mock<ASch::Scheduler>& mockScheduler);
+void InitSystem(Mock<ASch::System>& mockSystem);
 
-//! This macro is used to "prettify" FakeIt mock fake call with parameters.
-#define PARAM_CALL(mockClass, member, ...)                      Method(mockClass, member).Using(__VA_ARGS__)
+} // namespace ASchMock
 
-//! This macro is used to "prettify" FakeIt mock checks of members without parameters.
-#define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
-
-//! This macro is used to "prettify" FakeIt mock checks of members with parameters.
-#define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
-
-//! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
-#define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#endif // CATCH_UTILS_HPP_
+#endif // ASCH_MOCK_HPP_
