@@ -45,22 +45,16 @@
 namespace
 {
 
-#define MOCK_SYSTEM()       ASch::System(mockSysTick.get())
+#define MOCK_SYSTEM()       ASch::System(mockSystem.get())
 
 // Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
 uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
-uint8_t postStartConfigCallCount[ASch::postStartConfigurationFunctionsMax] = {0U};
 
 void InitConfigCallCounts(void)
 {
     for (std::size_t i = 0; i < ASch::preStartConfigurationFunctionsMax; ++i)
     {
         preStartConfigCallCount[i] = 0U;
-    }
-
-    for (std::size_t i = 0; i < ASch::postStartConfigurationFunctionsMax; ++i)
-    {
-        postStartConfigCallCount[i] = 0U;
     }
 
     return;
@@ -85,24 +79,6 @@ void PreStartConfig1(void)
     return;
 }
 
-void PostStartConfig0(void)
-{
-    ++postStartConfigCallCount[0];
-    return;
-}
-
-void PostStartConfig1(void)
-{
-    ++postStartConfigCallCount[1];
-    return;
-}
-
-void PostStartConfig2(void)
-{
-    ++postStartConfigCallCount[2];
-    return;
-}
-
 } // namespace ASch
 
 namespace Hal
@@ -122,8 +98,8 @@ void CriticalSystemError(void)
 
 SCENARIO ("A system is configured", "[system]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
+    Mock<Hal::System> mockSystem;
+    HalMock::InitSystem(mockSystem);
     
     InitConfigCallCounts();
     
@@ -139,34 +115,6 @@ SCENARIO ("A system is configured", "[system]")
             {
                 REQUIRE (preStartConfigCallCount[0] == 1U);
                 REQUIRE (preStartConfigCallCount[1] == 1U);
-            }
-            AND_THEN ("no post-start config functions shall be called")
-            {
-                REQUIRE (postStartConfigCallCount[0] == 0U);
-                REQUIRE (postStartConfigCallCount[1] == 0U);
-                REQUIRE (postStartConfigCallCount[2] == 0U);
-            }
-        }
-    }
-
-    GIVEN ("a system object is created")
-    {
-        ASch::System system = MOCK_SYSTEM();
-
-        WHEN ("post-start config is called")
-        {
-            system.PostStartConfig();
-
-            THEN ("all post-start config functions shall be called once")
-            {
-                REQUIRE (postStartConfigCallCount[0] == 1U);
-                REQUIRE (postStartConfigCallCount[1] == 1U);
-                REQUIRE (postStartConfigCallCount[2] == 1U);
-            }
-            AND_THEN ("no pre-start config functions shall be called")
-            {
-                REQUIRE (preStartConfigCallCount[0] == 0U);
-                REQUIRE (preStartConfigCallCount[1] == 0U);
             }
         }
     }

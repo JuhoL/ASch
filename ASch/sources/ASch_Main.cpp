@@ -94,8 +94,6 @@ void Init(void)
     ASch::Scheduler scheduler = ASch::Scheduler();
     scheduler.Start();
 
-    system.PostStartConfig();
-
     return;
 }
 

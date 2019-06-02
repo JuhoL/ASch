@@ -67,6 +67,7 @@ public:
 
     static_mf void Sleep(void);
     static_mf void WakeUp(void);
+    static_mf void InitClocks(void);
 
 private:
     

@@ -17,7 +17,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Isr.hpp
+//! @file    Hal_Isr.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    29 Aug 2018
 //!
@@ -26,68 +26,77 @@
 //! 
 //! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
 
-#ifndef HAL_ISR_HPP_
-#define HAL_ISR_HPP_
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
+#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
-{
-
-//!
-//! @brief   Different interrupt vectors available in the system.
-//!
-typedef enum
-{
-    interrupt_sysTick = 0,  //! SysTick vector.
-
-    interrupt_global,
-    interrupt_vectorsMax    //! The total number of vectors. Must be last on the enum!
-} interruptType_t;
-
-typedef void (*interruptHandler_t)(void);
-
-} // namespace Hal
-
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
+// 3. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Functions
+// 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
+// 5. Static Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace Hal
 {
 
-/// @class Isr
-class Isr
+//---------------------------------------
+// Initialise static members
+//---------------------------------------
+interruptHandler_t Isr::Handlers[static_cast<std::size_t>(Interrupt::max)] = {0};
+
+//---------------------------------------
+// Functions
+//---------------------------------------
+Isr::Isr(void)
 {
-public:
-    explicit Isr(void);
-    
-    static_mf void SetHandler(interruptType_t type, interruptHandler_t Handler);
-    static_mf void Enable(interruptType_t type);
-    static_mf void Disable(interruptType_t type);
+    for (uint8_t i; i < static_cast<uint8_t>(Interrupt::max); ++i)
+    {
+        Handlers[i] = 0;
+    }
+    return;
+}
 
-    // ToDo: Atomic ISR enable/disable for global interrupt control.
+void Isr::SetHandler(Interrupt type, const interruptHandler_t Handler)
+{
+    if (type < Interrupt::max)
+    {
+        Handlers[static_cast<std::size_t>(type)] = Handler;
+    }
+    return;
+}
 
-private:
-    static interruptHandler_t Handlers[interrupt_vectorsMax];
-};
+void Isr::Enable(Interrupt type)
+{
+    return;
+}
+
+void Isr::Disable(Interrupt type)
+{
+    return;
+}
 
 } // namespace Hal
 
-#endif // HAL_ISR_HPP_
+//-----------------------------------------------------------------------------------------------------------------------------
+// 7. Global Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 8. Static Functions
+//-----------------------------------------------------------------------------------------------------------------------------

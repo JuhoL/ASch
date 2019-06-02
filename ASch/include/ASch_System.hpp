@@ -34,7 +34,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <Hal_SysTick.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -73,17 +73,16 @@ namespace ASch
 class System
 {
 public:
-    explicit System(Hal::SysTick& sysTickParameter);
+    explicit System(Hal::System& halSystem);
     explicit System(void);
+    ~System(void);
 
     static_mf void Error(SysError error);
     static_mf void Init(void);
     static_mf void PreStartConfig(void);
-    static_mf void PostStartConfig(void);
-
 private:
     // Dependencies
-    static Hal::SysTick* pSysTick;
+    static Hal::System* pHalSystem;
 };
 
 } // namespace ASch

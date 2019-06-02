@@ -63,15 +63,6 @@ const configFunction_t apPreStartConfigFunctions[] =
     0
 };
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Post-start Configuration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-const configFunction_t apPostStartConfigFunctions[] =
-{
-    0
-};
-
 } // namespace ASch
 
 #endif // ASCH_RELEASE_CONFIGURATION_HPP_

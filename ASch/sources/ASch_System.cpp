@@ -64,23 +64,29 @@ namespace ASch
 //---------------------------------------
 // Initialise static members
 //---------------------------------------
-Hal::SysTick* System::pSysTick = 0;
+Hal::System* System::pHalSystem = 0;
 
 //---------------------------------------
 // Functions
 //---------------------------------------
-System::System(Hal::SysTick& sysTickParameter)
+System::System(Hal::System& halSystem)
 {
-    pSysTick = &sysTickParameter;
+    pHalSystem = &halSystem;
     return;
 }
 
 System::System(void)
 {
-    if (pSysTick == 0)
+    if (pHalSystem == 0)
     {
         Hal::CriticalSystemError();
     }
+    return;
+}
+
+System::~System(void)
+{
+    pHalSystem = 0;
     return;
 }
 
@@ -99,15 +105,6 @@ void System::PreStartConfig(void)
     for (std::size_t i = 0; i < preStartConfigurationFunctionsMax; ++i)
     {
         apPreStartConfigFunctions[i]();
-    }
-    return;
-}
-
-void System::PostStartConfig(void)
-{
-    for (std::size_t i = 0; i < postStartConfigurationFunctionsMax; ++i)
-    {
-        apPostStartConfigFunctions[i]();
     }
     return;
 }

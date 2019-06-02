@@ -1,5 +1,5 @@
 ./ASch/include
 ./Utils/include
 ./Config/include
-./Hal/include
-./Hal/mocks
+./Hal_Api/include
+./Hal_Api/mocks

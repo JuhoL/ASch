@@ -71,25 +71,13 @@ const uint16_t schedulerTickInterval = 1UL;
 #else
     const configFunction_t apPreStartConfigFunctions[] = {0};
 #endif
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Post-start Configuration
+// 4. SysTick Configuration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#ifdef SYSTEM_UNIT_TEST
-    // Test function prototypes
-    void PostStartConfig0(void);
-    void PostStartConfig1(void);
-    void PostStartConfig2(void);
+const uint16_t sysTickInterval01ms = 1U;
 
-    const configFunction_t apPostStartConfigFunctions[] =
-    {
-        PostStartConfig0,
-        PostStartConfig1,
-        PostStartConfig2
-    };
-#else
-    const configFunction_t apPostStartConfigFunctions[] = {0};
-#endif
 } // namespace ASch
 
 #endif // ASCH_TEST_CONFIGURATION_HPP_

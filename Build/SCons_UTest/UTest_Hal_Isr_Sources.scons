@@ -1,2 +1,2 @@
-./Hal/sources/Hal_Isr.cpp
-./Hal/tests/UTest_Hal_Isr.cpp
+./Hal_STM32F429ZI/sources/Hal_Isr.cpp
+./Hal_STM32F429ZI/tests/UTest_Hal_Isr.cpp
