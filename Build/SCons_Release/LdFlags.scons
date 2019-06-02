@@ -1,0 +1,4 @@
+-T./Hal_STM32F429ZI/CMSIS/STM32F429ZITx_FLASH.ld
+-ffunction-sections
+-fdata-sections
+-Xlinker

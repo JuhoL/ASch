@@ -65,7 +65,7 @@ interruptHandler_t Isr::Handlers[static_cast<std::size_t>(Interrupt::max)] = {0}
 //---------------------------------------
 Isr::Isr(void)
 {
-    for (uint8_t i; i < static_cast<uint8_t>(Interrupt::max); ++i)
+    for (uint8_t i = 0U; i < static_cast<uint8_t>(Interrupt::max); ++i)
     {
         Handlers[i] = 0;
     }

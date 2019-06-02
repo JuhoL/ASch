@@ -29,8 +29,12 @@ def BuildTarget(env, buildTarget, buildFiles):
         print ("       Make sure you have created .scons directory listing in Build/Scons_UTest folder.")
         sys.exit(1)
 
-    env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))
-    env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
+    if "ccFlags" in buildFiles:
+        env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))
+    if "cxxFlags" in buildFiles:
+        env.AppendUnique(CXXFLAGS = CreateListFromFile(buildFiles["cxxFlags"]))
+    if "ldFlags" in buildFiles:
+        env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
 
     if buildTarget == 'ASch':
         targetString = "./Build/Release/ASch"
@@ -42,7 +46,9 @@ def BuildTarget(env, buildTarget, buildFiles):
     objectFiles = []
     for sourceFile in sourceFiles:
         objectFiles.append(env.Object(target = "./Build/Objects/" + buildTarget + "/" + re.findall("(?<=\/)[^\/]*(?=.cpp)", sourceFile)[0], source = sourceFile))
-        
+    if buildTarget == 'ASch':
+        objectFiles.append(CreateListFromFile(buildFiles["cmsis"]))
+
     output = env.Program(target = targetString, source = objectFiles)
     env.Alias(buildTarget, output)
 

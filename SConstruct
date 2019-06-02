@@ -52,6 +52,16 @@ else:
     unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
     release = Environment(tools = ['mingw'])
 
+# Configure ARM GCC for release
+release['AR'] = 'arm-eabi-ar'
+release['AS'] = 'arm-eabi-as'
+release['CC'] = 'arm-eabi-gcc'
+release['CXX'] = 'arm-eabi-g++'
+release['LINK'] = 'arm-eabi-g++'
+release['RANLIB'] = 'arm-eabi-ranlib'
+release['OBJCOPY'] = 'arm-eabi-objcopy'
+release['PROGSUFFIX'] = '.elf'
+
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
 cores = multiprocessing.cpu_count() - 1
@@ -79,9 +89,11 @@ if GetOption('test') != None or GetOption('cpp_check') != None or GetOption('cov
         BuildTest(target, unitTest, parameters, buildAll)
 
 else:
-    buildFiles = {"sources" : "./Build/SCons_Release/Sources.scons",
-                  "include" : "./Build/SCons_Release/Include.scons",
-                  "ccFlags" : "./Build/SCons_Release/CcFlags.scons",
-                  "ldFlags" : "./Build/SCons_Release/LdFlags.scons"}
+    buildFiles = {"sources"  : "./Build/SCons_Release/Sources.scons",
+                  "include"  : "./Build/SCons_Release/Include.scons",
+                  "ccFlags"  : "./Build/SCons_Release/CcFlags.scons",
+                  "cxxFlags" : "./Build/SCons_Release/CxxFlags.scons",
+                  "ldFlags"  : "./Build/SCons_Release/LdFlags.scons",
+                  "cmsis"    : "./Build/SCons_Release/CmsisSources.scons"}
     asch = BuildTarget(release, 'ASch', buildFiles)
     release.Default(asch)
