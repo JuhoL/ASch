@@ -52,6 +52,12 @@ def BuildTarget(env, buildTarget, buildFiles):
     output = env.Program(target = targetString, source = objectFiles)
     env.Alias(buildTarget, output)
 
+    if buildTarget == 'ASch':
+        binary = env.Binary(targetString, output)
+        env.Requires(binary, output)
+        env.Alias(buildTarget, binary)
+
     env.NoClean(output)
+    env.NoClean(binary)
 
     return output

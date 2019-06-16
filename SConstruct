@@ -47,10 +47,10 @@ def BuildTest(target, env, parameters, buildAll):
 #------------ SCons script run starts here ------------
 if GetOption('linux') != None:
     unitTest = Environment(tools = ['gcc', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['gcc'])
+    release = Environment(tools = ['gcc', 'Binary'])
 else:
     unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['mingw'])
+    release = Environment(tools = ['mingw', 'Binary'])
 
 # Configure ARM GCC for release
 release['AR'] = 'arm-eabi-ar'
