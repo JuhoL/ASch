@@ -5,3 +5,5 @@ Hal_SysTick ./Hal_STM32F429ZI
 Hal_Isr ./Hal_STM32F429ZI
 Hal_System .\Hal_STM32F429ZI
 ASch_Main .\ASch
+Hal_Gpio .\Hal_STM32F429ZI
+Utils_Assert .\Utils

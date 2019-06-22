@@ -3,3 +3,5 @@
 ./Utils/sources
 ./Hal_Api/include
 ./Config/include
+./Hal_STM32F429ZI/include
+./Hal_STM32F429ZI/CMSIS

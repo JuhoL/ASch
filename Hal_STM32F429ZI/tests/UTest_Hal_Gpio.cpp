@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,75 +17,45 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.hpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
-//!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @file    UTest_Hal_Gpio.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    16 Jun 2019
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
-
-#ifndef ASCH_SYSTEM_HPP_
-#define ASCH_SYSTEM_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <Utils_Types.hpp>
-#include <Hal_System.hpp>
+//! @brief   These are unit tests for Hal_Gpio.cpp
+//! 
+//! These are unit tests for Hal_Gpio.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+#include <Catch_Utils.hpp>
+
+#include <Hal_Gpio.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Test Structs and Variables
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace
 {
-
-enum class SysError
-{
-    invalidParameters = 0,
-    bufferOverflow,
-    insufficientResources,
-    multipleSchedulerInstances,
-    assertFailure,
-    unknownError
-};
 
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
+// 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
+SCENARIO ("Some test", "[feature_tag]")
 {
-
-/// @class System
-class System
-{
-public:
-    explicit System(Hal::System& halSystem);
-    explicit System(void);
-    ~System(void);
-
-    static_mf void Error(SysError error);
-    static_mf void Init(void);
-    static_mf void PreStartConfig(void);
-private:
-    // Dependencies
-    static Hal::System* pHalSystem;
-};
-
-} // namespace ASch
-
-#endif // ASCH_SYSTEM_HPP_
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}
