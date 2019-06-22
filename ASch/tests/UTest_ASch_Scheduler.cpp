@@ -1008,36 +1008,6 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
     }
 }
 
-SCENARIO ("Developer fetches scheduler instance", "[scheduler]")
-{
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-    
-    GIVEN ("the scheduler is running and task list is empty")
-    {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
-
-        WHEN ("developer requests scheduler instance pointer")
-        {
-            ASch::Scheduler* pScheduler = ASch::pGetSchedulerPointer();
-
-            THEN ("the pointer shall match with the scheduler instance")
-            {
-                REQUIRE (pScheduler == &scheduler);
-            }
-        }
-    }
-}
-
 namespace
 {
 

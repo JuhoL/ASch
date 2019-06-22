@@ -452,11 +452,6 @@ void SchedulerLoop(void)
     return;
 }
 
-Scheduler* pGetSchedulerPointer(void)
-{
-    return pScheduler;
-}
-
 }
 
 namespace Isr
