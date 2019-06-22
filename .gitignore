@@ -8,3 +8,5 @@ Build/Objects/
 Build/Release/
 Build/Tests/
 *.exe
+Documents/ASch/html
+Documents/ASch/latex

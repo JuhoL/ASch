@@ -42,18 +42,15 @@
 namespace Hal
 {
 
-//!
 //! @brief   Different interrupt vectors available in the system.
-//!
 enum class Interrupt
 {
-    sysTick = 0,    //! SysTick vector.
-
-    global,
-    max             //! The total number of vectors. Must be last on the enum!
+    sysTick = 0,    //!< SysTick vector.
+    global,         //!< Global interrupt control.
+    max             //!< The total number of vectors. Must be last on the enum!
 };
 
-typedef void (*interruptHandler_t)(void);
+typedef void (*interruptHandler_t)(void);   //!< A function pointer for interrupt handlers.
 
 } // namespace Hal
 
@@ -72,20 +69,30 @@ typedef void (*interruptHandler_t)(void);
 namespace Hal
 {
 
-/// @class Isr
+//! @class Isr
+//! @brief HAL interface for ISRs.
+//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
 class Isr
 {
 public:
+    /// @brief Simple constructor.
     explicit Isr(void);
     
+    /// @brief This function sets a handler for the given interrupt.
+    /// @param type - Interrupt type.
+    /// @param Handler - Pointer to the interrupt handler.
     static_mf void SetHandler(Interrupt type, interruptHandler_t Handler);
+
+    /// @brief This function enables given interrupt.
+    /// @param type - Interrupt type.
     static_mf void Enable(Interrupt type);
+
+    /// @brief This function disables given interrupt.
+    /// @param type - Interrupt type
     static_mf void Disable(Interrupt type);
 
-    // ToDo: Atomic ISR enable/disable for global interrupt control.
-
 private:
-    static interruptHandler_t Handlers[static_cast<std::size_t>(Interrupt::max)];
+    static interruptHandler_t Handlers[static_cast<std::size_t>(Interrupt::max)]; //!< List of interrupt handlers.
 };
 
 } // namespace Hal

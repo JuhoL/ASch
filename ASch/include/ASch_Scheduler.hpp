@@ -24,8 +24,7 @@
 //! @class   Scheduler
 //! @brief   This is the scheduler module of ASch
 //! 
-//! The scheduler module is responsible of running tasks at given intervals based on system tick and run events reveiced
-//! from the event module.
+//! This class handles all the core functionality such as task scheduling, events and messages.
 
 #ifndef ASCH_SCHEDULER_HPP_
 #define ASCH_SCHEDULER_HPP_
@@ -115,17 +114,16 @@ void SchedulerLoop(void);
 namespace ASch
 {
 
-/// @class Scheduler
-/// @brief This is ASch main scheduler class.
-/// 
-/// This handles all the core functionality such as task scheduling, events and messages.
-/// - The tasks are functions that are called periodically.
-/// - The events are used to trigger a function call outside current context. The typical use case for an event is passing data
-///   out from ISR context to the main handler within the same module. The event handler is always known and explicit and an event
-///   can have only a single handler. Events have higher priority than messages.
-/// - The messages are used to inform other modules about certain events. The difference between event and message is that message
-///   can have multiple recipients and the transmitter does not know the recipients. This makes the message system the main
-///   communication channel between the modules.
+//! @class Scheduler
+//! @brief This is the scheduler module of ASch
+//! This class handles all the core functionality such as task scheduling, events and messages.
+//! - The tasks are functions that are called periodically.
+//! - The events are used to trigger a function call outside current context. The typical use case for an event is passing data
+//!   out from ISR context to the main handler within the same module. The event handler is always known and explicit and an event
+//!   can have only a single handler. Events have higher priority than messages.
+//! - The messages are used to inform other modules about certain events. The difference between event and message is that message
+//!   can have multiple recipients and the transmitter does not know the recipients. This makes the message system the main
+//!   communication channel between the modules.
 class Scheduler
 {
 public:
@@ -147,71 +145,71 @@ public:
     /// @brief A destructor to be used to deinit the scheduler.
     ~Scheduler(void);
 
-    /// @brief This functions starts the scheduler.
+    /// @brief This function starts the scheduler.
     static_mf void Start(void);
 
     /// @brief This function stops the scheduler.
     static_mf void Stop(void);
 
-    /// @brief This fuctions returns the current status of the scheduler.
+    /// @brief This function returns the current status of the scheduler.
     /// @return Scheduler status
     static_mf SchedulerStatus GetStatus(void);
 
-    /// @brief This fuctions returns the current task count.
+    /// @brief This function returns the current task count.
     /// @return Current task count.
     static_mf uint8_t GetTaskCount(void);
 
-    /// @brief This fuction creates a given task.
+    /// @brief This function creates a given task.
     /// @param task - Task configuration struct.
     static_mf void CreateTask(task_t task);
 
-    /// @brief This fuction deletes the given task based on task handler.
+    /// @brief This function deletes the given task based on task handler.
     /// @param taskHandler - Function pointer to the task handler to be removed.
     static_mf void DeleteTask(taskHandler_t taskHandler);
 
-    /// @brief This fuction return the task interval of the given task ID.
+    /// @brief This function return the task interval of the given task ID.
     /// @param taskId - Task ID
     /// @return Task interval in milliseconds.
     static_mf uint16_t GetTaskInterval(uint8_t taskId);
     
-    /// @brief This fuction runs all the pending tasks.
+    /// @brief This function runs all the pending tasks.
     static_mf void RunTasks(void);
 
-    /// @brief This fuction puts the system in sleep mode.
+    /// @brief This function puts the system in sleep mode.
     static_mf void Sleep(void);
 
-    /// @brief This fuction wakes the system up from sleep mode. 
+    /// @brief This function wakes the system up from sleep mode. 
     static_mf void WakeUp(void);
 
-    /// @brief This fuction is used to push an event into the scheduler.
+    /// @brief This function is used to push an event into the scheduler.
     /// @param event - A refernce to the event to be pushed.
     static_mf void PushEvent(event_t const& event);
 
-    /// @brief This fuction runs all the pending events.
+    /// @brief This function runs all the pending events.
     static_mf void RunEvents(void);
 
-    /// @brief This fuction is used to register a message listener.
+    /// @brief This function is used to register a message listener.
     /// @param listener - A reference to the listener to be registered.
     static_mf void RegisterMessageListener(messageListener_t const& listener);
     
-    /// @brief This fuction is used to unregister a message listener.
+    /// @brief This function is used to unregister a message listener.
     /// @param listener - A reference to the listener to be unregistered.
     static_mf void UnregisterMessageListener(messageListener_t const& listener);
 
-    /// @brief This fuction returns the current number of message listeners of given message type.
+    /// @brief This function returns the current number of message listeners of given message type.
     /// @param type - The type of message.
     /// @return Number of listeners.
     static_mf uint8_t GetNumberOfMessageListeners(Message type);
     
-    /// @brief This fuction pushes a message into the scheduler.
+    /// @brief This function pushes a message into the scheduler.
     /// @param message - A reference to the message to be pushed.
     static_mf void PushMessage(message_t const& message);
 
 private:
-    /// @brief This fuction initialises static member variables.
+    /// @brief This function initialises static member variables.
     static void InitStaticMembers(void);
 
-    /// @brief This fuction throws a system error.
+    /// @brief This function throws a system error.
     /// @param error - Type of error that occurred.
     static void ThrowError(SysError error);
 

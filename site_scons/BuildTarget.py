@@ -31,8 +31,12 @@ def BuildTarget(env, buildTarget, buildFiles):
 
     if "ccFlags" in buildFiles:
         env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))
+        if env.GetOption('debug') != None:
+            env.AppendUnique(CCFLAGS = '-DDEBUG')
     if "cxxFlags" in buildFiles:
         env.AppendUnique(CXXFLAGS = CreateListFromFile(buildFiles["cxxFlags"]))
+        if env.GetOption('debug') != None:
+            env.AppendUnique(CCFLAGS = '-DDEBUG')
     if "ldFlags" in buildFiles:
         env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
 

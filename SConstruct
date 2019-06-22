@@ -13,6 +13,7 @@ import multiprocessing
 from ListCreator import CreateDictionaryFromFile
 from BuildTarget import *
 from CppCheck import *
+from Doxygen import *
 from RunUnitTest import *
 from Coverage import GenerateCoverageReport
 
@@ -47,10 +48,10 @@ def BuildTest(target, env, parameters, buildAll):
 #------------ SCons script run starts here ------------
 if GetOption('linux') != None:
     unitTest = Environment(tools = ['gcc', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['gcc', 'Binary'])
+    release = Environment(tools = ['gcc', 'Binary', 'Doxygen'])
 else:
     unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['mingw', 'Binary'])
+    release = Environment(tools = ['mingw', 'Binary', 'Doxygen'])
 
 # Configure ARM GCC for release
 release['AR'] = 'arm-eabi-ar'
@@ -87,7 +88,10 @@ if GetOption('test') != None or GetOption('cpp_check') != None or GetOption('cov
                        "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
                        "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
         BuildTest(target, unitTest, parameters, buildAll)
-
+elif GetOption('doxygen') != None:
+    targetList = COMMAND_LINE_TARGETS
+    for target in targetList:
+        Doxygen(release, target)
 else:
     buildFiles = {"sources"  : "./Build/SCons_Release/Sources.scons",
                   "include"  : "./Build/SCons_Release/Include.scons",

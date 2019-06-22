@@ -46,16 +46,29 @@
 namespace Utils
 {
 
+/// @brief This function returns a single-bit bitmask of given bit position.
+/// @param position - The bit position.
+/// @return Single-bit bitmask.
 inline uint32_t Bit(uint32_t position)
 {
     return 1UL << position;
 }
 
+/// @brief This function returns the state of the given bit position from a bitfield.
+/// @param bitfield - The bitfield ot be checked.
+/// @param position - The bit position.
+/// @return Bit state.
 inline bool GetBit(uint32_t bitfield, uint32_t position)
 {
     return (bitfield & Bit(position)) != 0UL;
 }
 
+/// @brief This function returns a partial bitfield from the given position from a bitfield.
+/// For example from bitfield 10100101b, position 3 with mask 111b results in 100b.
+/// @param bitfield - The bitfield to be checked.
+/// @param position - The partial bitfield position.
+/// @param mask - The bitfield mask
+/// @return Partial bitfield
 inline uint32_t GetBits(uint32_t bitfield, uint32_t position, uint32_t mask)
 {
     bitfield >>= position;
@@ -63,7 +76,12 @@ inline uint32_t GetBits(uint32_t bitfield, uint32_t position, uint32_t mask)
     return bitfield;
 }
 
-inline void SetBit(uint32_t bitfield, uint32_t position, bool state)
+/// @brief This function sets the state of the given bit position in a bitfield.
+/// @param bitfield - A bitfield to be manipulated.
+/// @param position - The bit position.
+/// @param state - The new bit state.
+/// @return The modified bitfield.
+inline uint32_t SetBit(uint32_t bitfield, uint32_t position, bool state)
 {
     if (state == true)
     {
@@ -73,10 +91,17 @@ inline void SetBit(uint32_t bitfield, uint32_t position, bool state)
     {
         bitfield &= ~Bit(position);
     }
-    return;
+    return bitfield;
 }
 
-inline void SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
+/// @brief This function sets a partial bitfield in the given position in a bitfield.
+/// For example in a bitfield 10100101b, position 3 with mask 111b and pattern 011b results in 10011101b.
+/// @param bitfield - A bitfield to be manipulated.
+/// @param position - The partial bitfield position.
+/// @param mask - The bitfield mask
+/// @param pattern - The bitfield pattern
+/// @return The modified bitfield.
+inline uint32_t SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
 {
     mask <<= position;
     pattern <<= position;
@@ -84,7 +109,7 @@ inline void SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uint32_
 
     bitfield &= ~mask;
     bitfield |= pattern;
-    return;
+    return bitfield;
 }
 
 } // namespace Utils

@@ -124,11 +124,11 @@ void Gpio::SetOutputState(Pin_t& pin, bool state)
     Utils::Assert(pin.number <= 15U);
     if (state == true)
     {
-        Utils::SetBit(GPIO(pin.port)->BSRR, pin.number, true);
+        GPIO(pin.port)->BSRR = Utils::SetBit(GPIO(pin.port)->BSRR, pin.number, true);
     }
     else
     {
-        Utils::SetBit(GPIO(pin.port)->BSRR, pin.number + bitClearOffset, true);
+        GPIO(pin.port)->BSRR = Utils::SetBit(GPIO(pin.port)->BSRR, pin.number + bitClearOffset, true);
     }
     return;
 }
@@ -152,9 +152,9 @@ void Gpio::LockPort(Port port)
     {
         Isr isr = Isr();
         isr.Disable(Interrupt::global);
-        Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
-        Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, false);
-        Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
+        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
+        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, false);
+        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
         isr.Enable(Interrupt::global);
     }
     return;

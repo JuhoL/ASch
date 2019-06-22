@@ -48,6 +48,7 @@
 namespace Hal
 {
 
+/// @brief Raises a critical system error that halts the MCU.
 void CriticalSystemError(void);
 
 }
@@ -59,14 +60,22 @@ void CriticalSystemError(void);
 namespace Hal
 {
 
-/// @class System
+//! @class System
+//! @brief This is HAL interface for system level functionality.
+//! This class handler system clocks and power management.
 class System
 {
 public:
+    /// @brief Simple constructor.
     explicit System(void);
 
+    /// @brief Puts the system into sleep.
     static_mf void Sleep(void);
+
+    /// @brief Wakes the system up from sleep.
     static_mf void WakeUp(void);
+    
+    /// @brief Initialises system clocks.
     static_mf void InitClocks(void);
 
 private:

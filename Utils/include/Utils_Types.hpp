@@ -37,11 +37,9 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #if (UNIT_TEST == 1)
-    #define static_mf       virtual
-    #define static_mv       
+    #define static_mf       virtual //!< When unit testing static_mf functions convert into virtual functions to enable mocking.
 #else
-    #define static_mf       static
-    #define static_mv       static
+    #define static_mf       static  //!< In target build static_mf functions convert into static functions.
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------

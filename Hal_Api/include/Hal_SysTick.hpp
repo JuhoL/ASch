@@ -54,13 +54,23 @@
 namespace Hal
 {
 
-/// @class SysTick
+//! @class SysTick
+//! @brief HAL interface for SysTick
+//! This class configures and controls SysTick peripheral that is used by the Scheduler module.
 class SysTick
 {
 public:
+    /// @brief Simple constructor.
     explicit SysTick(void);
+    
+    /// @brief Sets the SysTick interval.
+    /// @param intervalIn01Ms - Interval in 0.1ms (i.e 10 = 1.0ms)
     static_mf void SetInterval(uint16_t intervalIn01Ms);
+    
+    /// @brief Starts the SysTick.
     static_mf void Start(void);
+    
+    /// @brief Stops the SysTick.
     static_mf void Stop(void);
 
 private:

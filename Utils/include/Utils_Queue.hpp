@@ -55,25 +55,39 @@
 namespace Utils
 {
 
+//! @class Queue
+//! @brief This is a generic queue class.
+//! This class implements a simple general purpose ring-buffer type queue that operates in FIFO method.
 template <typename ElementType, std::size_t size>
 class Queue
 {
 public:
+    /// @brief Simple constructor.
     Queue(void);
 
+    /// @brief This function pushes an element into the queue.
+    /// @param element - Element to be pushed.
     bool Push(ElementType element);
+
+    /// @brief This function pops an element from the queue.
+    /// @param element - A reference to the element to be popped.
+    /// @return Returns true if popping failed (i.e. queue was empty)
     bool Pop(ElementType& element);
     
+    /// @brief This function returns the number of elements in the queue.
+    /// @return Number of elements
     uint8_t GetNumberOfElements(void) const;
+    
+    /// @brief This function flushes the queue.
     void Flush(void);
 
 private:
-    ElementType elements[size];
-    std::size_t queueSize = size;
+    ElementType elements[size];     //!< A list of elements.
+    std::size_t queueSize = size;   //!< Queue maximum size.
 
-    uint8_t numberOfElements;
-    uint8_t nextFreeIndex;
-    uint8_t nextIndexInQueue;
+    uint8_t numberOfElements;       //!< Current number of elements in the queue.
+    uint8_t nextFreeIndex;          //!< The next free index in the queue array.
+    uint8_t nextIndexInQueue;       //!< Index of the next item in the queue to be popped.
 };
 
 template <typename ElementType, std::size_t size>

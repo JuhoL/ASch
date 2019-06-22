@@ -45,6 +45,9 @@
 namespace Utils
 {
 
+/// @brief This template fuction will increment the given index variable by one and roll over to zero if the limit is reached.
+/// @param index - The index to be incremented.
+/// @param maxLimit - The roll-over limit.
 template <typename type>
 inline void IncrementIndexWithRollover(type &index, std::size_t maxLimit)
 {
@@ -55,6 +58,9 @@ inline void IncrementIndexWithRollover(type &index, std::size_t maxLimit)
     return;
 }
 
+/// @brief This template fuction will decrement the given index variable by one and roll over to limit - 1 if decrementing from zero.
+/// @param index - The index to be decremented.
+/// @param maxLimit - The roll-over limit.
 template <typename type>
 inline void DecrementIndexWithRollover(type &index, std::size_t maxLimit)
 {

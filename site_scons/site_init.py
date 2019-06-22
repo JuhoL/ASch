@@ -27,3 +27,13 @@ AddOption('--coverage',
           dest = 'coverage',
           nargs = 0,
           help = 'Enables Coverage report generation.')
+
+AddOption('--doxygen',
+          dest = 'doxygen',
+          nargs = 0,
+          help = 'Enables Doxygen document generation.')
+
+AddOption('--enable_debug',
+          dest = 'debug',
+          nargs = 0,
+          help = 'Enables debug functionality in the FW.')

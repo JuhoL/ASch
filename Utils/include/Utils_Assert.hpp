@@ -43,22 +43,6 @@
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Utils
-{
-
-inline void Assert(bool condition)
-{
-#ifdef DEBUG
-    if (condition == false)
-    {
-        Utils::AssertFailure();
-    }
-#endif
-    return;
-}
-
-} // namespace Utils
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +50,20 @@ inline void Assert(bool condition)
 namespace Utils
 {
 
+/// @brief This function is called when debug assert fails.
 void AssertFailure(void);
+
+/// @brief This function is used for debug asserts. When DEBUG is not defined, this function is optimised away.
+inline void Assert(bool condition)
+{
+#ifdef DEBUG
+    if (condition == false)
+    {
+        AssertFailure();
+    }
+#endif
+    return;
+}
 
 } // namespace Utils
 
