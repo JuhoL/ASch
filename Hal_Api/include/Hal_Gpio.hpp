@@ -132,10 +132,6 @@ public:
     /// @return The state of the pin output.
     static_mf bool GetOutputState(Pin_t& pin);
 
-    /// @brief This function locks the given port preventing further configuration. The lock will be reset only via MCU reset.
-    /// @param port - Port to be locked.
-    static_mf void LockPort(Port port);
-
 private:
     /// @brief This function gets the mode of the given pin.
     /// @param pin - A reference to the pin selector.

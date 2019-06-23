@@ -55,7 +55,11 @@ GPIO_TypeDef* paGpios[] =
     GPIOD,
     GPIOE,
     GPIOF,
-    GPIOG
+    GPIOG,
+    GPIOH,
+    GPIOI,
+    GPIOJ,
+    GPIOK
 };
 
 const uint32_t bitsInMode = 2UL;
@@ -120,7 +124,7 @@ void Gpio::SetConfiguration(gpioConfig_t& gpio)
     SetSpeed(gpio.pin, gpio.speed);
     SetPull(gpio.pin, gpio.pull);
     SetAlternateFunction(gpio.pin, gpio.alternateFunction);
-    
+
     return;
 }
 
@@ -151,23 +155,6 @@ bool Gpio::GetOutputState(Pin_t& pin)
     return (Utils::GetBits(GPIO(pin.port)->ODR, pin.number, stateMask) != 0UL);
 }
 
-void Gpio::LockPort(Port port)
-{
-    // See STM32F429ZI datasheet chapter 8.4.8.
-    if (Utils::GetBit(GPIO(port)->LCKR, lockBitPosition) == false)
-    {
-#if 0
-        Isr isr = Isr();
-        isr.Disable(Interrupt::global);
-        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
-        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, false);
-        GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
-        isr.Enable(Interrupt::global);
-#endif
-    }
-    return;
-}
-
 //---------------------------------------
 // Private Functions
 //---------------------------------------
@@ -193,7 +180,7 @@ bool Gpio::IsOpenDrain(Pin_t& pin)
 
 void Gpio::SetOpenDrain(Pin_t& pin, bool isOpenDrain)
 {
-    Utils::SetBit(GPIO(pin.port)->OTYPER, pin.number, isOpenDrain);
+    GPIO(pin.port)->OTYPER = Utils::SetBit(GPIO(pin.port)->OTYPER, pin.number, isOpenDrain);
     return;
 }
 

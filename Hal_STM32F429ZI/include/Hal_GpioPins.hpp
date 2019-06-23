@@ -47,7 +47,11 @@ enum class Port
     d,
     e,
     f,
-    g
+    g,
+    h,
+    i,
+    j,
+    k
 };
 
 typedef struct

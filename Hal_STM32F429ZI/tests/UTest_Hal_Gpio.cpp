@@ -32,29 +32,223 @@
 #include <Catch_Utils.hpp>
 
 #include <Hal_Gpio.hpp>
+#include <Utils_Bit.hpp>
+#include <stm32f429xx_mock.h>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
-{
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO ("Developer configures GPIO", "[gpio]")
 {
-    GIVEN ("a_premise")
+    Hal_Mock::InitGpioRegisters();
+
+    GIVEN ("a GPIO class is created and GPIO configuration struct is created for PC5")
     {
-        WHEN ("doing_something")
+        Hal::Gpio gpio = Hal::Gpio();
+        Hal::gpioConfig_t gpioConfig =
         {
-            THEN ("something_shall_happen")
+            .pin = {.port = Hal::Port::c, .number = 5UL},
+            .mode = Hal::GpioMode::output,
+            .isOpenDrain = true,
+            .speed = Hal::GpioSpeed::high,
+            .pull = Hal::GpioPull::pullUp,
+            .alternateFunction = Hal::AlternateFunction::sys1
+        };
+
+        WHEN ("set configuration is called with the struct")
+        {
+            gpio.SetConfiguration(gpioConfig);
+
+            THEN ("PC5 mode is set to 01b")
             {
-                REQUIRE (1 == 1);
+                REQUIRE (GPIOC->MODER == 0x00000400UL);
+            }
+            AND_THEN ("PC5 is open drain")
+            {
+                REQUIRE (GPIOC->OTYPER == 0x00000020UL);
+            }
+            AND_THEN ("PC5 speed is 10b")
+            {
+                REQUIRE (GPIOC->OSPEEDR == 0x00000800UL);
+            }
+            AND_THEN ("PC5 pullup is set to 01b")
+            {
+                REQUIRE (GPIOC->PUPDR == 0x00000400UL);
+            }
+            AND_THEN ("PC5 alternate function is set to 00")
+            {
+                ; // ToDo: Add Alternate Function tests later.
+            }
+            AND_WHEN ("The configuration is read to an empty struct")
+            {
+                Hal::gpioConfig_t gpioConfig2 =
+                {
+                    .pin = {.port = Hal::Port::c, .number = 5UL}
+                };
+                gpio.GetConfiguration(gpioConfig2);
+
+                THEN ("the structs shall be identical")
+                {
+                    REQUIRE (gpioConfig.mode == gpioConfig2.mode);
+                    REQUIRE (gpioConfig.isOpenDrain == gpioConfig2.isOpenDrain);
+                    REQUIRE (gpioConfig.speed == gpioConfig2.speed);
+                    REQUIRE (gpioConfig.pull == gpioConfig2.pull);
+                    REQUIRE (gpioConfig.alternateFunction == gpioConfig2.alternateFunction);
+                }
+            }
+        }
+    }
+
+    GIVEN ("a GPIO class is created and empty GPIO configuration struct is created for PA13")
+    {
+        Hal::Gpio gpio = Hal::Gpio();
+        Hal::gpioConfig_t gpioConfig =
+        {
+            .pin = {.port = Hal::Port::a, .number = 13UL}
+        };
+
+        // Change some of the struct values to later ensure that they are changed.
+        gpioConfig.isOpenDrain = true;
+        gpioConfig.pull = Hal::GpioPull::pullUp;
+
+        WHEN ("get configuration is called with the struct")
+        {
+            gpio.GetConfiguration(gpioConfig);
+
+            THEN ("struct mode is set to alternate function")
+            {
+                REQUIRE (gpioConfig.mode == Hal::GpioMode::alternate);
+            }
+            AND_THEN ("struct open drain is not active")
+            {
+                REQUIRE (gpioConfig.isOpenDrain == false);
+            }
+            AND_THEN ("struct speed is very high")
+            {
+                REQUIRE (gpioConfig.speed == Hal::GpioSpeed::veryHigh);
+            }
+            AND_THEN ("struct pullup is floating")
+            {
+                REQUIRE (gpioConfig.pull == Hal::GpioPull::floating);
+            }
+            AND_THEN ("PC5 alternate function is set to 00")
+            {
+                ; // ToDo: Add Alternate Function tests later.
+            }
+        }
+    }
+}
+
+SCENARIO ("Developer uses GPIO", "[gpio]")
+{
+    Hal_Mock::InitGpioRegisters();
+
+    GIVEN ("PC5 is configured as an input")
+    {
+        Hal::Gpio gpio = Hal::Gpio();
+        Hal::gpioConfig_t gpioConfig =
+        {
+            .pin = {.port = Hal::Port::c, .number = 5UL},
+            .mode = Hal::GpioMode::input,
+            .isOpenDrain = false,
+            .speed = Hal::GpioSpeed::low,
+            .pull = Hal::GpioPull::pullUp,
+            .alternateFunction = Hal::AlternateFunction::sys1
+        };
+        gpio.SetConfiguration(gpioConfig);
+
+        WHEN ("the input bit is high")
+        {
+            GPIOC->IDR = Utils::SetBit(GPIOC->IDR, 5UL, true);
+
+            THEN ("the input shall read true and the ouput shall stay false")
+            {
+                REQUIRE (gpio.GetInputState(gpioConfig.pin) == true);
+                REQUIRE (gpio.GetOutputState(gpioConfig.pin) == false);
+            }
+            AND_WHEN ("the input bit is low")
+            {
+                GPIOC->IDR = Utils::SetBit(GPIOC->IDR, 5UL, false);
+
+                THEN ("the input shall read false")
+                {
+                    REQUIRE (gpio.GetInputState(gpioConfig.pin) == false);
+                }
+            }
+        }
+    }
+
+    GIVEN ("PC5 is configured as an output")
+    {
+        Hal::Gpio gpio = Hal::Gpio();
+        Hal::gpioConfig_t gpioConfig =
+        {
+            .pin = {.port = Hal::Port::c, .number = 5UL},
+            .mode = Hal::GpioMode::output,
+            .isOpenDrain = false,
+            .speed = Hal::GpioSpeed::low,
+            .pull = Hal::GpioPull::pullUp,
+            .alternateFunction = Hal::AlternateFunction::sys1
+        };
+        gpio.SetConfiguration(gpioConfig);
+
+        WHEN ("the output bit is high")
+        {
+            GPIOC->ODR = Utils::SetBit(GPIOC->ODR, 5UL, true);
+
+            THEN ("the output shall read true and the input shall stay false")
+            {
+                REQUIRE (gpio.GetOutputState(gpioConfig.pin) == true);
+                REQUIRE (gpio.GetInputState(gpioConfig.pin) == false);
+            }
+            AND_WHEN ("the output bit is low")
+            {
+                GPIOC->ODR = Utils::SetBit(GPIOC->ODR, 5UL, false);
+
+                THEN ("the output shall read false")
+                {
+                    REQUIRE (gpio.GetOutputState(gpioConfig.pin) == false);
+                }
+            }
+        }
+    }
+
+    GIVEN ("PC5 is configured as an output")
+    {
+        Hal::Gpio gpio = Hal::Gpio();
+        Hal::gpioConfig_t gpioConfig =
+        {
+            .pin = {.port = Hal::Port::c, .number = 5UL},
+            .mode = Hal::GpioMode::output,
+            .isOpenDrain = false,
+            .speed = Hal::GpioSpeed::low,
+            .pull = Hal::GpioPull::pullUp,
+            .alternateFunction = Hal::AlternateFunction::sys1
+        };
+        gpio.SetConfiguration(gpioConfig);
+
+        WHEN ("the output is set high")
+        {
+            gpio.SetOutputState(gpioConfig.pin, true);
+
+            THEN ("the bit 5 in BSRR shall be set active")
+            {
+                REQUIRE (GPIOC->BSRR == Utils::Bit(5UL));
+            }
+            AND_WHEN ("the output is set low")
+            {
+                GPIOC->BSRR = 0UL; // Clear BSRR first to simulate HW behaviour.
+                gpio.SetOutputState(gpioConfig.pin, false);
+
+                THEN ("the bit 21 in BSRR shall be set active")
+                {
+                    REQUIRE (GPIOC->BSRR == Utils::Bit(21UL));
+                }
             }
         }
     }
