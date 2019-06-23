@@ -64,7 +64,6 @@ void InitSystem(Mock<ASch::System>& mockSystem)
     Fake(Method(mockSystem, Error));
     Fake(Method(mockSystem, Init));
     Fake(Method(mockSystem, PreStartConfig));
-    Fake(Method(mockSystem, PostStartConfig));
     return;
 }
 

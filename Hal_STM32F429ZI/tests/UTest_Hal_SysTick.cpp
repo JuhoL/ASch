@@ -29,9 +29,7 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
+#include <Catch_Utils.hpp>
 
 #include <Hal_SysTick.hpp>
 

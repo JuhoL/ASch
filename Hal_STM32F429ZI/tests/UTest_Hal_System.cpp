@@ -17,77 +17,45 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Isr.hpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    29 Aug 2018
-//!
-//! @class   Isr
-//! @brief   HAL interface for ISRs.
+//! @file    UTest_Hal_System.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    28 Oct 2018
 //! 
-//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
-
-#ifndef HAL_ISR_HPP_
-#define HAL_ISR_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <Utils_Types.hpp>
+//! @brief   These are unit tests for Hal_System.cpp
+//! 
+//! These are unit tests for Hal_System.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
+#include <Catch_Utils.hpp>
+
+#include <Hal_System.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Test Structs and Variables
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace
 {
 
-//!
-//! @brief   Different interrupt vectors available in the system.
-//!
-typedef enum
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Test Cases
+//-----------------------------------------------------------------------------------------------------------------------------
+
+SCENARIO ("Some test", "[feature_tag]")
 {
-    interrupt_sysTick = 0,  //! SysTick vector.
-
-    interrupt_global,
-    interrupt_vectorsMax    //! The total number of vectors. Must be last on the enum!
-} interruptType_t;
-
-typedef void (*interruptHandler_t)(void);
-
-} // namespace Hal
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
-{
-
-/// @class Isr
-class Isr
-{
-public:
-    explicit Isr(void);
-    
-    static_mf void SetHandler(interruptType_t type, interruptHandler_t Handler);
-    static_mf void Enable(interruptType_t type);
-    static_mf void Disable(interruptType_t type);
-
-    // ToDo: Atomic ISR enable/disable for global interrupt control.
-
-private:
-    static interruptHandler_t Handlers[interrupt_vectorsMax];
-};
-
-} // namespace Hal
-
-#endif // HAL_ISR_HPP_
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}

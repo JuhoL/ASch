@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,20 +17,21 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Isr.cpp
+//! @file    Utils_Assert.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    29 Aug 2018
+//! @date    22 Jun 2019
 //!
-//! @class   Isr
-//! @brief   HAL interface for ISRs.
+//! @class   Assert
+//! @brief   !!!!! Brief file description here !!!!!
 //! 
-//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
+//! !!!!! Detailed file description here !!!!!
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_Isr.hpp>
+#include <Utils_Assert.hpp>
+#include <ASch_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -52,51 +53,23 @@
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
-{
-
-//---------------------------------------
-// Initialise static members
-//---------------------------------------
-interruptHandler_t Isr::Handlers[interrupt_vectorsMax] = {0};
-
-//---------------------------------------
-// Functions
-//---------------------------------------
-Isr::Isr(void)
-{
-    for (uint8_t i; i < static_cast<uint8_t>(interrupt_vectorsMax); ++i)
-    {
-        Handlers[i] = 0;
-    }
-    return;
-}
-
-void Isr::SetHandler(interruptType_t type, const interruptHandler_t Handler)
-{
-    if (type < interrupt_vectorsMax)
-    {
-        Handlers[type] = Handler;
-    }
-    return;
-}
-
-void Isr::Enable(interruptType_t type)
-{
-    return;
-}
-
-void Isr::Disable(interruptType_t type)
-{
-    return;
-}
-
-} // namespace Hal
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace Utils
+{
+
+void AssertFailure(void)
+{
+    ASch::System system = ASch::System();
+    system.Error(ASch::SysError::assertFailure);
+    return;
+}
+
+} // namespace Utils
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+

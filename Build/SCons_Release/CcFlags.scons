@@ -1,3 +1,7 @@
 -Wall
 -Werror
 -DUNIT_TEST=0
+-mcpu=cortex-m4
+-mthumb
+-O2
+-fsigned-char

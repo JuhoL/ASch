@@ -57,7 +57,6 @@ namespace ASch
 {
 
 const std::size_t preStartConfigurationFunctionsMax = sizeof(apPreStartConfigFunctions)/sizeof(configFunction_t);
-const std::size_t postStartConfigurationFunctionsMax = sizeof(apPostStartConfigFunctions)/sizeof(configFunction_t);
 
 }
 

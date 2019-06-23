@@ -133,7 +133,7 @@ Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal
         schedulerState.runEvents = false;
 
         pSysTick->SetInterval(tickIntervalInMs);
-        pIsr->SetHandler(Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
+        pIsr->SetHandler(Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
 
         pScheduler = this;
     }
@@ -159,7 +159,7 @@ Scheduler::~Scheduler(void)
 
 void Scheduler::Start(void)
 {
-    pIsr->Enable(Hal::interrupt_sysTick);
+    pIsr->Enable(Hal::Interrupt::sysTick);
     pSysTick->Start();
     status = SchedulerStatus::running;
     return;
@@ -168,7 +168,7 @@ void Scheduler::Start(void)
 void Scheduler::Stop(void)
 {
     pSysTick->Stop();
-    pIsr->Disable(Hal::interrupt_sysTick);
+    pIsr->Disable(Hal::Interrupt::sysTick);
     status = SchedulerStatus::stopped;
     return;
 }
@@ -187,7 +187,7 @@ void Scheduler::CreateTask(task_t task)
 {
     if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
-        pIsr->Disable(Hal::interrupt_global);
+        pIsr->Disable(Hal::Interrupt::global);
         if (taskCount < schedulerTasksMax)
         {
             bool isDuplicate = false;
@@ -214,7 +214,7 @@ void Scheduler::CreateTask(task_t task)
         {
             ThrowError(SysError::insufficientResources);
         }
-        pIsr->Enable(Hal::interrupt_global);
+        pIsr->Enable(Hal::Interrupt::global);
     }
     return;
 }
@@ -289,7 +289,7 @@ void Scheduler::PushEvent(event_t const& event)
 {
     if (event.Handler != 0)
     {
-        pIsr->Disable(Hal::interrupt_global);
+        pIsr->Disable(Hal::Interrupt::global);
         bool errors = eventQueue.Push(event);
 
         if (errors == true)
@@ -301,7 +301,7 @@ void Scheduler::PushEvent(event_t const& event)
             schedulerState.runEvents = true;
             pHalSystem->WakeUp();
         }
-        pIsr->Enable(Hal::interrupt_global);
+        pIsr->Enable(Hal::Interrupt::global);
     }
     return;
 }
@@ -450,11 +450,6 @@ void SchedulerLoop(void)
         }
     } while (UNIT_TEST == 0);
     return;
-}
-
-Scheduler* pGetSchedulerPointer(void)
-{
-    return pScheduler;
 }
 
 }

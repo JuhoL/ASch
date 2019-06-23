@@ -1,0 +1,7 @@
+./Config/include
+./Hal_STM32F429ZI/sources
+./Hal_STM32F429ZI/include
+./Hal_STM32F429ZI/CMSIS
+./Hal_STM32F429ZI/mocks
+./Hal_Api/include
+./Utils/include

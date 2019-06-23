@@ -1,7 +1,9 @@
 Utils_Queue ./Utils
 ASch_System ./ASch
 ASch_Scheduler ./ASch
-Hal_SysTick ./Hal
-Hal_Isr ./Hal
-Hal_System .\Hal
+Hal_SysTick ./Hal_STM32F429ZI
+Hal_Isr ./Hal_STM32F429ZI
+Hal_System .\Hal_STM32F429ZI
 ASch_Main .\ASch
+Hal_Gpio .\Hal_STM32F429ZI
+Utils_Assert .\Utils

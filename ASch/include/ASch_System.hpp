@@ -34,7 +34,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <Hal_SysTick.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -43,13 +43,15 @@
 namespace ASch
 {
 
+/// @brief This is a system error enum.
 enum class SysError
 {
-    invalidParameters = 0,
-    bufferOverflow,
-    insufficientResources,
-    multipleSchedulerInstances,
-    unknownError
+    invalidParameters = 0,          //!< A function was called with invalid parameters.
+    bufferOverflow,                 //!< A buffer has overflown.
+    insufficientResources,          //!< System resources (e.g. task quota) has ran out.
+    multipleSchedulerInstances,     //!< A second scheduler is initialised.
+    assertFailure,                  //!< A debug assert has failed.
+    unknownError                    //!< An unknown error. Should never occur.
 };
 
 }
@@ -69,21 +71,39 @@ enum class SysError
 namespace ASch
 {
 
-/// @class System
+//! @class System
+//! @brief Generic system control class for ASch.
+//! This class implements system control functions and handles generic system level events like ticks and system errors. 
 class System
 {
 public:
-    explicit System(Hal::SysTick& sysTickParameter);
+    /// @brief A constructor with dependency injections.
+    /// 
+    /// This constructor must be used when initialising the system or unit testing.
+    /// @param halSystem - A reference to HAL System module.
+    explicit System(Hal::System& halSystem);
+
+    /// @brief Simple constructor.
+    ///
+    /// A constructor to be used after the system has been initialised.
     explicit System(void);
 
+    /// @brief A destructor to be used to deinit the scheduler.
+    ~System(void);
+
+    /// @brief This fuction raises a system error.
+    /// @param error - Error type.
     static_mf void Error(SysError error);
+
+    /// @brief This fuction initialises the system, e.f. clocks and other base peripherals.
     static_mf void Init(void);
+
+    /// @brief This function runs pre-start configuration functions.
     static_mf void PreStartConfig(void);
-    static_mf void PostStartConfig(void);
 
 private:
     // Dependencies
-    static Hal::SysTick* pSysTick;
+    static Hal::System* pHalSystem; //!< Pointer to the HAL System module.
 };
 
 } // namespace ASch

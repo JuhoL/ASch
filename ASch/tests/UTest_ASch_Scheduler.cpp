@@ -173,7 +173,7 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             }
             AND_THEN ("scheduler tick handler shall be set as system tick handler")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, SetHandler, Hal::interrupt_sysTick, Isr::Scheduler_SysTickHandler);
+                REQUIRE_PARAM_CALLS (1, mockIsr, SetHandler, Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
             }
             AND_THEN ("no tasks shall be running")
             {
@@ -196,7 +196,7 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
             THEN ("SysTick ISR is enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::interrupt_sysTick);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::sysTick);
             }
             AND_THEN ("SysTick is started")
             {
@@ -224,7 +224,7 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             }
             AND_THEN ("SysTick ISR is disabled") // ToDo: Verify order!
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::interrupt_sysTick);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::sysTick);
             }
             AND_THEN ("scheduler state shall be stopped")
             {
@@ -319,8 +319,8 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::interrupt_global);
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::interrupt_global);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::global);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::global);
                 REQUIRE_CALL_ORDER (CALL(mockIsr, Disable) + CALL(mockIsr, Enable));
             }
             AND_THEN ("the task count shall be one")
@@ -681,8 +681,8 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::interrupt_global);
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::interrupt_global);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::global);
+                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::global);
                 REQUIRE_CALL_ORDER (CALL(mockIsr, Disable) + CALL(mockIsr, Enable));
             }
             AND_THEN ("wake up call shall occur")
@@ -1003,36 +1003,6 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
             {
                 REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
                 REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
-            }
-        }
-    }
-}
-
-SCENARIO ("Developer fetches scheduler instance", "[scheduler]")
-{
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-    
-    GIVEN ("the scheduler is running and task list is empty")
-    {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
-
-        WHEN ("developer requests scheduler instance pointer")
-        {
-            ASch::Scheduler* pScheduler = ASch::pGetSchedulerPointer();
-
-            THEN ("the pointer shall match with the scheduler instance")
-            {
-                REQUIRE (pScheduler == &scheduler);
             }
         }
     }

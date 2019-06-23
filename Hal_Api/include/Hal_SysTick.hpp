@@ -17,74 +17,66 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System.cpp
+//! @file    Hal_SysTick.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Oct 2018
+//! @date    22 Aug 2018
 //!
-//! @class   System
-//! @brief   This is HAL interface for system level functionality.
+//! @class   SysTick
+//! @brief   HAL interface for SysTick
+//! 
+//! This module configures SysTick peripheral that is used by the Scheduler module.
+
+#ifndef HAL_SYSTICK_HPP_
+#define HAL_SYSTICK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_System.hpp>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
+// 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
+// 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
+// 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace Hal
 {
 
-System::System(void)
+//! @class SysTick
+//! @brief HAL interface for SysTick
+//! This class configures and controls SysTick peripheral that is used by the Scheduler module.
+class SysTick
 {
-    return;
-}
+public:
+    /// @brief Simple constructor.
+    explicit SysTick(void);
+    
+    /// @brief Sets the SysTick interval.
+    /// @param intervalIn01Ms - Interval in 0.1ms (i.e 10 = 1.0ms)
+    static_mf void SetInterval(uint16_t intervalIn01Ms);
+    
+    /// @brief Starts the SysTick.
+    static_mf void Start(void);
+    
+    /// @brief Stops the SysTick.
+    static_mf void Stop(void);
 
-void System::Sleep(void)
-{
-    return;
-}
+private:
+    
+};
 
-void System::WakeUp(void)
-{
-    return;
-}
+} // namespace Hal
 
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
-{
-
-void CriticalSystemError(void)
-{
-    return;
-}
-
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 8. Static Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
+#endif // HAL_SYSTICK_HPP_

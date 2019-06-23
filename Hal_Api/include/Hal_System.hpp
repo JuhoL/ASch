@@ -17,48 +17,71 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_Hal_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @file    Hal_System.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    28 Oct 2018
-//! 
-//! @brief   These are unit tests for Hal_System.cpp
-//! 
-//! These are unit tests for Hal_System.cpp utilising Catch2 and FakeIt.
+//!
+//! @class   System
+//! @brief   This is HAL interface for system level functionality.
+
+#ifndef HAL_SYSTEM_HPP_
+#define HAL_SYSTEM_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
-
-#include <Hal_System.hpp>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
 {
+
+/// @brief Raises a critical system error that halts the MCU.
+void CriticalSystemError(void);
 
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
+// 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+namespace Hal
 {
-    GIVEN ("a_premise")
-    {
-        WHEN ("doing_something")
-        {
-            THEN ("something_shall_happen")
-            {
-                REQUIRE (1 == 1);
-            }
-        }
-    }
-}
+
+//! @class System
+//! @brief This is HAL interface for system level functionality.
+//! This class handler system clocks and power management.
+class System
+{
+public:
+    /// @brief Simple constructor.
+    explicit System(void);
+
+    /// @brief Puts the system into sleep.
+    static_mf void Sleep(void);
+
+    /// @brief Wakes the system up from sleep.
+    static_mf void WakeUp(void);
+    
+    /// @brief Initialises system clocks.
+    static_mf void InitClocks(void);
+
+private:
+    
+};
+
+} // namespace Hal
+
+#endif // HAL_SYSTEM_HPP_

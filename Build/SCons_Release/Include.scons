@@ -1,5 +1,7 @@
 ./ASch/include
 ./Utils/include
 ./Utils/sources
-./Hal/include
+./Hal_Api/include
 ./Config/include
+./Hal_STM32F429ZI/include
+./Hal_STM32F429ZI/CMSIS

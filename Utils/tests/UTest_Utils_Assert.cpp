@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,61 +17,45 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System.hpp
-//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Oct 2018
-//!
-//! @class   System
-//! @brief   This is HAL interface for system level functionality.
-
-#ifndef HAL_SYSTEM_HPP_
-#define HAL_SYSTEM_HPP_
+//! @file    UTest_Utils_Assert.cpp
+//! @author  Juho Lepistö juho.lepisto(a)gmail.com
+//! @date    22 Jun 2019
+//! 
+//! @brief   These are unit tests for Utils_Assert.cpp
+//! 
+//! These are unit tests for Utils_Assert.cpp utilising Catch2 and FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
+#include <Catch_Utils.hpp>
+
+#include <Utils_Assert.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
+namespace
 {
-
-void CriticalSystemError(void);
 
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
+// 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
+SCENARIO ("Some test", "[feature_tag]")
 {
-
-/// @class System
-class System
-{
-public:
-    explicit System(void);
-
-    static_mf void Sleep(void);
-    static_mf void WakeUp(void);
-
-private:
-    
-};
-
-} // namespace Hal
-
-#endif // HAL_SYSTEM_HPP_
+    GIVEN ("a_premise")
+    {
+        WHEN ("doing_something")
+        {
+            THEN ("something_shall_happen")
+            {
+                REQUIRE (1 == 1);
+            }
+        }
+    }
+}

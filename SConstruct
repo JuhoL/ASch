@@ -13,6 +13,7 @@ import multiprocessing
 from ListCreator import CreateDictionaryFromFile
 from BuildTarget import *
 from CppCheck import *
+from Doxygen import *
 from RunUnitTest import *
 from Coverage import GenerateCoverageReport
 
@@ -47,10 +48,20 @@ def BuildTest(target, env, parameters, buildAll):
 #------------ SCons script run starts here ------------
 if GetOption('linux') != None:
     unitTest = Environment(tools = ['gcc', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['gcc'])
+    release = Environment(tools = ['gcc', 'Binary', 'Doxygen'])
 else:
     unitTest = Environment(tools = ['mingw', 'CppCheck', 'Gcov', 'Gcovr', 'Cobertura'])
-    release = Environment(tools = ['mingw'])
+    release = Environment(tools = ['mingw', 'Binary', 'Doxygen'])
+
+# Configure ARM GCC for release
+release['AR'] = 'arm-eabi-ar'
+release['AS'] = 'arm-eabi-as'
+release['CC'] = 'arm-eabi-gcc'
+release['CXX'] = 'arm-eabi-g++'
+release['LINK'] = 'arm-eabi-g++'
+release['RANLIB'] = 'arm-eabi-ranlib'
+release['OBJCOPY'] = 'arm-eabi-objcopy'
+release['PROGSUFFIX'] = '.elf'
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
 
@@ -77,11 +88,16 @@ if GetOption('test') != None or GetOption('cpp_check') != None or GetOption('cov
                        "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
                        "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
         BuildTest(target, unitTest, parameters, buildAll)
-
+elif GetOption('doxygen') != None:
+    targetList = COMMAND_LINE_TARGETS
+    for target in targetList:
+        Doxygen(release, target)
 else:
-    buildFiles = {"sources" : "./Build/SCons_Release/Sources.scons",
-                  "include" : "./Build/SCons_Release/Include.scons",
-                  "ccFlags" : "./Build/SCons_Release/CcFlags.scons",
-                  "ldFlags" : "./Build/SCons_Release/LdFlags.scons"}
+    buildFiles = {"sources"  : "./Build/SCons_Release/Sources.scons",
+                  "include"  : "./Build/SCons_Release/Include.scons",
+                  "ccFlags"  : "./Build/SCons_Release/CcFlags.scons",
+                  "cxxFlags" : "./Build/SCons_Release/CxxFlags.scons",
+                  "ldFlags"  : "./Build/SCons_Release/LdFlags.scons",
+                  "cmsis"    : "./Build/SCons_Release/CmsisSources.scons"}
     asch = BuildTarget(release, 'ASch', buildFiles)
     release.Default(asch)

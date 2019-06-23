@@ -1,4 +1,4 @@
 ./Config/include
 ./Utils/include
-./Hal/sources
-./Hal/include
+./Hal_Api/sources
+./Hal_Api/include

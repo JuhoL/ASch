@@ -17,17 +17,17 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_SysTick.hpp
+//! @file    Hal_Isr.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    22 Aug 2018
+//! @date    29 Aug 2018
 //!
-//! @class   SysTick
-//! @brief   HAL interface for SysTick
+//! @class   Isr
+//! @brief   HAL interface for ISRs.
 //! 
-//! This module configures SysTick peripheral that is used by the Scheduler module.
+//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
 
-#ifndef HAL_SYSTICK_HPP_
-#define HAL_SYSTICK_HPP_
+#ifndef HAL_ISR_HPP_
+#define HAL_ISR_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
@@ -39,12 +39,27 @@
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace Hal
+{
+
+//! @brief   Different interrupt vectors available in the system.
+enum class Interrupt
+{
+    sysTick = 0,    //!< SysTick vector.
+    global,         //!< Global interrupt control.
+    max             //!< The total number of vectors. Must be last on the enum!
+};
+
+typedef void (*interruptHandler_t)(void);   //!< A function pointer for interrupt handlers.
+
+} // namespace Hal
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
+// 4. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -54,19 +69,32 @@
 namespace Hal
 {
 
-/// @class SysTick
-class SysTick
+//! @class Isr
+//! @brief HAL interface for ISRs.
+//! The ISR module manages interrupt vectors, global interrupt enable state, and NVIC configurations.
+class Isr
 {
 public:
-    explicit SysTick(void);
-    static_mf void SetInterval(uint16_t intervalIn01Ms);
-    static_mf void Start(void);
-    static_mf void Stop(void);
+    /// @brief Simple constructor.
+    explicit Isr(void);
+    
+    /// @brief This function sets a handler for the given interrupt.
+    /// @param type - Interrupt type.
+    /// @param Handler - Pointer to the interrupt handler.
+    static_mf void SetHandler(Interrupt type, interruptHandler_t Handler);
+
+    /// @brief This function enables given interrupt.
+    /// @param type - Interrupt type.
+    static_mf void Enable(Interrupt type);
+
+    /// @brief This function disables given interrupt.
+    /// @param type - Interrupt type
+    static_mf void Disable(Interrupt type);
 
 private:
-    
+    static interruptHandler_t Handlers[static_cast<std::size_t>(Interrupt::max)]; //!< List of interrupt handlers.
 };
 
 } // namespace Hal
 
-#endif // HAL_SYSTICK_HPP_
+#endif // HAL_ISR_HPP_

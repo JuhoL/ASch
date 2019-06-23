@@ -1,6 +1,8 @@
 ./ASch/sources/ASch_System.cpp
 ./ASch/sources/ASch_Scheduler.cpp
-./Hal/sources/Hal_SysTick.cpp
-./Hal/sources/Hal_Isr.cpp
-./Hal/sources/Hal_System.cpp
+./Hal_STM32F429ZI/sources/Hal_SysTick.cpp
+./Hal_STM32F429ZI/sources/Hal_Isr.cpp
+./Hal_STM32F429ZI/sources/Hal_System.cpp
 ./ASch/sources/ASch_Main.cpp
+./Hal_STM32F429ZI/sources/Hal_Gpio.cpp
+./Utils/sources/Utils_Assert.cpp
