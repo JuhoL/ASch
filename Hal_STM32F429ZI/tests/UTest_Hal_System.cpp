@@ -29,10 +29,7 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <Catch_Utils.hpp>
 
 #include <Hal_System.hpp>
 

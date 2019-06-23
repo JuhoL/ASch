@@ -60,8 +60,8 @@ def BuildTarget(env, buildTarget, buildFiles):
         binary = env.Binary(targetString, output)
         env.Requires(binary, output)
         env.Alias(buildTarget, binary)
+        env.NoClean(binary)
 
     env.NoClean(output)
-    env.NoClean(binary)
 
     return output

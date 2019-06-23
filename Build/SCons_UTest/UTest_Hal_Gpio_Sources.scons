@@ -1,2 +1,3 @@
 ./Hal_STM32F429ZI/sources/Hal_Gpio.cpp
 ./Hal_STM32F429ZI/tests/UTest_Hal_Gpio.cpp
+./Hal_STM32F429ZI/mocks/stm32f429xx_mock.cpp

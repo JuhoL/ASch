@@ -31,7 +31,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Hal_Gpio.hpp>
-#include <stm32f429xx.h>
+#include <stm32f4xx.h>
 #include <Utils_Assert.hpp>
 #include <Utils_Bit.hpp>
 #include <Hal_Isr.hpp>
@@ -150,12 +150,14 @@ void Gpio::LockPort(Port port)
     // See STM32F429ZI datasheet chapter 8.4.8.
     if (Utils::GetBit(GPIO(port)->LCKR, lockBitPosition) == false)
     {
+#if 0
         Isr isr = Isr();
         isr.Disable(Interrupt::global);
         GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
         GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, false);
         GPIO(port)->LCKR = Utils::SetBit(GPIO(port)->LCKR, lockBitPosition, true);
         isr.Enable(Interrupt::global);
+#endif
     }
     return;
 }

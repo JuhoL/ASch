@@ -86,7 +86,11 @@
                                          |(__STM32F4xx_CMSIS_VERSION_SUB2 << 8 )\
                                          |(__STM32F4xx_CMSIS_VERSION))
 
-#include "stm32f429xx.h"
+#ifndef UNIT_TEST
+    #include "stm32f429xx.h"
+#else
+    #include "stm32f429xx_mock.h"
+#endif
 
 /** @addtogroup Exported_types
   * @{
