@@ -60,7 +60,6 @@ GPIO_TypeDef* paGpios[] =
 
 const uint32_t bitsInMode = 2UL;
 const uint32_t modeMask = 0x3UL;
-const uint32_t outputTypeMask = 0x1UL;
 const uint32_t bitsInSpeed = 2UL;
 const uint32_t speedMask = 0x3UL;
 const uint32_t bitsInPull = 2UL;
@@ -115,6 +114,13 @@ void Gpio::GetConfiguration(gpioConfig_t& gpio)
 void Gpio::SetConfiguration(gpioConfig_t& gpio)
 {
     Utils::Assert(gpio.pin.number <= 15U);
+    
+    SetMode(gpio.pin, gpio.mode);
+    SetOpenDrain(gpio.pin, gpio.isOpenDrain);
+    SetSpeed(gpio.pin, gpio.speed);
+    SetPull(gpio.pin, gpio.pull);
+    SetAlternateFunction(gpio.pin, gpio.alternateFunction);
+    
     return;
 }
 
@@ -173,9 +179,22 @@ GpioMode Gpio::GetMode(Pin_t& pin)
     return static_cast<GpioMode>(modeBits);
 }
 
+void Gpio::SetMode(Pin_t& pin, GpioMode mode)
+{
+    // See STM32F429ZI datasheet chapter 8.4.1.
+    GPIO(pin.port)->MODER = Utils::SetBits(GPIO(pin.port)->MODER, (pin.number * bitsInMode), modeMask, static_cast<uint32_t>(mode));
+    return;
+}
+
 bool Gpio::IsOpenDrain(Pin_t& pin)
 {
-    return (Utils::GetBits(GPIO(pin.port)->OTYPER, pin.number, outputTypeMask) != 0UL);
+    return Utils::GetBit(GPIO(pin.port)->OTYPER, pin.number);
+}
+
+void Gpio::SetOpenDrain(Pin_t& pin, bool isOpenDrain)
+{
+    Utils::SetBit(GPIO(pin.port)->OTYPER, pin.number, isOpenDrain);
+    return;
 }
 
 GpioSpeed Gpio::GetSpeed(Pin_t& pin)
@@ -185,6 +204,13 @@ GpioSpeed Gpio::GetSpeed(Pin_t& pin)
     return static_cast<GpioSpeed>(speedBits);
 }
 
+void Gpio::SetSpeed(Pin_t& pin, GpioSpeed speed)
+{
+    // See STM32F429ZI datasheet chapter 8.4.3.
+    GPIO(pin.port)->OSPEEDR = Utils::SetBits(GPIO(pin.port)->OSPEEDR, (pin.number * bitsInSpeed), speedMask, static_cast<uint32_t>(speed));
+    return;
+}
+
 GpioPull Gpio::GetPull(Pin_t& pin)
 {
     // See STM32F429ZI datasheet chapter 8.4.4.
@@ -192,9 +218,21 @@ GpioPull Gpio::GetPull(Pin_t& pin)
     return static_cast<GpioPull>(pullBits);
 }
 
+void Gpio::SetPull(Pin_t& pin, GpioPull pull)
+{
+    // See STM32F429ZI datasheet chapter 8.4.4.
+    GPIO(pin.port)->PUPDR = Utils::SetBits(GPIO(pin.port)->PUPDR, (pin.number * bitsInPull), pullMask, static_cast<uint32_t>(pull));
+    return;
+}
+
 AlternateFunction Gpio::GetAlternateFunction(Pin_t& pin)
 {
     return AlternateFunction::sys1;
+}
+
+void Gpio::SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction)
+{
+    return;
 }
 
 } // namespace ASch

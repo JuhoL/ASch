@@ -142,25 +142,51 @@ private:
     /// @return The mode of the pin.
     static GpioMode GetMode(Pin_t& pin);
 
+    /// @brief This function sets the mode of the given pin.
+    /// @param pin - A reference to the pin selector.
+    /// @param mode - New GPIO mode.
+    static void SetMode(Pin_t& pin, GpioMode mode);
+
     /// @brief This function gets the open drain configuration of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The open drain configuration of the pin.
     static bool IsOpenDrain(Pin_t& pin);
+
+    /// @brief This function sets the open drain cofiguration of the given pin.
+    /// @param pin - A reference to the pin selector.
+    /// @param isOpenDrain - New open drain configuration.
+    static void SetOpenDrain(Pin_t& pin, bool isOpenDrain);
 
     /// @brief This function gets the speed of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The speed of the pin.
     static GpioSpeed GetSpeed(Pin_t& pin);
 
+    /// @brief This function sets the speed of the given pin.
+    /// @param pin - A reference to the pin selector.
+    /// @param speed - New GPIO speed.
+    static void SetSpeed(Pin_t& pin, GpioSpeed speed);
+
     /// @brief This function gets the pull-up/pull-down configuration of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The pull-up/pull-down configuration of the pin.
     static GpioPull GetPull(Pin_t& pin);
 
+    /// @brief This function sets the pull-up/pull-down configuration of the given pin.
+    /// @param pin - A reference to the pin selector.
+    /// @param pull - New GPIO pull-up/pull-down configuration.
+    static void SetPull(Pin_t& pin, GpioPull pull);
+
     /// @brief This function gets the alternate function configuration of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The alternate function configuration of the pin.
     static AlternateFunction GetAlternateFunction(Pin_t& pin);
+
+    /// @brief This function sets the alternate function configuration of the given pin.
+    /// @param pin - A reference to the pin selector.
+    /// @param alternateFunction - New GPIO alternate function configuration.
+    static void SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction);
+
 };
 
 } // namespace Hal
