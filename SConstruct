@@ -28,11 +28,15 @@ def BuildTest(target, env, parameters, buildAll):
         # Build and run the tests
         BuildTarget(env, target, buildFiles)
         testRun = RunUnitTest(env, target)
+        testRunReport = GenerateXUnitReport(env, target)
         env.AlwaysBuild(testRun)
+        env.AlwaysBuild(testRunReport)
         if buildAll == True:
             env.Alias("all", testRun)
+            env.Alias("all", testRunReport)
         else:
             env.Alias(target, testRun)
+            env.Alias(target, testRunReport)
     
     if GetOption('cpp_check') != None:
         cppcheck = CppCheck(env, target, buildFiles)

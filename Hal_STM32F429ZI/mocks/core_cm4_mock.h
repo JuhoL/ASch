@@ -1570,7 +1570,7 @@ extern FPU_Type fpu;
 
 #define SCnSCB              (&Hal_Mock::scnScb)     /*!< System control Register not in SCB */
 #define SCB                 (&Hal_Mock::scb)        /*!< SCB configuration struct */
-#define SysTick             (&Hal_Mock::sysTick)    /*!< SysTick configuration struct */
+#define SYSTICK             (&Hal_Mock::sysTick)    /*!< SysTick configuration struct */
 #define NVIC                (&Hal_Mock::nvic)       /*!< NVIC configuration struct */
 #define ITM                 (&Hal_Mock::itm)        /*!< ITM configuration struct */
 #define DWT                 (&Hal_Mock::dwt)        /*!< DWT configuration struct */
@@ -2032,10 +2032,10 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     return (1UL);                                                   /* Reload value impossible */
   }
 
-  SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+  SYSTICK->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
   NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Interrupt */
-  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
+  SYSTICK->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+  SYSTICK->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
                    SysTick_CTRL_TICKINT_Msk   |
                    SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
   return (0UL);                                                     /* Function successful */

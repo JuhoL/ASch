@@ -17,59 +17,60 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Mock.cpp
+//! @file    Utils_Assert_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL classes.
+//! @brief   Mock for assert.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+//! This is mock for assert used in ASch. It also has helper functions for unit tests for reading and resetting failure count.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_Mock.hpp>
+#include <Utils_Assert_Mock.hpp>
+#include <Utils_Assert.hpp>
+
+
+namespace
+{
+
+uint32_t failureCount = 0UL;    //!< Number of failed asserts.
+
+}
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Functions
+// 2. Member Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace HalMock
+namespace ASchMock
 {
 
-void InitIsr(Mock<Hal::Isr>& mockIsr)
+Assert::Assert(void)
 {
-    Fake(Method(mockIsr, SetHandler));
-    Fake(Method(mockIsr, Enable));
-    Fake(Method(mockIsr, Disable));
     return;
 }
 
-void InitSystem(Mock<Hal::System>& mockHalSystem)
+void Assert::Init(void)
 {
-    Fake(Method(mockHalSystem, Sleep));
-    Fake(Method(mockHalSystem, WakeUp));
+    failureCount = 0UL;
     return;
 }
 
-void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
+uint32_t Assert::GetFails(void)
 {
-    Fake(Method(mockSysTick, SetInterval));
-    Fake(Method(mockSysTick, Start));
-    Fake(Method(mockSysTick, Stop));
-    Fake(Method(mockSysTick, IsRunning));
-    return;
+    return failureCount;
 }
 
-void InitGpio(Mock<Hal::Gpio>& mockGpio)
-{
-    Fake(Method(mockGpio, GetConfiguration));
-    Fake(Method(mockGpio, SetConfiguration));
-    Fake(Method(mockGpio, SetOutputState));
-    Fake(Method(mockGpio, GetInputState));
-    Fake(Method(mockGpio, GetOutputState));
-    return;
 }
 
-} // namespace HalMock
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+void Utils::AssertFailure(void)
+{
+    ++failureCount;
+    return;
+}

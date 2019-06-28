@@ -31,6 +31,9 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Hal_SysTick.hpp>
+#include <stm32f4xx.h>
+#include <Utils_Assert.hpp>
+#include <Utils_Bit.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -40,6 +43,14 @@
 // 3. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace
+{
+/// @brief Time value of calibration register in 0.1 ms resolution.
+/// On ARM Cortex core, the SysTick calibration value corresponds 10.0 ms tick.
+const uint32_t calibratedIntervalIn01Ms = 100UL;
+
+const uint32_t calibrationMask = SysTick_CALIB_TENMS_Msk; //!< Mask for CALIB register to get the calibration value.
+}
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -62,17 +73,40 @@ SysTick::SysTick(void)
 
 void SysTick::SetInterval(uint16_t intervalIn01Ms)
 {
+    Utils::Assert(intervalIn01Ms > 0U);
+    Utils::Assert(Utils::GetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos) == false);
+
+    uint32_t calibrationValue = SYSTICK->CALIB & calibrationMask;
+    Utils::Assert(calibrationValue > 0U); // In some rare cases the calibration can be zero.
+
+    // Simple claculation PreLoad = interval / intervalOfCalibration * calibration with rounding.
+    uint32_t preLoad = ((calibrationValue * static_cast<uint32_t>(intervalIn01Ms)) + (calibratedIntervalIn01Ms >> 1UL)) / calibratedIntervalIn01Ms;
+    
+    // The correct preload value is "desired interval - 1".
+    if (preLoad > 0UL)
+    {
+        --preLoad;
+    }
+
+    SYSTICK->LOAD = preLoad;
     return;
 }
 
 void SysTick::Start(void)
 {
+    SYSTICK->CTRL = Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, true);
     return;
 }
 
 void SysTick::Stop(void)
 {
+    SYSTICK->CTRL = Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, false);
     return;
+}
+
+bool SysTick::IsRunning(void)
+{
+    return Utils::GetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos);
 }
 
 } // namespace Hal

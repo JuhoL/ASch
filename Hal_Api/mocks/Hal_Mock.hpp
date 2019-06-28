@@ -43,6 +43,7 @@ using namespace fakeit;
 #include <Hal_Isr.hpp>
 #include <Hal_System.hpp>
 #include <Hal_SysTick.hpp>
+#include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Mock Init Prototypes
@@ -51,9 +52,21 @@ using namespace fakeit;
 namespace HalMock
 {
 
+/// @brief This function initialises the HAL ISR mock.
+/// @param mockIsr - A reference to the HAL ISR mock class.
 void InitIsr(Mock<Hal::Isr>& mockIsr);
+
+/// @brief This function initialises the HAL System mock.
+/// @param mockSystem - A reference to the HAL System mock class.
 void InitSystem(Mock<Hal::System>& mockHalSystem);
+
+/// @brief This function initialises the HAL SysTick mock.
+/// @param mockSysTick - A reference to the HAL SysTick mock class.
 void InitSysTick(Mock<Hal::SysTick>& mockSysTick);
+
+/// @brief This function initialises the HAL GPIO mock.
+/// @param mockGpio - A reference to the HAL GPIO mock class.
+void InitGpio(Mock<Hal::Gpio>& mockGpio);
 
 } // namespace HalMock
 
