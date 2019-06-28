@@ -78,6 +78,9 @@ public:
     /// @brief Initialises system clocks.
     static_mf void InitClocks(void);
 
+    /// @brief Critical system error handler. Halts the CPU.
+    static void CriticalSystemError(void);
+
 private:
     
 };

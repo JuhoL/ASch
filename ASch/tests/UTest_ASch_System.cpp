@@ -84,7 +84,7 @@ void PreStartConfig1(void)
 namespace Hal
 {
 
-void CriticalSystemError(void)
+void System::CriticalSystemError(void)
 {
     ++criticalSystemErrorCount;
     return;
