@@ -183,6 +183,10 @@ private:
     /// @param alternateFunction - New GPIO alternate function configuration.
     static void SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction);
 
+    /// @brief This function enables the clock for given port.
+    /// @param port - The port which clock will be enabled.
+    static void EnablePortClock(Port port);
+
 };
 
 } // namespace Hal

@@ -1,7 +1,8 @@
--Wall
--Werror
--DUNIT_TEST=0
 -mcpu=cortex-m4
 -mthumb
--O2
--fsigned-char
+-mfpu=fpv4-sp-d16
+-O0
+-g3
+-Wall
+-ffunction-sections
+-DUNIT_TEST=0

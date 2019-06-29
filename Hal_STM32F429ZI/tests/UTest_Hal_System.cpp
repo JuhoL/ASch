@@ -49,6 +49,26 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
+SCENARIO ("The power control module is configured", "[hal_system]")
+{
+    Hal_Mock::InitRccRegisters();
+
+    GIVEN ("a HAL System class is created")
+    {
+        Hal::System system = Hal::System();
+
+        WHEN ("the power control is initialised")
+        {
+            system.InitPowerControl();
+
+            THEN ("PWREN bit in APB1ENR register shall be set")
+            {
+                REQUIRE (RCC->APB1ENR == Utils::Bit(RCC_APB1ENR_PWREN_Pos));
+            }
+        }
+    }
+}
+
 SCENARIO ("A MCU must be reset", "[hal_system]")
 {
     Hal_Mock::InitScbRegisters();
@@ -57,13 +77,13 @@ SCENARIO ("A MCU must be reset", "[hal_system]")
     {
         Hal::System system = Hal::System();
 
-        WHEN ("calling reset function")
+        WHEN ("the reset function is called")
         {
             system.Reset();
 
-            THEN ("bit 2 in AIRCR register shall be set")
+            THEN ("SYSRESETREQ bit in AIRCR register shall be set")
             {
-                REQUIRE (SCB->AIRCR == Utils::Bit(2UL));
+                REQUIRE (SCB->AIRCR == Utils::Bit(SCB_AIRCR_SYSRESETREQ_Pos));
             }
         }
     }

@@ -1,4 +1,6 @@
--T./Hal_STM32F429ZI/CMSIS/STM32F429ZITx_FLASH.ld
--ffunction-sections
--fdata-sections
--Xlinker
+-mcpu=cortex-m4
+-mthumb
+-mfpu=fpv4-sp-d16
+-T"./Hal_STM32F429ZI/CMSIS/STM32F429ZITx_FLASH.ld"
+-Wl,-Map="./Build/Release/output.map"
+-Wl,--gc-sections

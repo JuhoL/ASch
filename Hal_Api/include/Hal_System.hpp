@@ -45,14 +45,6 @@
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
-{
-
-/// @brief Raises a critical system error that halts the MCU.
-void CriticalSystemError(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -74,6 +66,9 @@ public:
 
     /// @brief Wakes the system up from sleep.
     static_mf void WakeUp(void);
+    
+    /// @brief Initialises power control.
+    static_mf void InitPowerControl(void);
     
     /// @brief Initialises system clocks.
     static_mf void InitClocks(void);

@@ -34,7 +34,6 @@
 #include <stm32f4xx.h>
 #include <Utils_Assert.hpp>
 #include <Utils_Bit.hpp>
-#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -47,7 +46,7 @@
 namespace
 {
 
-GPIO_TypeDef* paGpios[] =
+GPIO_TypeDef* const paGpios[] =
 {
     GPIOA,
     GPIOB,
@@ -60,6 +59,21 @@ GPIO_TypeDef* paGpios[] =
     GPIOI,
     GPIOJ,
     GPIOK
+};
+
+const uint32_t clockEnableBits[] =
+{
+    RCC_AHB1LPENR_GPIOALPEN_Pos,
+    RCC_AHB1LPENR_GPIOBLPEN_Pos,
+    RCC_AHB1LPENR_GPIOCLPEN_Pos,
+    RCC_AHB1LPENR_GPIODLPEN_Pos,
+    RCC_AHB1LPENR_GPIOELPEN_Pos,
+    RCC_AHB1LPENR_GPIOFLPEN_Pos,
+    RCC_AHB1LPENR_GPIOGLPEN_Pos,
+    RCC_AHB1LPENR_GPIOHLPEN_Pos,
+    RCC_AHB1LPENR_GPIOILPEN_Pos,
+    RCC_AHB1LPENR_GPIOJLPEN_Pos,
+    RCC_AHB1LPENR_GPIOKLPEN_Pos
 };
 
 const uint32_t bitsInMode = 2UL;
@@ -124,6 +138,7 @@ void Gpio::SetConfiguration(gpioConfig_t& gpio)
     SetSpeed(gpio.pin, gpio.speed);
     SetPull(gpio.pin, gpio.pull);
     SetAlternateFunction(gpio.pin, gpio.alternateFunction);
+    EnablePortClock(gpio.pin.port);
 
     return;
 }
@@ -219,6 +234,12 @@ AlternateFunction Gpio::GetAlternateFunction(Pin_t& pin)
 
 void Gpio::SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction)
 {
+    return;
+}
+
+void Gpio::EnablePortClock(Port port)
+{
+    Utils::SetBit(RCC->AHB1LPENR, clockEnableBits[static_cast<uint32_t>(port)], true);
     return;
 }
 

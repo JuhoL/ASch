@@ -47,6 +47,7 @@
 SCENARIO ("Developer configures GPIO", "[gpio]")
 {
     Hal_Mock::InitGpioRegisters();
+    Hal_Mock::InitRccRegisters();
 
     GIVEN ("a GPIO class is created and GPIO configuration struct is created for PC5")
     {
@@ -84,6 +85,10 @@ SCENARIO ("Developer configures GPIO", "[gpio]")
             AND_THEN ("PC5 alternate function is set to 00")
             {
                 ; // ToDo: Add Alternate Function tests later.
+            }
+            AND_THEN ("Port C clock is enabled")
+            {
+                REQUIRE (Utils::GetBit(RCC->AHB1LPENR, RCC_AHB1LPENR_GPIOCLPEN_Pos) == true);
             }
             AND_WHEN ("The configuration is read to an empty struct")
             {

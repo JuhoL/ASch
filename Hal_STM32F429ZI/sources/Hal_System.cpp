@@ -71,6 +71,13 @@ void System::WakeUp(void)
     return;
 }
 
+void System::InitPowerControl(void)
+{
+    Utils::SetBit(RCC->APB1ENR, 28UL, true);
+
+    return;
+}
+
 void System::InitClocks(void)
 {
     return;
