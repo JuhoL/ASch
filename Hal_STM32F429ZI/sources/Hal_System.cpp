@@ -29,6 +29,9 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Hal_System.hpp>
+#include <stm32f4xx.h>
+#include <Utils_Assert.hpp>
+#include <Utils_Bit.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -70,6 +73,12 @@ void System::WakeUp(void)
 
 void System::InitClocks(void)
 {
+    return;
+}
+
+void System::Reset(void)
+{
+    SCB->AIRCR = Utils::SetBit(SCB->AIRCR, 2UL, true);
     return;
 }
 

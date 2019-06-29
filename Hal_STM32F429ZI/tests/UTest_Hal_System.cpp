@@ -32,6 +32,9 @@
 #include <Catch_Utils.hpp>
 
 #include <Hal_System.hpp>
+#include <Utils_Bit.hpp>
+#include <stm32f429xx_mock.h>
+#include <Utils_Assert_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -46,15 +49,21 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO ("A MCU must be reset", "[hal_system]")
 {
-    GIVEN ("a_premise")
+    Hal_Mock::InitScbRegisters();
+
+    GIVEN ("a HAL System class is created")
     {
-        WHEN ("doing_something")
+        Hal::System system = Hal::System();
+
+        WHEN ("calling reset function")
         {
-            THEN ("something_shall_happen")
+            system.Reset();
+
+            THEN ("bit 2 in AIRCR register shall be set")
             {
-                REQUIRE (1 == 1);
+                REQUIRE (SCB->AIRCR == Utils::Bit(2UL));
             }
         }
     }
