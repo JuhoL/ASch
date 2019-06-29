@@ -1,0 +1,7 @@
+./Config/include
+./Hal_Api/include
+./Hal_Api/mocks
+./Hal_STM32F429ZI/include
+./Utils/include
+./ASch/include
+./ASch/mocks

@@ -1,0 +1,2 @@
+./Hal_STM32F429ZI/mocks/stm32f429xx_mock.cpp
+./Utils/mocks/Utils_Assert_Mock.cpp

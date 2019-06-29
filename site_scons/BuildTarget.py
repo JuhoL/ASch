@@ -11,23 +11,28 @@ import re
 import sys
 from ListCreator import CreateListFromFile
 
+def GetFiles(fileGroup, buildFiles):
+    try:
+        fileList = CreateListFromFile(buildFiles[fileGroup])
+    except Exception as e:
+        if fileGroup == "sources":
+            # Only sources are mandatory
+            print (e)
+            print ("ERROR: Gathering source files failed!")
+            print ("       Make sure you have created .scons file listings under ./Build/SCons_UTest and ./Build/SCons_Release.")
+            sys.exit(1)
+        else:
+            fileList = []
+    return fileList
+
 def BuildTarget(env, buildTarget, buildFiles):
     # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
-    try:
-        sourceFiles = CreateListFromFile(buildFiles["sources"])
-    except Exception as e:
-        print (e)
-        print ("ERROR: Gathering source files failed!")
-        print ("       Make sure you have created .scons file listing in Build/Scons_UTest folder.")
-        sys.exit(1)
+    sourceFiles = GetFiles("sources", buildFiles)
+    includeFiles = GetFiles("include", buildFiles)
+    sourceFiles += GetFiles("generalSources", buildFiles)
+    includeFiles += GetFiles("generalInclude", buildFiles)
 
-    try:
-        env.AppendUnique(CPPPATH = CreateListFromFile(buildFiles["include"]))
-    except Exception as e:
-        print (e)
-        print ("ERROR: Gathering include directories failed!")
-        print ("       Make sure you have created .scons directory listing in Build/Scons_UTest folder.")
-        sys.exit(1)
+    env.AppendUnique(CPPPATH = includeFiles)
 
     if "ccFlags" in buildFiles:
         env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))

@@ -3,5 +3,5 @@ ASch_System ./ASch
 ASch_Scheduler ./ASch
 Hal_SysTick ./Hal_STM32F429ZI
 Hal_Isr ./Hal_STM32F429ZI
-Hal_System .\Hal_STM32F429ZI
-Hal_Gpio .\Hal_STM32F429ZI
+Hal_System ./Hal_STM32F429ZI
+Hal_Gpio ./Hal_STM32F429ZI

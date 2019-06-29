@@ -1,6 +1,0 @@
-./ASch/include
-./Utils/include
-./Config/include
-./Hal_Api/include
-./Hal_Api/mocks
-./Hal_STM32F429ZI/include

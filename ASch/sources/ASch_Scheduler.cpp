@@ -44,7 +44,7 @@ namespace
 typedef struct
 {
     uint16_t msCounter;
-    bool run;
+    bool isRunning;
 } taskState_t;
 
 typedef struct
@@ -125,7 +125,7 @@ Scheduler::Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal
         for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
         {
             tasks[i] = {.intervalInMs = 0, .Task = 0};
-            schedulerState.taskStates[i] = {.msCounter = 0U, .run = false};
+            schedulerState.taskStates[i] = {.msCounter = 0U, .isRunning = false};
         }
 
         schedulerState.msPerTick = tickIntervalInMs;
@@ -144,7 +144,7 @@ Scheduler::Scheduler(void)
 {
     if (pScheduler == 0)
     {
-        Hal::CriticalSystemError();
+        Hal::System::CriticalSystemError();
     }
     return;
 }
@@ -206,7 +206,7 @@ void Scheduler::CreateTask(task_t task)
             {
                 tasks[taskCount] = task;
                 schedulerState.taskStates[taskCount].msCounter = task.intervalInMs;
-                schedulerState.taskStates[taskCount].run = false;
+                schedulerState.taskStates[taskCount].isRunning = false;
                 ++taskCount;
             }
         }
@@ -264,9 +264,9 @@ void Scheduler::RunTasks(void)
 {
     for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        if (schedulerState.taskStates[taskId].run == true)
+        if (schedulerState.taskStates[taskId].isRunning == true)
         {
-            schedulerState.taskStates[taskId].run = false;
+            schedulerState.taskStates[taskId].isRunning = false;
             tasks[taskId].Task();
         }
     }
@@ -469,7 +469,7 @@ void Scheduler_SysTickHandler(void)
         else
         {
             schedulerState.taskStates[taskId].msCounter = pScheduler->GetTaskInterval(taskId);
-            schedulerState.taskStates[taskId].run = true;
+            schedulerState.taskStates[taskId].isRunning = true;
             schedulerState.runTasks = true;
         }
     }

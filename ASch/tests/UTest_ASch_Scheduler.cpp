@@ -134,7 +134,8 @@ uint8_t criticalSystemErrorCount = 0U;
 namespace Hal
 {
 
-void CriticalSystemError(void)
+//! @brief This is a mock implementation of System::CriticalSystemError().
+void System::CriticalSystemError(void)
 {
     ++criticalSystemErrorCount;
     return;

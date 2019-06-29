@@ -1,6 +1,0 @@
-./Config/include
-./Utils/include
-./Utils/mocks
-./Hal_Api/include
-./Hal_STM32F429ZI/mocks
-./Hal_STM32F429ZI/CMSIS

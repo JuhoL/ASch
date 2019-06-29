@@ -54,11 +54,14 @@
 namespace <__NAMESPACE__>
 {
 
-/// @class <__CLASS__>
+//! @class   <__CLASS__>
+//! @brief   !!!!! Brief file description here !!!!!
+//! !!!!! Detailed file description here !!!!!
 class <__CLASS__>
 {
 public:
-    <__CLASS__>(void);
+    /// @brief Simple constructor.
+    explicit <__CLASS__>(void);
 
 private:
     

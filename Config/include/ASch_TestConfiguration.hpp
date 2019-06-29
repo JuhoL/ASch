@@ -76,7 +76,7 @@ const uint16_t schedulerTickInterval = 1UL;
 // 4. SysTick Configuration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-const uint16_t sysTickInterval01ms = 1U;
+const uint16_t sysTickInterval01ms = 10U;
 
 } // namespace ASch
 

@@ -1,7 +1,0 @@
-./ASch/include
-./ASch/mocks
-./Config/include
-./Hal_Api/include
-./Hal_Api/mocks
-./Utils/include
-./Utils/sources

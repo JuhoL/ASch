@@ -1,4 +1,0 @@
-./Config/include
-./Utils/include
-./Hal_STM32F429ZI/sources
-./Hal_Api/include
