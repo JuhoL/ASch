@@ -94,13 +94,13 @@ void SysTick::SetInterval(uint16_t intervalIn01Ms)
 
 void SysTick::Start(void)
 {
-    SYSTICK->CTRL = Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, true);
+    Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, true);
     return;
 }
 
 void SysTick::Stop(void)
 {
-    SYSTICK->CTRL = Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, false);
+    Utils::SetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos, false);
     return;
 }
 

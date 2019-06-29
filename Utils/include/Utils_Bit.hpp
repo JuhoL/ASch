@@ -58,7 +58,8 @@ inline uint32_t Bit(uint32_t position)
 /// @param bitfield - The bitfield ot be checked.
 /// @param position - The bit position.
 /// @return Bit state.
-inline bool GetBit(uint32_t bitfield, uint32_t position)
+template <typename type>
+inline bool GetBit(type bitfield, uint32_t position)
 {
     return (bitfield & Bit(position)) != 0UL;
 }
@@ -69,7 +70,8 @@ inline bool GetBit(uint32_t bitfield, uint32_t position)
 /// @param position - The partial bitfield position.
 /// @param mask - The bitfield mask.
 /// @return Partial bitfield
-inline uint32_t GetBits(uint32_t bitfield, uint32_t position, uint32_t mask)
+template <typename type>
+inline uint32_t GetBits(type bitfield, uint32_t position, uint32_t mask)
 {
     bitfield >>= position;
     bitfield &= mask;
@@ -81,7 +83,8 @@ inline uint32_t GetBits(uint32_t bitfield, uint32_t position, uint32_t mask)
 /// @param position - The bit position.
 /// @param state - The new bit state.
 /// @return The modified bitfield.
-inline uint32_t SetBit(uint32_t bitfield, uint32_t position, bool state)
+template <typename type>
+inline void SetBit(type& bitfield, uint32_t position, bool state)
 {
     if (state == true)
     {
@@ -91,7 +94,7 @@ inline uint32_t SetBit(uint32_t bitfield, uint32_t position, bool state)
     {
         bitfield &= ~Bit(position);
     }
-    return bitfield;
+    return;
 }
 
 /// @brief This function sets a partial bitfield in the given position in a bitfield.
@@ -101,7 +104,8 @@ inline uint32_t SetBit(uint32_t bitfield, uint32_t position, bool state)
 /// @param mask - The bitfield mask.
 /// @param pattern - The bitfield pattern.
 /// @return The modified bitfield.
-inline uint32_t SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
+template <typename type>
+inline void SetBits(type& bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
 {
     mask <<= position;
     pattern <<= position;
@@ -109,7 +113,7 @@ inline uint32_t SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uin
 
     bitfield &= ~mask;
     bitfield |= pattern;
-    return bitfield;
+    return;
 }
 
 /// @brief This function compares given partial bitfield to another bitfield from the given position.
@@ -120,7 +124,8 @@ inline uint32_t SetBits(uint32_t bitfield, uint32_t position, uint32_t mask, uin
 /// @param mask - The bitfield mask.
 /// @param pattern - The pattern to compare.
 /// @return True if the partial bitfield mathes
-inline uint32_t CompareBits(uint32_t bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
+template <typename type>
+inline bool CompareBits(type bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
 {
     bitfield >>= position;
     bitfield &= mask;

@@ -214,7 +214,7 @@ SCENARIO ("Developer uses GPIO", "[gpio]")
 
         WHEN ("the input bit is high")
         {
-            GPIOC->IDR = Utils::SetBit(GPIOC->IDR, 5UL, true);
+            Utils::SetBit(GPIOC->IDR, 5UL, true);
 
             THEN ("the input shall read true and the ouput shall stay false")
             {
@@ -223,7 +223,7 @@ SCENARIO ("Developer uses GPIO", "[gpio]")
             }
             AND_WHEN ("the input bit is low")
             {
-                GPIOC->IDR = Utils::SetBit(GPIOC->IDR, 5UL, false);
+                Utils::SetBit(GPIOC->IDR, 5UL, false);
 
                 THEN ("the input shall read false")
                 {
@@ -249,7 +249,7 @@ SCENARIO ("Developer uses GPIO", "[gpio]")
 
         WHEN ("the output bit is high")
         {
-            GPIOC->ODR = Utils::SetBit(GPIOC->ODR, 5UL, true);
+            Utils::SetBit(GPIOC->ODR, 5UL, true);
 
             THEN ("the output shall read true and the input shall stay false")
             {
@@ -258,7 +258,7 @@ SCENARIO ("Developer uses GPIO", "[gpio]")
             }
             AND_WHEN ("the output bit is low")
             {
-                GPIOC->ODR = Utils::SetBit(GPIOC->ODR, 5UL, false);
+                Utils::SetBit(GPIOC->ODR, 5UL, false);
 
                 THEN ("the output shall read false")
                 {

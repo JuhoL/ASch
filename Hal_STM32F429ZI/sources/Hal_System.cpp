@@ -78,7 +78,7 @@ void System::InitClocks(void)
 
 void System::Reset(void)
 {
-    SCB->AIRCR = Utils::SetBit(SCB->AIRCR, 2UL, true);
+    Utils::SetBit(SCB->AIRCR, 2UL, true);
     return;
 }
 
