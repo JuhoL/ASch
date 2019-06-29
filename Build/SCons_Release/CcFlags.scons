@@ -1,7 +1,7 @@
 -mcpu=cortex-m4
 -mthumb
 -mfpu=fpv4-sp-d16
--O0
+-Os
 -g3
 -Wall
 -ffunction-sections

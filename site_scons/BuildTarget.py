@@ -44,6 +44,8 @@ def BuildTarget(env, buildTarget, buildFiles):
             env.AppendUnique(CCFLAGS = '-DDEBUG')
     if "ldFlags" in buildFiles:
         env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
+    if "asmFlags" in buildFiles:
+        env.AppendUnique(ASFLAGS = CreateListFromFile(buildFiles["asmFlags"]))
 
     if buildTarget == 'ASch':
         targetString = "./Build/Release/ASch"

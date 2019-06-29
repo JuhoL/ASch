@@ -100,6 +100,7 @@ else:
                   "ccFlags"         : "./Build/SCons_Release/CcFlags.scons",
                   "cxxFlags"        : "./Build/SCons_Release/CxxFlags.scons",
                   "ldFlags"         : "./Build/SCons_Release/LdFlags.scons",
+                  "asmFlags"        : "./Build/SCons_Release/AsmFlags.scons",
                   "cmsis"           : "./Build/SCons_Release/CmsisSources.scons"}
     asch = BuildTarget(release, 'ASch', buildFiles)
     release.Default(asch)
