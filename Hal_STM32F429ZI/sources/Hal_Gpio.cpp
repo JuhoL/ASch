@@ -63,17 +63,17 @@ GPIO_TypeDef* const paGpios[] =
 
 const uint32_t clockEnableBits[] =
 {
-    RCC_AHB1LPENR_GPIOALPEN_Pos,
-    RCC_AHB1LPENR_GPIOBLPEN_Pos,
-    RCC_AHB1LPENR_GPIOCLPEN_Pos,
-    RCC_AHB1LPENR_GPIODLPEN_Pos,
-    RCC_AHB1LPENR_GPIOELPEN_Pos,
-    RCC_AHB1LPENR_GPIOFLPEN_Pos,
-    RCC_AHB1LPENR_GPIOGLPEN_Pos,
-    RCC_AHB1LPENR_GPIOHLPEN_Pos,
-    RCC_AHB1LPENR_GPIOILPEN_Pos,
-    RCC_AHB1LPENR_GPIOJLPEN_Pos,
-    RCC_AHB1LPENR_GPIOKLPEN_Pos
+    RCC_AHB1ENR_GPIOAEN_Pos,
+    RCC_AHB1ENR_GPIOBEN_Pos,
+    RCC_AHB1ENR_GPIOCEN_Pos,
+    RCC_AHB1ENR_GPIODEN_Pos,
+    RCC_AHB1ENR_GPIOEEN_Pos,
+    RCC_AHB1ENR_GPIOFEN_Pos,
+    RCC_AHB1ENR_GPIOGEN_Pos,
+    RCC_AHB1ENR_GPIOHEN_Pos,
+    RCC_AHB1ENR_GPIOIEN_Pos,
+    RCC_AHB1ENR_GPIOJEN_Pos,
+    RCC_AHB1ENR_GPIOKEN_Pos
 };
 
 const uint32_t bitsInMode = 2UL;
@@ -133,12 +133,12 @@ void Gpio::SetConfiguration(gpioConfig_t& gpio)
 {
     Utils::Assert(gpio.pin.number <= 15U);
     
+    EnablePortClock(gpio.pin.port);
     SetMode(gpio.pin, gpio.mode);
     SetOpenDrain(gpio.pin, gpio.isOpenDrain);
     SetSpeed(gpio.pin, gpio.speed);
     SetPull(gpio.pin, gpio.pull);
     SetAlternateFunction(gpio.pin, gpio.alternateFunction);
-    EnablePortClock(gpio.pin.port);
 
     return;
 }
@@ -239,7 +239,7 @@ void Gpio::SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction)
 
 void Gpio::EnablePortClock(Port port)
 {
-    Utils::SetBit(RCC->AHB1LPENR, clockEnableBits[static_cast<uint32_t>(port)], true);
+    Utils::SetBit(RCC->AHB1ENR, clockEnableBits[static_cast<uint32_t>(port)], true);
     return;
 }
 

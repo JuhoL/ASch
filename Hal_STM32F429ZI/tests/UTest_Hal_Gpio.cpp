@@ -88,7 +88,7 @@ SCENARIO ("Developer configures GPIO", "[gpio]")
             }
             AND_THEN ("Port C clock is enabled")
             {
-                REQUIRE (Utils::GetBit(RCC->AHB1LPENR, RCC_AHB1LPENR_GPIOCLPEN_Pos) == true);
+                REQUIRE (Utils::GetBit(RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN_Pos) == true);
             }
             AND_WHEN ("The configuration is read to an empty struct")
             {

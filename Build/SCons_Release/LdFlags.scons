@@ -2,5 +2,5 @@
 -mthumb
 -mfpu=fpv4-sp-d16
 -T"./Hal_STM32F429ZI/CMSIS/STM32F429ZITx_FLASH.ld"
--Wl,-Map="./Build/Release/output.map"
+-Wl,-Map="./Build/Release/ASch.map"
 -Wl,--gc-sections
