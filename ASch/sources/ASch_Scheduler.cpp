@@ -151,8 +151,11 @@ Scheduler::Scheduler(void)
 
 Scheduler::~Scheduler(void)
 {
-    InitStaticMembers();
-    pScheduler = 0;
+    if (UNIT_TEST == 1)
+    {
+        InitStaticMembers();
+        pScheduler = 0;
+    }
 
     return;
 }

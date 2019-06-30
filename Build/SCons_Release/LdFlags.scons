@@ -1,6 +1,11 @@
 -mcpu=cortex-m4
 -mthumb
+-mfloat-abi=hard
 -mfpu=fpv4-sp-d16
+-specs=nosys.specs
+-specs=nano.specs
 -T"./Hal_STM32F429ZI/CMSIS/STM32F429ZITx_FLASH.ld"
 -Wl,-Map="./Build/Release/ASch.map"
 -Wl,--gc-sections
+-fno-exceptions
+-fno-rtti

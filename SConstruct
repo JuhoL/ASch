@@ -60,13 +60,13 @@ else:
     release = Environment(tools = ['mingw', 'Binary', 'Doxygen'])
 
 # Configure ARM GCC for release
-release['AR'] = 'arm-eabi-ar'
-release['AS'] = 'arm-eabi-as'
-release['CC'] = 'arm-eabi-gcc'
-release['CXX'] = 'arm-eabi-g++'
-release['LINK'] = 'arm-eabi-g++'
-release['RANLIB'] = 'arm-eabi-ranlib'
-release['OBJCOPY'] = 'arm-eabi-objcopy'
+release['AR'] = 'arm-none-eabi-ar'
+release['AS'] = 'arm-none-eabi-as'
+release['CC'] = 'arm-none-eabi-gcc'
+release['CXX'] = 'arm-none-eabi-g++'
+release['LINK'] = 'arm-none-eabi-g++'
+release['RANLIB'] = 'arm-none-eabi-ranlib'
+release['OBJCOPY'] = 'arm-none-eabi-objcopy'
 release['PROGSUFFIX'] = '.elf'
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")

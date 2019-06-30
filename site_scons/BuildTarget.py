@@ -37,15 +37,15 @@ def BuildTarget(env, buildTarget, buildFiles):
     if "ccFlags" in buildFiles:
         env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))
         if env.GetOption('debug') != None:
-            env.AppendUnique(CCFLAGS = '-DDEBUG')
+            env.AppendUnique(CCFLAGS = ['-DDEBUG', '-g3'])
     if "cxxFlags" in buildFiles:
         env.AppendUnique(CXXFLAGS = CreateListFromFile(buildFiles["cxxFlags"]))
-        if env.GetOption('debug') != None:
-            env.AppendUnique(CCFLAGS = '-DDEBUG')
     if "ldFlags" in buildFiles:
         env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
     if "asmFlags" in buildFiles:
         env.AppendUnique(ASFLAGS = CreateListFromFile(buildFiles["asmFlags"]))
+        if env.GetOption('debug') != None:
+            env.AppendUnique(ASFLAGS = '-g3')
 
     if buildTarget == 'ASch':
         targetString = "./Build/Release/ASch"
