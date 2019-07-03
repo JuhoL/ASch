@@ -34,6 +34,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
+#include <Hal_Interrupts.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -41,14 +42,6 @@
 
 namespace Hal
 {
-
-//! @brief   Different interrupt vectors available in the system.
-enum class Interrupt
-{
-    sysTick = 0,    //!< SysTick vector.
-    global,         //!< Global interrupt control.
-    max             //!< The total number of vectors. Must be last on the enum!
-};
 
 typedef void (*interruptHandler_t)(void);   //!< A function pointer for interrupt handlers.
 
@@ -77,11 +70,19 @@ class Isr
 public:
     /// @brief Simple constructor.
     explicit Isr(void);
+
+    /// @brief Initialises all the interrupts.
+    static_mf void Init(void);
     
     /// @brief This function sets a handler for the given interrupt.
     /// @param type - Interrupt type.
     /// @param Handler - Pointer to the interrupt handler.
     static_mf void SetHandler(Interrupt type, interruptHandler_t Handler);
+    
+    /// @brief This function gets the handler of the given interrupt.
+    /// @param type - Interrupt type.
+    /// @return Pointer to the interrupt handler.
+    static_mf interruptHandler_t GetHandler(Interrupt type);
 
     /// @brief This function enables given interrupt.
     /// @param type - Interrupt type.
@@ -91,8 +92,31 @@ public:
     /// @param type - Interrupt type
     static_mf void Disable(Interrupt type);
 
+    /// @brief This function enables given interrupt.
+    /// @param type - Interrupt type.
+    /// @param priority - Interrupt priority.
+    static_mf void SetPriority(Interrupt type, uint32_t priority);
+
+    /// @brief This function disables given interrupt.
+    /// @param type - Interrupt type
+    /// @return Interrupt priority.
+    static_mf uint8_t GetPriority(Interrupt type);
+
+    /// @brief This function sets the given interrupt pending.
+    /// @param type - Interrupt type.
+    static_mf void SetPending(Interrupt type);
+
+    /// @brief This function checks if the given interrupt is pending.
+    /// @param type - Interrupt type
+    /// @return True if the interrupt is pending, false otherwise.
+    static_mf bool GetPending(Interrupt type);
+
+    /// @brief This function clears the given pending interrupt.
+    /// @param type - Interrupt type.
+    static_mf void Clear(Interrupt type);
+
 private:
-    static interruptHandler_t Handlers[static_cast<std::size_t>(Interrupt::max)]; //!< List of interrupt handlers.
+
 };
 
 } // namespace Hal

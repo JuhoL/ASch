@@ -1732,8 +1732,25 @@ __STATIC_INLINE void __NVIC_DisableIRQ(IRQn_Type IRQn)
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICER[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
-    __DSB();
-    __ISB();
+  }
+}
+
+
+/**
+  \brief   Gets Disable Interrupt state (for unit tests only!)
+  \details Gets a interrupt disable of a device specific interrupt in the NVIC interrupt controller.
+  \param [in]      IRQn  Device specific interrupt number.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE uint32_t NVIC_GetDisableIRQ(IRQn_Type IRQn)
+{
+  if ((int32_t)(IRQn) >= 0)
+  {
+    return((uint32_t)(((NVIC->ICER[(((uint32_t)IRQn) >> 5UL)] & (1UL << (((uint32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+  }
+  else
+  {
+    return(0U);
   }
 }
 
@@ -1785,6 +1802,26 @@ __STATIC_INLINE void __NVIC_ClearPendingIRQ(IRQn_Type IRQn)
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICPR[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
+  }
+}
+
+/**
+  \brief   Get Clear Pending Interrupt (only for unit tests!)
+  \details Reads the NVIC clear pending register and returns the clear pending bit for the specified device specific interrupt.
+  \param [in]      IRQn  Device specific interrupt number.
+  \return             0  Interrupt status is not pending.
+  \return             1  Interrupt status is pending.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE uint32_t NVIC_GetClearPendingIRQ(IRQn_Type IRQn)
+{
+  if ((int32_t)(IRQn) >= 0)
+  {
+    return((uint32_t)(((NVIC->ICPR[(((uint32_t)IRQn) >> 5UL)] & (1UL << (((uint32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+  }
+  else
+  {
+    return(0U);
   }
 }
 
@@ -1944,17 +1981,9 @@ __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
  */
 __NO_RETURN __STATIC_INLINE void __NVIC_SystemReset(void)
 {
-  __DSB();                                                          /* Ensure all outstanding memory accesses included
-                                                                       buffered write are completed before reset */
   SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
                            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
                             SCB_AIRCR_SYSRESETREQ_Msk    );         /* Keep priority group unchanged */
-  __DSB();                                                          /* Ensure completion of memory access */
-
-  for(;;)                                                           /* wait until reset */
-  {
-    __NOP();
-  }
 }
 
 /*@} end of CMSIS_Core_NVICFunctions */
