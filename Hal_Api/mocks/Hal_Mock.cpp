@@ -40,9 +40,18 @@ namespace HalMock
 
 void InitIsr(Mock<Hal::Isr>& mockIsr)
 {
+    Fake(Method(mockIsr, Init));
+    Fake(Method(mockIsr, EnableGlobal));
+    Fake(Method(mockIsr, DisableGlobal));
     Fake(Method(mockIsr, SetHandler));
+    Fake(Method(mockIsr, GetHandler));
     Fake(Method(mockIsr, Enable));
     Fake(Method(mockIsr, Disable));
+    Fake(Method(mockIsr, SetPriority));
+    Fake(Method(mockIsr, GetPriority));
+    Fake(Method(mockIsr, SetPending));
+    Fake(Method(mockIsr, GetPending));
+    Fake(Method(mockIsr, Clear));
     return;
 }
 

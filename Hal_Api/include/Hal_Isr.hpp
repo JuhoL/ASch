@@ -73,6 +73,12 @@ public:
 
     /// @brief Initialises all the interrupts.
     static_mf void Init(void);
+
+    /// @brief This function enables global interrupts.
+    static_mf void EnableGlobal(void);
+
+    /// @brief This function disables global interrupts.
+    static_mf void DisableGlobal(void);
     
     /// @brief This function sets a handler for the given interrupt.
     /// @param type - Interrupt type.

@@ -162,7 +162,7 @@
 
 #endif
 
-#include "cmsis_compiler.h"               /* CMSIS compiler specific defines */
+#include "cmsis_compiler_mock.h"               /* CMSIS compiler specific defines */
 
 
 #ifdef __cplusplus

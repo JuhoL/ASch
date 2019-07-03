@@ -158,8 +158,11 @@ const IRQn_Type irqNumbers[] =
     DMA2D_IRQn                  // dma2D
 };
 
-// ToDo: Create a linker section so that this array aligns to 0x80!
-Hal::interruptHandler_t Handlers[static_cast<std::size_t>(Hal::Interrupt::max)] = {0};
+#if (UNIT_TEST == 0)
+    Hal::interruptHandler_t __attribute__((section(".vector_array"))) Handlers[static_cast<std::size_t>(Hal::Interrupt::max)] = {0};
+#else
+    Hal::interruptHandler_t Handlers[static_cast<std::size_t>(Hal::Interrupt::max)] = {0};
+#endif
 
 }
 
@@ -198,6 +201,18 @@ void Isr::Init(void)
         Handlers[i] = 0;
     }
     SCB->VTOR = reinterpret_cast<uint32_t>(Handlers);
+    return;
+}
+
+void Isr::EnableGlobal(void)
+{
+    __enable_irq();
+    return;
+}
+
+void Isr::DisableGlobal(void)
+{
+    __disable_irq();
     return;
 }
 

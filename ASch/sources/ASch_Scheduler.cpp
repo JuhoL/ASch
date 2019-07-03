@@ -190,7 +190,7 @@ void Scheduler::CreateTask(task_t task)
 {
     if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
-        pIsr->Disable(Hal::Interrupt::global);
+        pIsr->DisableGlobal();
         if (taskCount < schedulerTasksMax)
         {
             bool isDuplicate = false;
@@ -217,7 +217,7 @@ void Scheduler::CreateTask(task_t task)
         {
             ThrowError(SysError::insufficientResources);
         }
-        pIsr->Enable(Hal::Interrupt::global);
+        pIsr->EnableGlobal();
     }
     return;
 }
@@ -292,7 +292,7 @@ void Scheduler::PushEvent(event_t const& event)
 {
     if (event.Handler != 0)
     {
-        pIsr->Disable(Hal::Interrupt::global);
+        pIsr->DisableGlobal();
         bool errors = eventQueue.Push(event);
 
         if (errors == true)
@@ -304,7 +304,7 @@ void Scheduler::PushEvent(event_t const& event)
             schedulerState.runEvents = true;
             pHalSystem->WakeUp();
         }
-        pIsr->Enable(Hal::Interrupt::global);
+        pIsr->EnableGlobal();
     }
     return;
 }

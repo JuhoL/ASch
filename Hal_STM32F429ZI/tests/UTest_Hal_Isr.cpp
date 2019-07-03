@@ -78,7 +78,7 @@ SCENARIO ("Interrupt handler is set", "[isr]")
 {
     ASchMock::Assert::Init();
     
-    GIVEN ("an ISR module is initialised")
+    GIVEN ("the ISR module is initialised")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -99,7 +99,7 @@ SCENARIO ("Interrupt handler is set", "[isr]")
         }
     }
 
-    GIVEN ("an ISR module is initialised")
+    GIVEN ("the ISR module is initialised")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -120,7 +120,7 @@ SCENARIO ("Interrupt enabled/disabled", "[isr]")
 {
     Hal_Mock::InitNvicRegisters();
 
-    GIVEN ("an ISR module is initialised and handler for Timer 12 is set")
+    GIVEN ("the ISR module is initialised and handler for Timer 12 is set")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -149,13 +149,46 @@ SCENARIO ("Interrupt enabled/disabled", "[isr]")
             }
         }
     }
+
+    GIVEN ("the ISR module is initialised")
+    {
+        Hal::Isr isr = Hal::Isr();
+
+        WHEN ("the ISR module is initialised")
+        {
+            isr.Init();
+
+            THEN ("global interrupts are disabled")
+            {
+                REQUIRE (isGlobalInterrtupEnabled == false);
+            }
+            WHEN ("global interrupts are enabled")
+            {
+                isr.EnableGlobal();
+
+                THEN ("global interrupts are enabled via __enable_irq() in CMSIS")
+                {
+                    REQUIRE (isGlobalInterrtupEnabled == true);
+                }
+                AND_WHEN ("global interrupts are disabled")
+                {
+                    isr.DisableGlobal();
+
+                    THEN ("global interrupts are disabled via __disable_irq() in CMSIS")
+                    {
+                        REQUIRE (isGlobalInterrtupEnabled == false);
+                    }
+                }
+            }
+        }
+    }
 }
 
 SCENARIO ("Interrupt enabled without a handler", "[isr]")
 {
     ASchMock::Assert::Init();
 
-    GIVEN ("an ISR module is initialised")
+    GIVEN ("the ISR module is initialised")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -177,7 +210,7 @@ SCENARIO ("Interrupt priority is configured", "[isr]")
     Hal_Mock::InitNvicRegisters();
     ASchMock::Assert::Init();
 
-    GIVEN ("an ISR module is initialised")
+    GIVEN ("the ISR module is initialised")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -197,7 +230,7 @@ SCENARIO ("Interrupt priority is configured", "[isr]")
         }
     }
 
-    GIVEN ("an ISR module is initialised")
+    GIVEN ("the ISR module is initialised")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -218,7 +251,7 @@ SCENARIO ("Interrupt is set pending and pending state is read", "[isr]")
 {
     Hal_Mock::InitNvicRegisters();
 
-    GIVEN ("an ISR module is initialised and handler for EXTI0 is set")
+    GIVEN ("the ISR module is initialised and handler for EXTI0 is set")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
@@ -251,7 +284,7 @@ SCENARIO ("Interrupt is cleared", "[isr]")
 {
     Hal_Mock::InitNvicRegisters();
 
-    GIVEN ("an ISR module is initialised, handler for RNG is set and RNG interrupt is set pending")
+    GIVEN ("the ISR module is initialised, handler for RNG is set and RNG interrupt is set pending")
     {
         Hal::Isr isr = Hal::Isr();
         isr.Init();
