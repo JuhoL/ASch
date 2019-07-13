@@ -39,22 +39,10 @@
 namespace HalMock
 {
 
-//! @class SysTick
-//! @brief This is a mock class for SysTick HAL
-class SysTick
-{
-public:
-    explicit SysTick(void) {};
-    virtual void SetInterval(uint16_t intervalIn01Ms);
-    virtual void Start(void);
-    virtual void Stop(void);
-    virtual bool IsRunning(void);
-};
-
-static Mock<SysTick> mockHalSysTick;
+Mock<SysTick> mockHalSysTick;
 static HalMock::SysTick& sysTick = mockHalSysTick.get();
 
-void InitSystem(void)
+void InitSysTick(void)
 {
     static bool isFirstInit = true;
 
@@ -64,10 +52,12 @@ void InitSystem(void)
         Fake(Method(mockHalSysTick, Start));
         Fake(Method(mockHalSysTick, Stop));
         Fake(Method(mockHalSysTick, IsRunning));
+
+        isFirstInit = false;
     }
     else
     {
-        mockHalSysTick.Reset();
+        mockHalSysTick.ClearInvocationHistory();
     }
     return;
 }

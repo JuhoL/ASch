@@ -39,18 +39,7 @@
 namespace ASchMock
 {
 
-//! @class System
-//! @brief This is a mock class for ASch System
-class System
-{
-public:
-    explicit System(void) {};
-    virtual void Error(SysError error);
-    virtual void Init(void);
-    virtual void PreStartConfig(void);
-};
-
-static Mock<System> mockASchSystem;
+Mock<System> mockASchSystem;
 static ASchMock::System& system = mockASchSystem.get();
 
 void InitSystem(void)
@@ -62,10 +51,12 @@ void InitSystem(void)
         Fake(Method(mockASchSystem, Error));
         Fake(Method(mockASchSystem, Init));
         Fake(Method(mockASchSystem, PreStartConfig));
+
+        isFirstInit = false;
     }
     else
     {
-        mockASchSystem.Reset();
+        mockASchSystem.ClearInvocationHistory();
     }
     return;
 }
@@ -76,10 +67,10 @@ void InitSystem(void)
 // 3. Mock Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
+namespace ASch
 {
 
-void System::Error(SysError error)
+void System::Error(ASch::SysError error)
 {
     ASchMock::system.Error(error);
     return;
@@ -95,5 +86,5 @@ void System::PreStartConfig(void)
     return;
 }
 
-} // namespace Hal
+} // namespace ASch
 

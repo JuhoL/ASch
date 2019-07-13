@@ -39,30 +39,10 @@
 namespace HalMock
 {
 
-//! @class Isr
-//! @brief This is a mock class for HAL Isr
-class Isr
-{
-public:
-    explicit Isr(void) {};
-    virtual void Init(void);
-    virtual void EnableGlobal(void);
-    virtual void DisableGlobal(void);
-    virtual void SetHandler(Interrupt type, interruptHandler_t Handler);
-    virtual interruptHandler_t GetHandler(Interrupt type);
-    virtual void Enable(Interrupt type);
-    virtual void Disable(Interrupt type);
-    virtual void SetPriority(Interrupt type, uint32_t priority);
-    virtual uint8_t GetPriority(Interrupt type);
-    virtual void SetPending(Interrupt type);
-    virtual bool GetPending(Interrupt type);
-    virtual void Clear(Interrupt type);
-};
-
-static Mock<Isr> mockHalIsr;
+Mock<Isr> mockHalIsr;
 static HalMock::Isr& isr = mockHalIsr.get();
 
-void InitSystem(void)
+void InitIsr(void)
 {
     static bool isFirstInit = true;
 
@@ -80,10 +60,12 @@ void InitSystem(void)
         Fake(Method(mockHalIsr, SetPending));
         Fake(Method(mockHalIsr, GetPending));
         Fake(Method(mockHalIsr, Clear));
+
+        isFirstInit = false;
     }
     else
     {
-        mockHalIsr.Reset();
+        mockHalIsr.ClearInvocationHistory();
     }
     return;
 }
@@ -157,8 +139,7 @@ void Isr::SetPending(Interrupt type)
 
 bool Isr::GetPending(Interrupt type)
 {
-    HalMock::isr.GetPending(type);
-    return;
+    return HalMock::isr.GetPending(type);
 }
 
 void Isr::Clear(Interrupt type)

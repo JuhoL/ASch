@@ -36,12 +36,28 @@
 #include <fakeit.hpp>
 using namespace fakeit;
 
+#include <ASch_System.hpp>
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace ASchMock
 {
+
+//! @class System
+//! @brief This is a mock class for ASch System
+class System
+{
+public:
+    explicit System(void) {};
+    virtual void Error(ASch::SysError error);
+    virtual void Init(void);
+    virtual void PreStartConfig(void);
+};
+
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<System> mockASchSystem;
 
 /// @brief This function initialises the ASch System mock.
 void InitSystem(void);

@@ -43,6 +43,23 @@ using namespace fakeit;
 namespace HalMock
 {
 
+//! @class System
+//! @brief This is a mock class for HAL System
+class System
+{
+public:
+    explicit System(void) {};
+    virtual void Sleep(void);
+    virtual void WakeUp(void);
+    virtual void InitPowerControl(void);
+    virtual void InitClocks(void);
+    virtual void Reset(void);
+    virtual void CriticalSystemError(void);
+};
+
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<System> mockHalSystem;
+
 /// @brief This function initialises the HAL System mock.
 void InitSystem(void);
 

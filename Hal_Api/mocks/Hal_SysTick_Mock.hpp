@@ -43,6 +43,21 @@ using namespace fakeit;
 namespace HalMock
 {
 
+//! @class SysTick
+//! @brief This is a mock class for SysTick HAL
+class SysTick
+{
+public:
+    explicit SysTick(void) {};
+    virtual void SetInterval(uint16_t intervalIn01Ms);
+    virtual void Start(void);
+    virtual void Stop(void);
+    virtual bool IsRunning(void);
+};
+
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<SysTick> mockHalSysTick;
+
 /// @brief This function initialises the HAL System mock.
 void InitSysTick(void);
 

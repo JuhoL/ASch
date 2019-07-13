@@ -36,12 +36,37 @@
 #include <fakeit.hpp>
 using namespace fakeit;
 
+#include <Hal_Isr.hpp>
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace HalMock
 {
+
+//! @class Isr
+//! @brief This is a mock class for HAL Isr
+class Isr
+{
+public:
+    explicit Isr(void) {};
+    virtual void Init(void);
+    virtual void EnableGlobal(void);
+    virtual void DisableGlobal(void);
+    virtual void SetHandler(Hal::Interrupt type, Hal::interruptHandler_t Handler);
+    virtual Hal::interruptHandler_t GetHandler(Hal::Interrupt type);
+    virtual void Enable(Hal::Interrupt type);
+    virtual void Disable(Hal::Interrupt type);
+    virtual void SetPriority(Hal::Interrupt type, uint32_t priority);
+    virtual uint8_t GetPriority(Hal::Interrupt type);
+    virtual void SetPending(Hal::Interrupt type);
+    virtual bool GetPending(Hal::Interrupt type);
+    virtual void Clear(Hal::Interrupt type);
+};
+
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<Isr> mockHalIsr;
 
 /// @brief This function initialises the HAL System mock.
 void InitIsr(void);

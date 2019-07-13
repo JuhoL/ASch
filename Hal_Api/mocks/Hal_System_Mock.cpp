@@ -39,21 +39,7 @@
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
-{
-public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void InitClocks(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
-};
-
-static Mock<System> mockHalSystem;
+Mock<System> mockHalSystem;
 static HalMock::System& system = mockHalSystem.get();
 
 void InitSystem(void)
@@ -68,10 +54,12 @@ void InitSystem(void)
         Fake(Method(mockHalSystem, InitClocks));
         Fake(Method(mockHalSystem, Reset));
         Fake(Method(mockHalSystem, CriticalSystemError));
+
+        isFirstInit = false;
     }
     else
     {
-        mockHalSystem.Reset();
+        mockHalSystem.ClearInvocationHistory();
     }
     return;
 }

@@ -130,6 +130,10 @@ public:
     /// @brief Simple constructor.
     explicit Scheduler(void) {};
 
+    /// @brief Initialises the scheduler.
+    /// @param tickIntervalInMs - Interval of SysTick in milliseconds.
+    static void Init(uint16_t tickIntervalInMs);
+
     /// @brief This function starts the scheduler.
     static void Start(void);
 
@@ -191,9 +195,6 @@ public:
     static void PushMessage(message_t const& message);
 
 private:
-    /// @brief This function initialises static member variables.
-    static void InitStaticMembers(void);
-
     /// @brief This function throws a system error.
     /// @param error - Type of error that occurred.
     static void ThrowError(SysError error);

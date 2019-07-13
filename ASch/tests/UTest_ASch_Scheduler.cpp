@@ -30,11 +30,13 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 #include <Catch_Utils.hpp>
 
-#include <ASch_Mock.hpp>
-#include <Hal_Mock.hpp>
-
 #include <ASch_Scheduler.hpp>
 #include <ASch_Scheduler_Private.hpp>
+
+#include <ASch_System_Mock.hpp>
+#include <Hal_SysTick_Mock.hpp>
+#include <Hal_Isr_Mock.hpp>
+#include <Hal_System_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -42,8 +44,6 @@
 
 namespace
 {
-
-#define MOCK_SCHEDULER(interval)    ASch::Scheduler(mockSysTick.get(), mockIsr.get(), mockHalSystem.get(), mockSystem.get(), interval)
 
 // ---------- Test tasks ----------
 static uint16_t testTaskCalls[6] = {0U};
@@ -127,21 +127,7 @@ static void InitCallCounters(void)
 
 static void RunTicks(uint32_t ticks);
 
-uint8_t criticalSystemErrorCount = 0U;
-
 } // anonymous namespace
-
-namespace Hal
-{
-
-//! @brief This is a mock implementation of System::CriticalSystemError().
-void System::CriticalSystemError(void)
-{
-    ++criticalSystemErrorCount;
-    return;
-}
-
-}
 
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -150,86 +136,77 @@ void System::CriticalSystemError(void)
 
 SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
+    HalMock::InitIsr();
+    HalMock::InitSysTick();
 
     GIVEN ("a scheduler is not yet created")
     {
-        WHEN ("a scheduler is created")
+        WHEN ("a scheduler is initialised")
         {
-            ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+            ASch::Scheduler::Init(1UL);
 
             THEN ("the scheduler shall configure system tick")
             {
-                REQUIRE_PARAM_CALLS (1, mockSysTick, SetInterval, 1U);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalSysTick, SetInterval, 1U);
             }
             AND_THEN ("scheduler tick handler shall be set as system tick handler")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, SetHandler, Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, SetHandler, Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
             }
             AND_THEN ("no tasks shall be running")
             {
-                REQUIRE (scheduler.GetTaskCount() == 0U);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == 0U);
             }
             AND_THEN ("scheduler state shall be idle")
             {
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::idle);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::idle);
             }
         }
     }
 
-    GIVEN ("a scheduler is created")
+    GIVEN ("a scheduler is initialised")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer starts the scheduler")
         {
-            scheduler.Start();
+            ASch::Scheduler::Start();
 
             THEN ("SysTick ISR is enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::sysTick);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, Enable, Hal::Interrupt::sysTick);
             }
             AND_THEN ("SysTick is started")
             {
-                REQUIRE_CALLS (1, mockSysTick, Start);
+                REQUIRE_CALLS (1, HalMock::mockHalSysTick, Start);
             }
             AND_THEN ("scheduler state shall be running")
             {
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::running);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::running);
             }
         }
     }
 
     GIVEN ("a scheduler is running")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
-        scheduler.Start();
+        ASch::Scheduler::Init(1UL);
+        ASch::Scheduler::Start();
 
         WHEN ("developer stops the scheduler")
         {
-            scheduler.Stop();
+            ASch::Scheduler::Stop();
 
             THEN ("SysTick is stopped")
             {
-                REQUIRE_CALLS(1, mockSysTick, Stop);
+                REQUIRE_CALLS(1, HalMock::mockHalSysTick, Stop);
             }
             AND_THEN ("SysTick ISR is disabled") // ToDo: Verify order!
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::sysTick);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, Disable, Hal::Interrupt::sysTick);
             }
             AND_THEN ("scheduler state shall be stopped")
             {
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::stopped);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::stopped);
             }
         }
     }
@@ -237,100 +214,53 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
 SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
+    ASchMock::InitSystem();
 
     GIVEN ("a scheduler is not yet created")
     {
-        WHEN ("a scheduler is created with interval of 0ms")
+        WHEN ("a scheduler is initialised with interval of 0ms")
         {
-            ASch::Scheduler scheduler = MOCK_SCHEDULER(0UL);
-            (void)scheduler; // Get rid of unused variable warning.
+            ASch::Scheduler::Init(0UL);
 
             THEN ("a system error shall occur")
             {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::invalidParameters);
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
-            }
-        }
-    }
-    GIVEN ("a scheduler is not yet created")
-    {
-        WHEN ("a scheduler is created using the simple constructor")
-        {
-            ASch::Scheduler scheduler = ASch::Scheduler();
-            (void)scheduler; // Get rid of unused variable warning.
-
-            THEN ("a critical system error shall occur")
-            {
-                REQUIRE (criticalSystemErrorCount == 1U);
+                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::invalidParameters);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::error);
             }
         }
     }
 
-    GIVEN ("a scheduler is created")
-    {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
-
-        WHEN ("developer creates another instance of scheduler")
-        {
-            ASch::Scheduler anotherScheduler = MOCK_SCHEDULER(1UL);
-
-            THEN ("a system error shall occur")
-            {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::multipleSchedulerInstances);
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
-            }
-        }
-    }
+    // ToDo: Initialising a running scheduler.
 }
 
 SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-
+    HalMock::InitIsr();
+    HalMock::InitSystem();
+    ASchMock::InitSystem();
     InitCallCounters();
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("a task (Task0) with interval of one is created")
         {
-            scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_CALLS (1, mockIsr, DisableGlobal);
-                REQUIRE_CALLS (1, mockIsr, EnableGlobal);
-                REQUIRE_CALL_ORDER (CALL(mockIsr, DisableGlobal) + CALL(mockIsr, EnableGlobal));
+                REQUIRE_CALLS (1, HalMock::mockHalIsr, DisableGlobal);
+                REQUIRE_CALLS (1, HalMock::mockHalIsr, EnableGlobal);
+                REQUIRE_CALL_ORDER (CALL(HalMock::mockHalIsr, DisableGlobal) + CALL(HalMock::mockHalIsr, EnableGlobal));
             }
             AND_THEN ("the task count shall be one")
             {
-                REQUIRE (scheduler.GetTaskCount() == 1U);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == 1U);
             }
             AND_THEN ("the task 0 interval will be set to one")
             {
-                REQUIRE (scheduler.GetTaskInterval(0) == 1U);
+                REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
             }
             AND_WHEN ("SysTick triggers")
             {
@@ -355,27 +285,27 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("a task (Task0) with interval three is created")
         {
-            scheduler.CreateTask({.intervalInMs = 3U, .Task = Handlers[0]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 3U, .Task = Handlers[0]});
 
             THEN ("the interval of task ID 0 will be set to three")
             {
-                REQUIRE (scheduler.GetTaskInterval(0) == 3U);
+                REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 3U);
             }
             AND_WHEN ("another task (Task1) with interval of five is created")
             {
-                scheduler.CreateTask({.intervalInMs = 5U, .Task = Handlers[1]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 5U, .Task = Handlers[1]});
 
                 THEN ("the task count shall be two")
                 {
-                    REQUIRE (scheduler.GetTaskCount() == 2U);
+                    REQUIRE (ASch::Scheduler::GetTaskCount() == 2U);
                 }
                 AND_THEN ("the interval of task ID 1 will be set to five")
                 {
-                    REQUIRE (scheduler.GetTaskInterval(1) == 5U);
+                    REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 5U);
                 }
                 AND_WHEN ("SysTick triggers twice")
                 {
@@ -433,27 +363,27 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and three tasks are created with different intervals")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
-        scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
-        scheduler.CreateTask({.intervalInMs = 2U, .Task = Handlers[1]});
-        scheduler.CreateTask({.intervalInMs = 3U, .Task = Handlers[2]});
+        ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
+        ASch::Scheduler::CreateTask({.intervalInMs = 2U, .Task = Handlers[1]});
+        ASch::Scheduler::CreateTask({.intervalInMs = 3U, .Task = Handlers[2]});
 
         WHEN ("the middle task, Task1 is deleted")
         {
-            scheduler.DeleteTask(Handlers[1]);
+            ASch::Scheduler::DeleteTask(Handlers[1]);
 
             THEN ("the task count shall be two")
             {
-                REQUIRE (scheduler.GetTaskCount() == 2U);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == 2U);
             }
             AND_THEN ("interval of task ID 0 shall be one")
             {
-                REQUIRE (scheduler.GetTaskInterval(0) == 1U);
+                REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
             }
             AND_THEN ("interval of task ID 1 shall be three")
             {
-                REQUIRE (scheduler.GetTaskInterval(1) == 3U);
+                REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 3U);
             }
             AND_WHEN ("SysTick triggers three times")
             {
@@ -477,53 +407,53 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer fills the scheduler up to task limit")
         {
             for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
             {
-                scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             THEN ("task count shall be schedulerTasksMax")
             {
-                REQUIRE (scheduler.GetTaskCount() == ASch::schedulerTasksMax);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == ASch::schedulerTasksMax);
             }
             AND_THEN ("no errors shall be triggered")
             {
-                REQUIRE_CALLS (0, mockSystem, Error);
-                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
             }
         }
     }
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer creates few tasks")
         {
-            scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
-            scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[1]});
-            scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[2]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[0]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[1]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[2]});
 
             AND_WHEN ("developer creates another task for an existing handler Task1")
             {
-                scheduler.CreateTask({.intervalInMs = 2U, .Task = Handlers[1]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 2U, .Task = Handlers[1]});
 
                 THEN ("task count shall stay as three")
                 {
-                    REQUIRE (scheduler.GetTaskCount() == 3U);
+                    REQUIRE (ASch::Scheduler::GetTaskCount() == 3U);
                 }
                 AND_THEN ("no errors shall be triggered")
                 {
-                    REQUIRE_CALLS (0, mockSystem, Error);
-                    REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                    REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                    REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
                 }
                 AND_THEN ("Task1 time shall be updated")
                 {
-                    REQUIRE (scheduler.GetTaskInterval(1U) == 2U);
+                    REQUIRE (ASch::Scheduler::GetTaskInterval(1U) == 2U);
                 }
             }
         }
@@ -531,17 +461,17 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("a task (Task0) with interval three is created and SysTick triggers twice")
         {
-            scheduler.CreateTask({.intervalInMs = 3U, .Task = Handlers[0]});
+            ASch::Scheduler::CreateTask({.intervalInMs = 3U, .Task = Handlers[0]});
             Isr::Scheduler_SysTickHandler();
             Isr::Scheduler_SysTickHandler();
 
             THEN ("no wake up calls shall have been triggered")
             {
-                REQUIRE_CALLS (0, mockHalSystem, WakeUp);
+                REQUIRE_CALLS (0, HalMock::mockHalSystem, WakeUp);
 
                 AND_WHEN ("SysTick triggers one more time")
                 {
@@ -549,7 +479,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                     THEN ("wake up call shall occur")
                     {
-                        REQUIRE_CALLS (1, mockHalSystem, WakeUp);
+                        REQUIRE_CALLS (1, HalMock::mockHalSystem, WakeUp);
 
                         AND_WHEN ("main loop runs once")
                         {
@@ -557,7 +487,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                             THEN ("sleep shall not occur yet")
                             {
-                                REQUIRE_CALLS (0, mockHalSystem, Sleep);
+                                REQUIRE_CALLS (0, HalMock::mockHalSystem, Sleep);
 
                                 AND_WHEN ("main loops runs another time one idle run")
                                 {
@@ -565,8 +495,8 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                                     THEN ("sleep call shall occur without additional wakeup")
                                     {
-                                        REQUIRE_CALLS (1, mockHalSystem, WakeUp);
-                                        REQUIRE_CALLS (1, mockHalSystem, Sleep);
+                                        REQUIRE_CALLS (1, HalMock::mockHalSystem, WakeUp);
+                                        REQUIRE_CALLS (1, HalMock::mockHalSystem, Sleep);
                                     }
                                 }
                             }
@@ -580,59 +510,48 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
 SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-
+    ASchMock::InitSystem();
     InitCallCounters();
 
     GIVEN ("the scheduler is running and task list is empty")
     {        
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer tries to delete random task")
         {
-            scheduler.DeleteTask(Handlers[0]);
+            ASch::Scheduler::DeleteTask(Handlers[0]);
 
             THEN ("task count shall stay zero")
             {
-                REQUIRE (scheduler.GetTaskCount() == 0U);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == 0U);
             }
             AND_THEN ("no errors shall be triggered")
             {
-                REQUIRE_CALLS (0, mockSystem, Error);
-                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
             }
         }
     }
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer fills the scheduler task limit")
         {
             for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
             {
-                scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             AND_WHEN ("developer tries to create another task")
             {
-                scheduler.CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::schedulerTasksMax]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::schedulerTasksMax]});
 
                 THEN ("system error shall trigger")
                 {
-                    REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
-                    REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
+                    REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::insufficientResources);
+                    REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::error);
                 }
             }
         }
@@ -640,11 +559,11 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer tries to read task interval with an invalid ID")
         {
-            uint16_t taskInterval = scheduler.GetTaskInterval(ASch::schedulerTasksMax);
+            uint16_t taskInterval = ASch::Scheduler::GetTaskInterval(ASch::schedulerTasksMax);
 
             THEN ("the task interval will be set to zero")
             {
@@ -656,39 +575,29 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
 SCENARIO ("Developer pushes events successfully", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-
+    HalMock::InitIsr();
+    HalMock::InitSystem();
     InitCallCounters();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("an event is pushed")
         {
             uint8_t testData0 = 0x12U;
             ASch::event_t testEvent = {.Handler = TestEventHandler0, .pPayload = static_cast<void*>(&testData0)};
-            scheduler.PushEvent(testEvent);
+            ASch::Scheduler::PushEvent(testEvent);
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_CALLS (1, mockIsr, DisableGlobal);
-                REQUIRE_CALLS (1, mockIsr, EnableGlobal);
-                REQUIRE_CALL_ORDER (CALL(mockIsr, DisableGlobal) + CALL(mockIsr, EnableGlobal));
+                REQUIRE_CALLS (1, HalMock::mockHalIsr, DisableGlobal);
+                REQUIRE_CALLS (1, HalMock::mockHalIsr, EnableGlobal);
+                REQUIRE_CALL_ORDER (CALL(HalMock::mockHalIsr, DisableGlobal) + CALL(HalMock::mockHalIsr, EnableGlobal));
             }
             AND_THEN ("wake up call shall occur")
             {
-                REQUIRE_CALLS (1, mockHalSystem, WakeUp);
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, WakeUp);
 
                 AND_WHEN ("scheduler loop runs")
                 {
@@ -709,7 +618,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                         }
                         AND_THEN ("sleep call shall occur")
                         {
-                            REQUIRE_CALLS (1, mockHalSystem, Sleep);
+                            REQUIRE_CALLS (1, HalMock::mockHalSystem, Sleep);
                         }
                     }
                 }
@@ -719,21 +628,21 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("three events are pushed and scheduler loop runs once")
         {
             uint8_t testData0 = 0x12U;
             ASch::event_t testEvent = {.Handler = TestEventHandler0, .pPayload = static_cast<void*>(&testData0)};
-            scheduler.PushEvent(testEvent);
+            ASch::Scheduler::PushEvent(testEvent);
 
             uint8_t testData1 = 0x34U;
             testEvent = {.Handler = TestEventHandler1, .pPayload = static_cast<void*>(&testData1)};
-            scheduler.PushEvent(testEvent);
+            ASch::Scheduler::PushEvent(testEvent);
 
             uint8_t testData2 = 0x56U;
             testEvent = {.Handler = TestEventHandler2, .pPayload = static_cast<void*>(&testData2)};
-            scheduler.PushEvent(testEvent);
+            ASch::Scheduler::PushEvent(testEvent);
 
             ASch::SchedulerLoop();
 
@@ -751,7 +660,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                 AND_WHEN ("test event 1 is pushed again with different payload and scheduler loop runs once")
                 {
                     testEvent = {.Handler = TestEventHandler1, .pPayload = static_cast<void*>(&testData0)};
-                    scheduler.PushEvent(testEvent);
+                    ASch::Scheduler::PushEvent(testEvent);
 
                     ASch::SchedulerLoop();
 
@@ -774,21 +683,11 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
 SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 {
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
+    ASchMock::InitSystem();
 
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-    
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("maximum number of events is pushed")
         {
@@ -797,22 +696,22 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 
             for (std::size_t i = 0; i < ASch::schedulerEventsMax; ++i)
             {
-                scheduler.PushEvent(testEvent);
+                ASch::Scheduler::PushEvent(testEvent);
             }
 
             THEN ("no error shall be triggered")
             {
-                REQUIRE_CALLS (0, mockSystem, Error);
-                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("another event is pushed")
                 {
-                    scheduler.PushEvent(testEvent);
+                    ASch::Scheduler::PushEvent(testEvent);
 
                     THEN ("a system error shall occur")
                     {
-                        REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
-                        REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
+                        REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::insufficientResources);
+                        REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::error);
                     }
                 }
             }
@@ -823,54 +722,42 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 SCENARIO ("Developer manages message system successfully", "[scheduler]")
 {
     uint8_t testData = 0x12U;
-    
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-
+    ASchMock::InitSystem();
     InitCallCounters();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer registers two message listeners for message_test_0 and one listener for message_test_1")
         {
             ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
-            scheduler.RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
 
             listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
-            scheduler.RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
 
             listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
-            scheduler.RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
 
             THEN ("listener counts shall match with the registered listeners")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_1) == 1U);
+                REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
+                REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_1) == 1U);
             }
             AND_THEN ("no errors shall be triggered")
             {
-                REQUIRE_CALLS (0, mockSystem, Error);
-                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("a message_test_0 is posted")
                 {
-                    scheduler.PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
+                    ASch::Scheduler::PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
 
                     THEN ("no errors shall be triggered")
                     {
-                        REQUIRE_CALLS (0, mockSystem, Error);
-                        REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                        REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                        REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
                     
                         AND_WHEN ("scheduler runs one cycle")
                         {
@@ -896,30 +783,30 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 
     GIVEN ("the scheduler is running, task list is empty, and there are two message listeners for message_test_0 and one listener for message_test_1")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         WHEN ("developer unregisters listener for message_test_1")
         {
             listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
-            scheduler.UnregisterMessageListener(listener);
+            ASch::Scheduler::UnregisterMessageListener(listener);
 
             THEN ("listener counts shall match with the registered listeners")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_1) == 0U);
+                REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_0) == 2U);
+                REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_1) == 0U);
             }
             AND_WHEN ("a message_test_1 is posted and scheduler runs one cycle")
             {
-                scheduler.PushMessage({.type = ASch::Message::test_1, .pPayload = static_cast<void*>(&testData)});
+                ASch::Scheduler::PushMessage({.type = ASch::Message::test_1, .pPayload = static_cast<void*>(&testData)});
                 ASch::SchedulerLoop();
 
                 THEN ("remvoed message_test_1 listeners shall not be called")
@@ -934,43 +821,31 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
 SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 {
     uint8_t testData = 0x12U;
-    
-    Mock<Hal::SysTick> mockSysTick;
-    HalMock::InitSysTick(mockSysTick);
-
-    Mock<Hal::Isr> mockIsr;
-    HalMock::InitIsr(mockIsr);
-
-    Mock<Hal::System> mockHalSystem;
-    HalMock::InitSystem(mockHalSystem);
-
-    Mock<ASch::System> mockSystem;
-    ASchMock::InitSystem(mockSystem);
-
+    ASchMock::InitSystem();
     InitCallCounters();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         WHEN ("developer tries to register same listener twice")
         {
             ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
-            scheduler.RegisterMessageListener(listener);
-            scheduler.RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
 
             THEN ("the duplicate listener shall be ignored")
             {
-                REQUIRE (scheduler.GetNumberOfMessageListeners(ASch::Message::test_0) == 1U);
+                REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_0) == 1U);
             }
             AND_THEN ("no errors shall be triggered")
             {
-                REQUIRE_CALLS (0, mockSystem, Error);
-                REQUIRE (scheduler.GetStatus() != ASch::SchedulerStatus::error);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
 
                 AND_WHEN ("a message_test_0 is posted and scheduler runs one cycle")
                 {
-                    scheduler.PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
+                    ASch::Scheduler::PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
                     ASch::SchedulerLoop();
 
                     THEN ("the duplicated listener shall be called only once")
@@ -984,26 +859,26 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
 
     GIVEN ("the scheduler is running, task list is empty, and the message listener list is full")
     {
-        ASch::Scheduler scheduler = MOCK_SCHEDULER(1UL);
+        ASch::Scheduler::Init(1UL);
 
         ASch::messageListener_t listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler0};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler1};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         listener = {.type = ASch::Message::test_0, .Handler = TestEventHandler2};
-        scheduler.RegisterMessageListener(listener);
+        ASch::Scheduler::RegisterMessageListener(listener);
 
         WHEN ("developer registers another listener")
         {
             listener = {.type = ASch::Message::test_1, .Handler = TestEventHandler2};
-            scheduler.RegisterMessageListener(listener);
+            ASch::Scheduler::RegisterMessageListener(listener);
 
             THEN ("a system error shall occur")
             {
-                REQUIRE_PARAM_CALLS (1, mockSystem, Error, ASch::SysError::insufficientResources);
-                REQUIRE (scheduler.GetStatus() == ASch::SchedulerStatus::error);
+                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::insufficientResources);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::error);
             }
         }
     }
