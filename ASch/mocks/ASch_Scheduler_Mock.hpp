@@ -17,16 +17,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Mock.hpp
+//! @file    ASch_Scheduler_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL classes.
+//! @brief   Mocks for ASch System.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef HAL_MOCK_HPP_
-#define HAL_MOCK_HPP_
+#ifndef ASCH_SCHEDULER_MOCK_HPP_
+#define ASCH_SCHEDULER_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Framework Dependencies
@@ -37,33 +37,15 @@
 using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Module Headers
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_Isr.hpp>
-#include <Hal_System.hpp>
-#include <Hal_SysTick.hpp>
-#include <Hal_Gpio.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Mock Init Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace HalMock
+namespace ASchMock
 {
 
-/// @brief This function initialises the HAL ISR mock.
-/// @param mockIsr - A reference to the HAL ISR mock class.
-void InitIsr(Mock<Hal::Isr>& mockIsr);
+/// @brief This function initialises the ASch Scheduler mock.
+void InitScheduler(void);
 
-/// @brief This function initialises the HAL SysTick mock.
-/// @param mockSysTick - A reference to the HAL SysTick mock class.
-void InitSysTick(Mock<Hal::SysTick>& mockSysTick);
+} // namespace ASchMock
 
-/// @brief This function initialises the HAL GPIO mock.
-/// @param mockGpio - A reference to the HAL GPIO mock class.
-void InitGpio(Mock<Hal::Gpio>& mockGpio);
-
-} // namespace HalMock
-
-#endif // HAL_MOCK_HPP_
+#endif // ASCH_SCHEDULER_MOCK_HPP_

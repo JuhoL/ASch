@@ -78,19 +78,16 @@ class System
 {
 public:
     explicit System(void) {};
-
-    /// @brief A destructor to be used to deinit the scheduler.
-    ~System(void);
-
+    
     /// @brief This fuction raises a system error.
     /// @param error - Error type.
-    static_mf void Error(SysError error);
+    static void Error(SysError error);
 
     /// @brief This fuction initialises the system, e.f. clocks and other base peripherals.
-    static_mf void Init(void);
+    static void Init(void);
 
     /// @brief This function runs pre-start configuration functions.
-    static_mf void PreStartConfig(void);
+    static void PreStartConfig(void);
 };
 
 } // namespace ASch

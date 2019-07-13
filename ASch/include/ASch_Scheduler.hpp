@@ -127,83 +127,68 @@ namespace ASch
 class Scheduler
 {
 public:
-    /// @brief A constructor with dependency injections.
-    /// 
-    /// This constructor must be used when initialising the system or unit testing.
-    /// @param sysTickParameter - A reference to SysTick module.
-    /// @param isrParameter - A reference to ISR module.
-    /// @param halSystemParameter - A reference to HAL System module.
-    /// @param systemParameter - A reference to ASch System module.
-    /// @param tickIntervalInMs - A tick interval of the scheduler in milliseconds.
-    explicit Scheduler(Hal::SysTick& sysTickParameter, Hal::Isr& isrParameter, Hal::System& halSystemParameter, System& systemParameter, uint16_t tickIntervalInMs);
-
     /// @brief Simple constructor.
-    ///
-    /// A constructor to be used after the system has been initialised.
-    explicit Scheduler(void);
-
-    /// @brief A destructor to be used to deinit the scheduler.
-    ~Scheduler(void);
+    explicit Scheduler(void) {};
 
     /// @brief This function starts the scheduler.
-    static_mf void Start(void);
+    static void Start(void);
 
     /// @brief This function stops the scheduler.
-    static_mf void Stop(void);
+    static void Stop(void);
 
     /// @brief This function returns the current status of the scheduler.
     /// @return Scheduler status
-    static_mf SchedulerStatus GetStatus(void);
+    static SchedulerStatus GetStatus(void);
 
     /// @brief This function returns the current task count.
     /// @return Current task count.
-    static_mf uint8_t GetTaskCount(void);
+    static uint8_t GetTaskCount(void);
 
     /// @brief This function creates a given task.
     /// @param task - Task configuration struct.
-    static_mf void CreateTask(task_t task);
+    static void CreateTask(task_t task);
 
     /// @brief This function deletes the given task based on task handler.
     /// @param taskHandler - Function pointer to the task handler to be removed.
-    static_mf void DeleteTask(taskHandler_t taskHandler);
+    static void DeleteTask(taskHandler_t taskHandler);
 
     /// @brief This function return the task interval of the given task ID.
     /// @param taskId - Task ID
     /// @return Task interval in milliseconds.
-    static_mf uint16_t GetTaskInterval(uint8_t taskId);
+    static uint16_t GetTaskInterval(uint8_t taskId);
     
     /// @brief This function runs all the pending tasks.
-    static_mf void RunTasks(void);
+    static void RunTasks(void);
 
     /// @brief This function puts the system in sleep mode.
-    static_mf void Sleep(void);
+    static void Sleep(void);
 
     /// @brief This function wakes the system up from sleep mode. 
-    static_mf void WakeUp(void);
+    static void WakeUp(void);
 
     /// @brief This function is used to push an event into the scheduler.
     /// @param event - A refernce to the event to be pushed.
-    static_mf void PushEvent(event_t const& event);
+    static void PushEvent(event_t const& event);
 
     /// @brief This function runs all the pending events.
-    static_mf void RunEvents(void);
+    static void RunEvents(void);
 
     /// @brief This function is used to register a message listener.
     /// @param listener - A reference to the listener to be registered.
-    static_mf void RegisterMessageListener(messageListener_t const& listener);
+    static void RegisterMessageListener(messageListener_t const& listener);
     
     /// @brief This function is used to unregister a message listener.
     /// @param listener - A reference to the listener to be unregistered.
-    static_mf void UnregisterMessageListener(messageListener_t const& listener);
+    static void UnregisterMessageListener(messageListener_t const& listener);
 
     /// @brief This function returns the current number of message listeners of given message type.
     /// @param type - The type of message.
     /// @return Number of listeners.
-    static_mf uint8_t GetNumberOfMessageListeners(Message type);
+    static uint8_t GetNumberOfMessageListeners(Message type);
     
     /// @brief This function pushes a message into the scheduler.
     /// @param message - A reference to the message to be pushed.
-    static_mf void PushMessage(message_t const& message);
+    static void PushMessage(message_t const& message);
 
 private:
     /// @brief This function initialises static member variables.
@@ -212,12 +197,6 @@ private:
     /// @brief This function throws a system error.
     /// @param error - Type of error that occurred.
     static void ThrowError(SysError error);
-
-    // Dependencies
-    static Hal::SysTick* pSysTick;  //!< Pointer to the SysTick module.
-    static Hal::Isr* pIsr;          //!< Pointer to the ISR module.
-    static Hal::System* pHalSystem; //!< Pointer to the HAL System module.
-    static System* pSystem;         //!< Pointer to the ASch System module.
 
     static SchedulerStatus status;  //!< Current scheduler status
     

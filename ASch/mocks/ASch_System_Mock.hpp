@@ -17,16 +17,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.hpp
+//! @file    ASch_System_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for System HAL.
+//! @brief   Mocks for ASch System.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef HAL_SYSTEM_MOCK_HPP_
-#define HAL_SYSTEM_MOCK_HPP_
+#ifndef ASCH_SYSTEM_MOCK_HPP_
+#define ASCH_SYSTEM_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Framework Dependencies
@@ -40,12 +40,12 @@ using namespace fakeit;
 // 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace HalMock
+namespace ASchMock
 {
 
-/// @brief This function initialises the HAL System mock.
+/// @brief This function initialises the ASch System mock.
 void InitSystem(void);
 
-} // namespace HalMock
+} // namespace ASchMock
 
-#endif // HAL_SYSTEM_MOCK_HPP_
+#endif // ASCH_SYSTEM_MOCK_HPP_

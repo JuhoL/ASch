@@ -17,114 +17,35 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.cpp
+//! @file    Hal_SysTick_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL System.
+//! @brief   Mocks for System HAL.
 //! 
-//! These are mocks for HAL System utilising FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+
+#ifndef HAL_SYSTICK_MOCK_HPP_
+#define HAL_SYSTICK_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_System_Mock.hpp>
-#include <Hal_System.hpp>
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Initialisation
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
-{
-public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void InitClocks(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
-};
-
-static Mock<System> mockHalSystem;
-static HalMock::System& system = mockHalSystem.get();
-
-void InitSystem(void)
-{
-    static bool isFirstInit = true;
-
-    if (isFirstInit == true)
-    {
-        Fake(Method(mockHalSystem, Sleep));
-        Fake(Method(mockHalSystem, WakeUp));
-        Fake(Method(mockHalSystem, InitPowerControl));
-        Fake(Method(mockHalSystem, InitClocks));
-        Fake(Method(mockHalSystem, Reset));
-        Fake(Method(mockHalSystem, CriticalSystemError));
-    }
-    else
-    {
-        mockHalSystem.Reset();
-    }
-    return;
-}
+/// @brief This function initialises the HAL System mock.
+void InitSysTick(void);
 
 } // namespace HalMock
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Mock Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
-{
-
-System::System(void)
-{
-    return;
-}
-
-void System::Sleep(void)
-{
-    HalMock::system.Sleep();
-    return;
-}
-
-void System::WakeUp(void)
-{
-    HalMock::system.WakeUp();
-    return;
-}
-
-void System::InitPowerControl(void)
-{
-    HalMock::system.InitPowerControl();
-    return;
-}
-
-void System::InitClocks(void)
-{
-    HalMock::system.InitClocks();
-    return;
-}
-
-void System::Reset(void)
-{
-    HalMock::system.Reset();
-    return;
-}
-
-void System::CriticalSystemError(void)
-{
-    HalMock::system.CriticalSystemError();
-    return;
-}
-
-} // namespace Hal
-
+#endif // HAL_SYSTICK_MOCK_HPP_

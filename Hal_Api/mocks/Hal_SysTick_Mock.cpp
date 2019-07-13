@@ -17,20 +17,20 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.cpp
+//! @file    Hal_SysTick_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL System.
+//! @brief   Mocks for SysTick HAL.
 //! 
-//! These are mocks for HAL System utilising FakeIt.
+//! These are mocks for SysTick HAL utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_System_Mock.hpp>
-#include <Hal_System.hpp>
+#include <Hal_SysTick_Mock.hpp>
+#include <Hal_SysTick.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Initialisation
@@ -39,22 +39,20 @@
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
+//! @class SysTick
+//! @brief This is a mock class for SysTick HAL
+class SysTick
 {
 public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void InitClocks(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
+    explicit SysTick(void) {};
+    virtual void SetInterval(uint16_t intervalIn01Ms);
+    virtual void Start(void);
+    virtual void Stop(void);
+    virtual bool IsRunning(void);
 };
 
-static Mock<System> mockHalSystem;
-static HalMock::System& system = mockHalSystem.get();
+static Mock<SysTick> mockHalSysTick;
+static HalMock::SysTick& sysTick = mockHalSysTick.get();
 
 void InitSystem(void)
 {
@@ -62,16 +60,14 @@ void InitSystem(void)
 
     if (isFirstInit == true)
     {
-        Fake(Method(mockHalSystem, Sleep));
-        Fake(Method(mockHalSystem, WakeUp));
-        Fake(Method(mockHalSystem, InitPowerControl));
-        Fake(Method(mockHalSystem, InitClocks));
-        Fake(Method(mockHalSystem, Reset));
-        Fake(Method(mockHalSystem, CriticalSystemError));
+        Fake(Method(mockHalSysTick, SetInterval));
+        Fake(Method(mockHalSysTick, Start));
+        Fake(Method(mockHalSysTick, Stop));
+        Fake(Method(mockHalSysTick, IsRunning));
     }
     else
     {
-        mockHalSystem.Reset();
+        mockHalSysTick.Reset();
     }
     return;
 }
@@ -85,45 +81,27 @@ void InitSystem(void)
 namespace Hal
 {
 
-System::System(void)
+void SysTick::SetInterval(uint16_t intervalIn01Ms)
 {
+    HalMock::sysTick.SetInterval(intervalIn01Ms);
     return;
 }
 
-void System::Sleep(void)
+void SysTick::Start(void)
 {
-    HalMock::system.Sleep();
+    HalMock::sysTick.Start();
     return;
 }
 
-void System::WakeUp(void)
+void SysTick::Stop(void)
 {
-    HalMock::system.WakeUp();
+    HalMock::sysTick.Stop();
     return;
 }
 
-void System::InitPowerControl(void)
+bool SysTick::IsRunning(void)
 {
-    HalMock::system.InitPowerControl();
-    return;
-}
-
-void System::InitClocks(void)
-{
-    HalMock::system.InitClocks();
-    return;
-}
-
-void System::Reset(void)
-{
-    HalMock::system.Reset();
-    return;
-}
-
-void System::CriticalSystemError(void)
-{
-    HalMock::system.CriticalSystemError();
-    return;
+    return HalMock::sysTick.IsRunning();
 }
 
 } // namespace Hal

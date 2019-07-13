@@ -17,54 +17,83 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Mock.cpp
+//! @file    ASch_System_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for ASch classes.
+//! @brief   Mocks for ASch System.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+//! These are mocks for ASch System utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Mock.hpp>
+#include <ASch_System_Mock.hpp>
+#include <ASch_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Functions
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace ASchMock
 {
 
-void InitScheduler(Mock<ASch::Scheduler>& mockScheduler)
+//! @class System
+//! @brief This is a mock class for ASch System
+class System
 {
-    Fake(Method(mockScheduler, Start));
-    Fake(Method(mockScheduler, Stop));
-    Fake(Method(mockScheduler, GetStatus));
-    Fake(Method(mockScheduler, GetTaskCount));
-    Fake(Method(mockScheduler, CreateTask));
-    Fake(Method(mockScheduler, DeleteTask));
-    Fake(Method(mockScheduler, GetTaskInterval));
-    Fake(Method(mockScheduler, RunTasks));
-    Fake(Method(mockScheduler, Sleep));
-    Fake(Method(mockScheduler, WakeUp));
-    Fake(Method(mockScheduler, PushEvent));
-    Fake(Method(mockScheduler, RunEvents));
-    Fake(Method(mockScheduler, RegisterMessageListener));
-    Fake(Method(mockScheduler, UnregisterMessageListener));
-    Fake(Method(mockScheduler, GetNumberOfMessageListeners));
-    Fake(Method(mockScheduler, PushMessage));
-    return;
-}
+public:
+    explicit System(void) {};
+    virtual void Error(SysError error);
+    virtual void Init(void);
+    virtual void PreStartConfig(void);
+};
 
-void InitSystem(Mock<ASch::System>& mockSystem)
+static Mock<System> mockASchSystem;
+static ASchMock::System& system = mockASchSystem.get();
+
+void InitSystem(void)
 {
-    Fake(Method(mockSystem, Error));
-    Fake(Method(mockSystem, Init));
-    Fake(Method(mockSystem, PreStartConfig));
+    static bool isFirstInit = true;
+
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockASchSystem, Error));
+        Fake(Method(mockASchSystem, Init));
+        Fake(Method(mockASchSystem, PreStartConfig));
+    }
+    else
+    {
+        mockASchSystem.Reset();
+    }
     return;
 }
 
 } // namespace ASchMock
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+void System::Error(SysError error)
+{
+    ASchMock::system.Error(error);
+    return;
+}
+void System::Init(void)
+{
+    ASchMock::system.Init();
+    return;
+}
+void System::PreStartConfig(void)
+{
+    ASchMock::system.PreStartConfig();
+    return;
+}
+
+} // namespace Hal
+

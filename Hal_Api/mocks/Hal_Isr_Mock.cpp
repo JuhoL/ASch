@@ -17,20 +17,20 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.cpp
+//! @file    Hal_Isr_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL System.
+//! @brief   Mocks for HAL Isr.
 //! 
-//! These are mocks for HAL System utilising FakeIt.
+//! These are mocks for HAL Isr utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_System_Mock.hpp>
-#include <Hal_System.hpp>
+#include <Hal_Isr_Mock.hpp>
+#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Initialisation
@@ -39,22 +39,28 @@
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
+//! @class Isr
+//! @brief This is a mock class for HAL Isr
+class Isr
 {
 public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void InitClocks(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
+    explicit Isr(void) {};
+    virtual void Init(void);
+    virtual void EnableGlobal(void);
+    virtual void DisableGlobal(void);
+    virtual void SetHandler(Interrupt type, interruptHandler_t Handler);
+    virtual interruptHandler_t GetHandler(Interrupt type);
+    virtual void Enable(Interrupt type);
+    virtual void Disable(Interrupt type);
+    virtual void SetPriority(Interrupt type, uint32_t priority);
+    virtual uint8_t GetPriority(Interrupt type);
+    virtual void SetPending(Interrupt type);
+    virtual bool GetPending(Interrupt type);
+    virtual void Clear(Interrupt type);
 };
 
-static Mock<System> mockHalSystem;
-static HalMock::System& system = mockHalSystem.get();
+static Mock<Isr> mockHalIsr;
+static HalMock::Isr& isr = mockHalIsr.get();
 
 void InitSystem(void)
 {
@@ -62,16 +68,22 @@ void InitSystem(void)
 
     if (isFirstInit == true)
     {
-        Fake(Method(mockHalSystem, Sleep));
-        Fake(Method(mockHalSystem, WakeUp));
-        Fake(Method(mockHalSystem, InitPowerControl));
-        Fake(Method(mockHalSystem, InitClocks));
-        Fake(Method(mockHalSystem, Reset));
-        Fake(Method(mockHalSystem, CriticalSystemError));
+        Fake(Method(mockHalIsr, Init));
+        Fake(Method(mockHalIsr, EnableGlobal));
+        Fake(Method(mockHalIsr, DisableGlobal));
+        Fake(Method(mockHalIsr, SetHandler));
+        Fake(Method(mockHalIsr, GetHandler));
+        Fake(Method(mockHalIsr, Enable));
+        Fake(Method(mockHalIsr, Disable));
+        Fake(Method(mockHalIsr, SetPriority));
+        Fake(Method(mockHalIsr, GetPriority));
+        Fake(Method(mockHalIsr, SetPending));
+        Fake(Method(mockHalIsr, GetPending));
+        Fake(Method(mockHalIsr, Clear));
     }
     else
     {
-        mockHalSystem.Reset();
+        mockHalIsr.Reset();
     }
     return;
 }
@@ -85,46 +97,76 @@ void InitSystem(void)
 namespace Hal
 {
 
-System::System(void)
+void Isr::Init(void)
 {
+    HalMock::isr.Init();
     return;
 }
 
-void System::Sleep(void)
+void Isr::EnableGlobal(void)
 {
-    HalMock::system.Sleep();
+    HalMock::isr.EnableGlobal();
     return;
 }
 
-void System::WakeUp(void)
+void Isr::DisableGlobal(void)
 {
-    HalMock::system.WakeUp();
+    HalMock::isr.DisableGlobal();
     return;
 }
 
-void System::InitPowerControl(void)
+void Isr::SetHandler(Interrupt type, interruptHandler_t Handler)
 {
-    HalMock::system.InitPowerControl();
+    HalMock::isr.SetHandler(type, Handler);
     return;
 }
 
-void System::InitClocks(void)
+interruptHandler_t Isr::GetHandler(Interrupt type)
 {
-    HalMock::system.InitClocks();
+    return HalMock::isr.GetHandler(type);
+}
+
+void Isr::Enable(Interrupt type)
+{
+    HalMock::isr.Enable(type);
     return;
 }
 
-void System::Reset(void)
+void Isr::Disable(Interrupt type)
 {
-    HalMock::system.Reset();
+    HalMock::isr.Disable(type);
     return;
 }
 
-void System::CriticalSystemError(void)
+void Isr::SetPriority(Interrupt type, uint32_t priority)
 {
-    HalMock::system.CriticalSystemError();
+    HalMock::isr.SetPriority(type, priority);
     return;
 }
+
+uint8_t Isr::GetPriority(Interrupt type)
+{
+    return HalMock::isr.GetPriority(type);
+}
+
+void Isr::SetPending(Interrupt type)
+{
+    HalMock::isr.SetPending(type);
+    return;
+}
+
+bool Isr::GetPending(Interrupt type)
+{
+    HalMock::isr.GetPending(type);
+    return;
+}
+
+void Isr::Clear(Interrupt type)
+{
+    HalMock::isr.Clear(type);
+    return;
+}
+
 
 } // namespace Hal
 

@@ -17,16 +17,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Mock.hpp
+//! @file    Hal_Isr_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for ASch classes.
+//! @brief   Mocks for ISR HAL.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef ASCH_MOCK_HPP_
-#define ASCH_MOCK_HPP_
+#ifndef HAL_ISR_MOCK_HPP_
+#define HAL_ISR_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Framework Dependencies
@@ -37,22 +37,15 @@
 using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Module Headers
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Scheduler.hpp>
-#include <ASch_System.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Mock Init Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASchMock
+namespace HalMock
 {
 
-void InitScheduler(Mock<ASch::Scheduler>& mockScheduler);
-void InitSystem(Mock<ASch::System>& mockSystem);
+/// @brief This function initialises the HAL System mock.
+void InitIsr(void);
 
-} // namespace ASchMock
+} // namespace HalMock
 
-#endif // ASCH_MOCK_HPP_
+#endif // HAL_ISR_MOCK_HPP_

@@ -111,26 +111,26 @@ public:
     /// The pin is selected by configuring the pin in the configuration struct before passing it to this function. 
     ///
     /// @param gpio - A reference to a GPIO configuration struct.
-    static_mf void GetConfiguration(gpioConfig_t& gpio);
+    static void GetConfiguration(gpioConfig_t& gpio);
 
     /// @brief This function sets the configuration of the given pin.
     /// @param gpio - A reference to a GPIO configuration struct.
-    static_mf void SetConfiguration(gpioConfig_t& gpio);
+    static void SetConfiguration(gpioConfig_t& gpio);
 
     /// @brief This function sets the output state of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @param state - A new pin state.
-    static_mf void SetOutputState(Pin_t& pin, bool state);
+    static void SetOutputState(Pin_t& pin, bool state);
 
     /// @brief This function gets the input state of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The state of the pin input.
-    static_mf bool GetInputState(Pin_t& pin);
+    static bool GetInputState(Pin_t& pin);
 
     /// @brief This function gets the output state of the given pin.
     /// @param pin - A reference to the pin selector.
     /// @return The state of the pin output.
-    static_mf bool GetOutputState(Pin_t& pin);
+    static bool GetOutputState(Pin_t& pin);
 
 private:
     /// @brief This function gets the mode of the given pin.
