@@ -62,19 +62,19 @@ public:
     explicit System(void);
 
     /// @brief Puts the system into sleep.
-    static_mf void Sleep(void);
+    static void Sleep(void);
 
     /// @brief Wakes the system up from sleep.
-    static_mf void WakeUp(void);
+    static void WakeUp(void);
     
     /// @brief Initialises power control.
-    static_mf void InitPowerControl(void);
+    static void InitPowerControl(void);
     
     /// @brief Initialises system clocks.
-    static_mf void InitClocks(void);
+    static void InitClocks(void);
 
     /// @brief Performs MCU reset.
-    static_mf void Reset(void);
+    static void Reset(void);
 
     /// @brief Critical system error handler. Halts the CPU.
     static void CriticalSystemError(void);

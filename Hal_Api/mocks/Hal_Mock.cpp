@@ -55,13 +55,6 @@ void InitIsr(Mock<Hal::Isr>& mockIsr)
     return;
 }
 
-void InitSystem(Mock<Hal::System>& mockHalSystem)
-{
-    Fake(Method(mockHalSystem, Sleep));
-    Fake(Method(mockHalSystem, WakeUp));
-    return;
-}
-
 void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
 {
     Fake(Method(mockSysTick, SetInterval));

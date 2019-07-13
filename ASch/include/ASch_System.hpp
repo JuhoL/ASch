@@ -77,16 +77,7 @@ namespace ASch
 class System
 {
 public:
-    /// @brief A constructor with dependency injections.
-    /// 
-    /// This constructor must be used when initialising the system or unit testing.
-    /// @param halSystem - A reference to HAL System module.
-    explicit System(Hal::System& halSystem);
-
-    /// @brief Simple constructor.
-    ///
-    /// A constructor to be used after the system has been initialised.
-    explicit System(void);
+    explicit System(void) {};
 
     /// @brief A destructor to be used to deinit the scheduler.
     ~System(void);
@@ -100,10 +91,6 @@ public:
 
     /// @brief This function runs pre-start configuration functions.
     static_mf void PreStartConfig(void);
-
-private:
-    // Dependencies
-    static Hal::System* pHalSystem; //!< Pointer to the HAL System module.
 };
 
 } // namespace ASch

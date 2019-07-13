@@ -56,10 +56,6 @@ namespace HalMock
 /// @param mockIsr - A reference to the HAL ISR mock class.
 void InitIsr(Mock<Hal::Isr>& mockIsr);
 
-/// @brief This function initialises the HAL System mock.
-/// @param mockSystem - A reference to the HAL System mock class.
-void InitSystem(Mock<Hal::System>& mockHalSystem);
-
 /// @brief This function initialises the HAL SysTick mock.
 /// @param mockSysTick - A reference to the HAL SysTick mock class.
 void InitSysTick(Mock<Hal::SysTick>& mockSysTick);

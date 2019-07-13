@@ -17,79 +17,120 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.cpp
+//! @file    Hal_System_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    20 May 2019
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @brief   Mocks for HAL System.
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! These are mocks for HAL System utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#if (UNIT_TEST == 1)
-    #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
-#endif
-
-#include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
+#include <Hal_System_Mock.hpp>
 #include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
+namespace HalMock
 {
 
-//---------------------------------------
-// Functions
-//---------------------------------------
-
-void System::Error(SysError error)
+//! @class System
+//! @brief This is HAL interface for system level functionality.
+//! This class handler system clocks and power management.
+class System
 {
-    return;
-}
+public:
+    explicit System(void);
+    virtual void Sleep(void);
+    virtual void WakeUp(void);
+    virtual void InitPowerControl(void);
+    virtual void InitClocks(void);
+    virtual void Reset(void);
+    virtual void CriticalSystemError(void);
+};
 
-void System::Init(void)
-{
-    return;
-}
+static Mock<System> mockHalSystem;
 
-void System::PreStartConfig(void)
+void InitSystem(void)
 {
-    for (std::size_t i = 0; i < preStartConfigurationFunctionsMax; ++i)
+    static bool isFirstInit = true;
+
+    if (isFirstInit == true)
     {
-        apPreStartConfigFunctions[i]();
+        Fake(Method(mockHalSystem, Sleep));
+        Fake(Method(mockHalSystem, WakeUp));
+        Fake(Method(mockHalSystem, InitPowerControl));
+        Fake(Method(mockHalSystem, InitClocks));
+        Fake(Method(mockHalSystem, Reset));
+        Fake(Method(mockHalSystem, CriticalSystemError));
     }
+    else
+    {
+        mockHalSystem.Reset();
+    }
+    return;
+}
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+System::System(void)
+{
+    return;
+}
+
+void System::Sleep(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.Sleep();
+    return;
+}
+
+void System::WakeUp(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.WakeUp();
+    return;
+}
+
+void System::InitPowerControl(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.InitPowerControl();
+    return;
+}
+
+void System::InitClocks(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.InitClocks();
+    return;
+}
+
+void System::Reset(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.Reset();
+    return;
+}
+
+void System::CriticalSystemError(void)
+{
+    // HalMock::System& system = mockHalSystem.get();
+    // system.CriticalSystemError();
     return;
 }
 
 } // namespace ASch
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 8. Static Functions
-//-----------------------------------------------------------------------------------------------------------------------------

@@ -17,88 +17,36 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @file    Hal_Mock.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    20 May 2019
+//!
+//! @brief   Mocks for HAL classes.
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
-//! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+
+#ifndef HAL_SYSTEM_MOCK_HPP_
+#define HAL_SYSTEM_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Catch_Utils.hpp>
-
-#define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
-
-#include <Hal_System_Mock.hpp>
-
-#include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+namespace HalMock
 {
 
-#define MOCK_SYSTEM()       ASch::System(mockSystem.get())
+/// @brief This function initialises the HAL System mock.
+/// @param mockSystem - A reference to the HAL System mock class.
+void InitSystem(void);
 
-// Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
-uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
+} // namespace HalMock
 
-void InitConfigCallCounts(void)
-{
-    for (std::size_t i = 0; i < ASch::preStartConfigurationFunctionsMax; ++i)
-    {
-        preStartConfigCallCount[i] = 0U;
-    }
-
-    return;
-}
-
-} // anonymous namespace
-
-namespace ASch
-{
-
-void PreStartConfig0(void)
-{
-    ++preStartConfigCallCount[0];
-    return;
-}
-
-void PreStartConfig1(void)
-{
-    ++preStartConfigCallCount[1];
-    return;
-}
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("A system is configured", "[system]")
-{
-    InitConfigCallCounts();
-    
-    GIVEN ("a system object is created")
-    {
-        WHEN ("pre-start config is called")
-        {
-            ASch::System::PreStartConfig();
-
-            THEN ("all pre-start config functions shall be called once")
-            {
-                REQUIRE (preStartConfigCallCount[0] == 1U);
-                REQUIRE (preStartConfigCallCount[1] == 1U);
-            }
-        }
-    }
-}
-
+#endif // HAL_SYSTEM_MOCK_HPP_
