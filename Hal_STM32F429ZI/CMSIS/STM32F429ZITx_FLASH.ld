@@ -114,6 +114,19 @@ SECTIONS
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
+  /* SRAM interrupt vector array */
+  .vector_array : 
+  {
+    . = ALIGN(0x80);
+    KEEP(*(.vector_array))
+    _svector_array = .;        /* create a global symbol at vector_array start */
+    *(.vector_array)           /* .vector_array sections */
+    *(.vector_array*)          /* .vector_array* sections */
+
+    . = ALIGN(4);
+    _evector_array = .;        /* define a global symbol at vector_array end */
+  } >RAM AT> FLASH
+
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data : 
   {

@@ -34,7 +34,6 @@
 #include <stm32f4xx.h>
 #include <Utils_Assert.hpp>
 #include <Utils_Bit.hpp>
-#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -47,7 +46,7 @@
 namespace
 {
 
-GPIO_TypeDef* paGpios[] =
+GPIO_TypeDef* const paGpios[] =
 {
     GPIOA,
     GPIOB,
@@ -60,6 +59,21 @@ GPIO_TypeDef* paGpios[] =
     GPIOI,
     GPIOJ,
     GPIOK
+};
+
+const uint32_t clockEnableBits[] =
+{
+    RCC_AHB1ENR_GPIOAEN_Pos,
+    RCC_AHB1ENR_GPIOBEN_Pos,
+    RCC_AHB1ENR_GPIOCEN_Pos,
+    RCC_AHB1ENR_GPIODEN_Pos,
+    RCC_AHB1ENR_GPIOEEN_Pos,
+    RCC_AHB1ENR_GPIOFEN_Pos,
+    RCC_AHB1ENR_GPIOGEN_Pos,
+    RCC_AHB1ENR_GPIOHEN_Pos,
+    RCC_AHB1ENR_GPIOIEN_Pos,
+    RCC_AHB1ENR_GPIOJEN_Pos,
+    RCC_AHB1ENR_GPIOKEN_Pos
 };
 
 const uint32_t bitsInMode = 2UL;
@@ -119,6 +133,7 @@ void Gpio::SetConfiguration(gpioConfig_t& gpio)
 {
     Utils::Assert(gpio.pin.number <= 15U);
     
+    EnablePortClock(gpio.pin.port);
     SetMode(gpio.pin, gpio.mode);
     SetOpenDrain(gpio.pin, gpio.isOpenDrain);
     SetSpeed(gpio.pin, gpio.speed);
@@ -134,11 +149,11 @@ void Gpio::SetOutputState(Pin_t& pin, bool state)
     Utils::Assert(pin.number <= 15U);
     if (state == true)
     {
-        GPIO(pin.port)->BSRR = Utils::SetBit(GPIO(pin.port)->BSRR, pin.number, true);
+        Utils::SetBit(GPIO(pin.port)->BSRR, pin.number, true);
     }
     else
     {
-        GPIO(pin.port)->BSRR = Utils::SetBit(GPIO(pin.port)->BSRR, pin.number + bitClearOffset, true);
+        Utils::SetBit(GPIO(pin.port)->BSRR, pin.number + bitClearOffset, true);
     }
     return;
 }
@@ -169,7 +184,7 @@ GpioMode Gpio::GetMode(Pin_t& pin)
 void Gpio::SetMode(Pin_t& pin, GpioMode mode)
 {
     // See STM32F429ZI datasheet chapter 8.4.1.
-    GPIO(pin.port)->MODER = Utils::SetBits(GPIO(pin.port)->MODER, (pin.number * bitsInMode), modeMask, static_cast<uint32_t>(mode));
+    Utils::SetBits(GPIO(pin.port)->MODER, (pin.number * bitsInMode), modeMask, static_cast<uint32_t>(mode));
     return;
 }
 
@@ -180,7 +195,7 @@ bool Gpio::IsOpenDrain(Pin_t& pin)
 
 void Gpio::SetOpenDrain(Pin_t& pin, bool isOpenDrain)
 {
-    GPIO(pin.port)->OTYPER = Utils::SetBit(GPIO(pin.port)->OTYPER, pin.number, isOpenDrain);
+    Utils::SetBit(GPIO(pin.port)->OTYPER, pin.number, isOpenDrain);
     return;
 }
 
@@ -194,7 +209,7 @@ GpioSpeed Gpio::GetSpeed(Pin_t& pin)
 void Gpio::SetSpeed(Pin_t& pin, GpioSpeed speed)
 {
     // See STM32F429ZI datasheet chapter 8.4.3.
-    GPIO(pin.port)->OSPEEDR = Utils::SetBits(GPIO(pin.port)->OSPEEDR, (pin.number * bitsInSpeed), speedMask, static_cast<uint32_t>(speed));
+    Utils::SetBits(GPIO(pin.port)->OSPEEDR, (pin.number * bitsInSpeed), speedMask, static_cast<uint32_t>(speed));
     return;
 }
 
@@ -208,7 +223,7 @@ GpioPull Gpio::GetPull(Pin_t& pin)
 void Gpio::SetPull(Pin_t& pin, GpioPull pull)
 {
     // See STM32F429ZI datasheet chapter 8.4.4.
-    GPIO(pin.port)->PUPDR = Utils::SetBits(GPIO(pin.port)->PUPDR, (pin.number * bitsInPull), pullMask, static_cast<uint32_t>(pull));
+    Utils::SetBits(GPIO(pin.port)->PUPDR, (pin.number * bitsInPull), pullMask, static_cast<uint32_t>(pull));
     return;
 }
 
@@ -219,6 +234,12 @@ AlternateFunction Gpio::GetAlternateFunction(Pin_t& pin)
 
 void Gpio::SetAlternateFunction(Pin_t& pin, AlternateFunction alternateFunction)
 {
+    return;
+}
+
+void Gpio::EnablePortClock(Port port)
+{
+    Utils::SetBit(RCC->AHB1ENR, clockEnableBits[static_cast<uint32_t>(port)], true);
     return;
 }
 

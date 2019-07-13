@@ -17,46 +17,47 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Utils_Types.hpp
+//! @file    Utils_Assert_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    12 May 2019
+//! @date    20 May 2019
 //!
-//! @brief   Type definitions with some custom defines for unit testing purposes.
+//! @brief   Mock for assert.
+//! 
+//! This is mock for assert used in ASch. It also has helper functions for unit tests for reading and resetting failure count.
 
-#ifndef UTILS_TYPES_HPP_
-#define UTILS_TYPES_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <cstdint>
+#ifndef Utils_Assert_Mock_HPP_
+#define Utils_Assert_Mock_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#if (UNIT_TEST == 1)
-    #define static_mf       virtual //!< When unit testing static_mf functions convert into virtual functions to enable mocking.
-#else
-    #define static_mf       static  //!< In target build static_mf functions convert into static functions.
-#endif
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
+// 2. Module Headers
 //-----------------------------------------------------------------------------------------------------------------------------
 
-inline void Nop(void)
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASchMock
 {
-    (void)0;
-}
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
+class Assert
+{
+public:
+    /// @brief Simple constructor.
+    explicit Assert(void);
+    
+    /// @brief Initialises assert counter.
+    static void Init(void);
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
+    /// @brief Returns the number of asset failures.
+    static uint32_t GetFails(void);
+};
 
-#endif // UTILS_TYPES_HPP_
+} // namespace ASchMock
+
+#endif // Utils_Assert_Mock_HPP_

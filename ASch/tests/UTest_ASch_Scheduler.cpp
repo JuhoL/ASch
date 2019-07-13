@@ -134,7 +134,8 @@ uint8_t criticalSystemErrorCount = 0U;
 namespace Hal
 {
 
-void CriticalSystemError(void)
+//! @brief This is a mock implementation of System::CriticalSystemError().
+void System::CriticalSystemError(void)
 {
     ++criticalSystemErrorCount;
     return;
@@ -319,9 +320,9 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::global);
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::global);
-                REQUIRE_CALL_ORDER (CALL(mockIsr, Disable) + CALL(mockIsr, Enable));
+                REQUIRE_CALLS (1, mockIsr, DisableGlobal);
+                REQUIRE_CALLS (1, mockIsr, EnableGlobal);
+                REQUIRE_CALL_ORDER (CALL(mockIsr, DisableGlobal) + CALL(mockIsr, EnableGlobal));
             }
             AND_THEN ("the task count shall be one")
             {
@@ -681,9 +682,9 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
             THEN ("global interrupts shall be disabled and again enabled")
             {
-                REQUIRE_PARAM_CALLS (1, mockIsr, Disable, Hal::Interrupt::global);
-                REQUIRE_PARAM_CALLS (1, mockIsr, Enable, Hal::Interrupt::global);
-                REQUIRE_CALL_ORDER (CALL(mockIsr, Disable) + CALL(mockIsr, Enable));
+                REQUIRE_CALLS (1, mockIsr, DisableGlobal);
+                REQUIRE_CALLS (1, mockIsr, EnableGlobal);
+                REQUIRE_CALL_ORDER (CALL(mockIsr, DisableGlobal) + CALL(mockIsr, EnableGlobal));
             }
             AND_THEN ("wake up call shall occur")
             {

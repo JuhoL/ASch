@@ -162,7 +162,7 @@
 
 #endif
 
-#include "cmsis_compiler.h"               /* CMSIS compiler specific defines */
+#include "cmsis_compiler_mock.h"               /* CMSIS compiler specific defines */
 
 
 #ifdef __cplusplus
@@ -1570,7 +1570,7 @@ extern FPU_Type fpu;
 
 #define SCnSCB              (&Hal_Mock::scnScb)     /*!< System control Register not in SCB */
 #define SCB                 (&Hal_Mock::scb)        /*!< SCB configuration struct */
-#define SysTick             (&Hal_Mock::sysTick)    /*!< SysTick configuration struct */
+#define SYSTICK             (&Hal_Mock::sysTick)    /*!< SysTick configuration struct */
 #define NVIC                (&Hal_Mock::nvic)       /*!< NVIC configuration struct */
 #define ITM                 (&Hal_Mock::itm)        /*!< ITM configuration struct */
 #define DWT                 (&Hal_Mock::dwt)        /*!< DWT configuration struct */
@@ -1732,8 +1732,25 @@ __STATIC_INLINE void __NVIC_DisableIRQ(IRQn_Type IRQn)
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICER[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
-    __DSB();
-    __ISB();
+  }
+}
+
+
+/**
+  \brief   Gets Disable Interrupt state (for unit tests only!)
+  \details Gets a interrupt disable of a device specific interrupt in the NVIC interrupt controller.
+  \param [in]      IRQn  Device specific interrupt number.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE uint32_t NVIC_GetDisableIRQ(IRQn_Type IRQn)
+{
+  if ((int32_t)(IRQn) >= 0)
+  {
+    return((uint32_t)(((NVIC->ICER[(((uint32_t)IRQn) >> 5UL)] & (1UL << (((uint32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+  }
+  else
+  {
+    return(0U);
   }
 }
 
@@ -1785,6 +1802,26 @@ __STATIC_INLINE void __NVIC_ClearPendingIRQ(IRQn_Type IRQn)
   if ((int32_t)(IRQn) >= 0)
   {
     NVIC->ICPR[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
+  }
+}
+
+/**
+  \brief   Get Clear Pending Interrupt (only for unit tests!)
+  \details Reads the NVIC clear pending register and returns the clear pending bit for the specified device specific interrupt.
+  \param [in]      IRQn  Device specific interrupt number.
+  \return             0  Interrupt status is not pending.
+  \return             1  Interrupt status is pending.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE uint32_t NVIC_GetClearPendingIRQ(IRQn_Type IRQn)
+{
+  if ((int32_t)(IRQn) >= 0)
+  {
+    return((uint32_t)(((NVIC->ICPR[(((uint32_t)IRQn) >> 5UL)] & (1UL << (((uint32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+  }
+  else
+  {
+    return(0U);
   }
 }
 
@@ -1944,17 +1981,9 @@ __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
  */
 __NO_RETURN __STATIC_INLINE void __NVIC_SystemReset(void)
 {
-  __DSB();                                                          /* Ensure all outstanding memory accesses included
-                                                                       buffered write are completed before reset */
   SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
                            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
                             SCB_AIRCR_SYSRESETREQ_Msk    );         /* Keep priority group unchanged */
-  __DSB();                                                          /* Ensure completion of memory access */
-
-  for(;;)                                                           /* wait until reset */
-  {
-    __NOP();
-  }
 }
 
 /*@} end of CMSIS_Core_NVICFunctions */
@@ -2032,10 +2061,10 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     return (1UL);                                                   /* Reload value impossible */
   }
 
-  SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+  SYSTICK->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
   NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Interrupt */
-  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
+  SYSTICK->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+  SYSTICK->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
                    SysTick_CTRL_TICKINT_Msk   |
                    SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
   return (0UL);                                                     /* Function successful */

@@ -19,20 +19,26 @@ from Coverage import GenerateCoverageReport
 
 # This script builds given target
 def BuildTest(target, env, parameters, buildAll):
-    buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
-                  "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
-                  "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
-                  "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
+    buildFiles = {"sources"         : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
+                  "include"         : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
+                  "generalSources"  : "./Build/SCons_UTest/UTest_" + target.split('_')[0].capitalize() + "_General_Sources.scons",
+                  "generalInclude"  : "./Build/SCons_UTest/UTest_" + target.split('_')[0].capitalize() + "_General_Include.scons",
+                  "ccFlags"         : "./Build/SCons_UTest/UTestCcFlags.scons",
+                  "ldFlags"         : "./Build/SCons_UTest/UTestLdFlags.scons"}
     
     if GetOption('test') != None:
         # Build and run the tests
         BuildTarget(env, target, buildFiles)
         testRun = RunUnitTest(env, target)
+        testRunReport = GenerateXUnitReport(env, target)
         env.AlwaysBuild(testRun)
+        env.AlwaysBuild(testRunReport)
         if buildAll == True:
             env.Alias("all", testRun)
+            env.Alias("all", testRunReport)
         else:
             env.Alias(target, testRun)
+            env.Alias(target, testRunReport)
     
     if GetOption('cpp_check') != None:
         cppcheck = CppCheck(env, target, buildFiles)
@@ -54,13 +60,13 @@ else:
     release = Environment(tools = ['mingw', 'Binary', 'Doxygen'])
 
 # Configure ARM GCC for release
-release['AR'] = 'arm-eabi-ar'
-release['AS'] = 'arm-eabi-as'
-release['CC'] = 'arm-eabi-gcc'
-release['CXX'] = 'arm-eabi-g++'
-release['LINK'] = 'arm-eabi-g++'
-release['RANLIB'] = 'arm-eabi-ranlib'
-release['OBJCOPY'] = 'arm-eabi-objcopy'
+release['AR'] = 'arm-none-eabi-ar'
+release['AS'] = 'arm-none-eabi-as'
+release['CC'] = 'arm-none-eabi-gcc'
+release['CXX'] = 'arm-none-eabi-g++'
+release['LINK'] = 'arm-none-eabi-g++'
+release['RANLIB'] = 'arm-none-eabi-ranlib'
+release['OBJCOPY'] = 'arm-none-eabi-objcopy'
 release['PROGSUFFIX'] = '.elf'
 
 parameters = CreateDictionaryFromFile("./Build/SCons_UTest/UTestTargets.scons")
@@ -83,21 +89,18 @@ if GetOption('test') != None or GetOption('cpp_check') != None or GetOption('cov
 
     # Build all targets from the list.
     for target in targetList:
-        buildFiles = {"sources" : "./Build/SCons_UTest/UTest_" + target + "_Sources.scons",
-                       "include" : "./Build/SCons_UTest/UTest_" + target + "_Include.scons",
-                       "ccFlags" : "./Build/SCons_UTest/UTestCcFlags.scons",
-                       "ldFlags" : "./Build/SCons_UTest/UTestLdFlags.scons"}
         BuildTest(target, unitTest, parameters, buildAll)
 elif GetOption('doxygen') != None:
     targetList = COMMAND_LINE_TARGETS
     for target in targetList:
         Doxygen(release, target)
 else:
-    buildFiles = {"sources"  : "./Build/SCons_Release/Sources.scons",
-                  "include"  : "./Build/SCons_Release/Include.scons",
-                  "ccFlags"  : "./Build/SCons_Release/CcFlags.scons",
-                  "cxxFlags" : "./Build/SCons_Release/CxxFlags.scons",
-                  "ldFlags"  : "./Build/SCons_Release/LdFlags.scons",
-                  "cmsis"    : "./Build/SCons_Release/CmsisSources.scons"}
+    buildFiles = {"sources"         : "./Build/SCons_Release/Sources.scons",
+                  "include"         : "./Build/SCons_Release/Include.scons",
+                  "ccFlags"         : "./Build/SCons_Release/CcFlags.scons",
+                  "cxxFlags"        : "./Build/SCons_Release/CxxFlags.scons",
+                  "ldFlags"         : "./Build/SCons_Release/LdFlags.scons",
+                  "asmFlags"        : "./Build/SCons_Release/AsmFlags.scons",
+                  "cmsis"           : "./Build/SCons_Release/CmsisSources.scons"}
     asch = BuildTarget(release, 'ASch', buildFiles)
     release.Default(asch)

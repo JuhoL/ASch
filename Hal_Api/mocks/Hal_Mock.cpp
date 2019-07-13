@@ -40,9 +40,18 @@ namespace HalMock
 
 void InitIsr(Mock<Hal::Isr>& mockIsr)
 {
+    Fake(Method(mockIsr, Init));
+    Fake(Method(mockIsr, EnableGlobal));
+    Fake(Method(mockIsr, DisableGlobal));
     Fake(Method(mockIsr, SetHandler));
+    Fake(Method(mockIsr, GetHandler));
     Fake(Method(mockIsr, Enable));
     Fake(Method(mockIsr, Disable));
+    Fake(Method(mockIsr, SetPriority));
+    Fake(Method(mockIsr, GetPriority));
+    Fake(Method(mockIsr, SetPending));
+    Fake(Method(mockIsr, GetPending));
+    Fake(Method(mockIsr, Clear));
     return;
 }
 
@@ -58,6 +67,17 @@ void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
     Fake(Method(mockSysTick, SetInterval));
     Fake(Method(mockSysTick, Start));
     Fake(Method(mockSysTick, Stop));
+    Fake(Method(mockSysTick, IsRunning));
+    return;
+}
+
+void InitGpio(Mock<Hal::Gpio>& mockGpio)
+{
+    Fake(Method(mockGpio, GetConfiguration));
+    Fake(Method(mockGpio, SetConfiguration));
+    Fake(Method(mockGpio, SetOutputState));
+    Fake(Method(mockGpio, GetInputState));
+    Fake(Method(mockGpio, GetOutputState));
     return;
 }
 

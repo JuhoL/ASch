@@ -56,7 +56,7 @@ void AssertFailure(void);
 /// @brief This function is used for debug asserts. When DEBUG is not defined, this function is optimised away.
 inline void Assert(bool condition)
 {
-#ifdef DEBUG
+#if defined (DEBUG) || defined (UNIT_TEST)
     if (condition == false)
     {
         AssertFailure();
@@ -66,6 +66,12 @@ inline void Assert(bool condition)
 }
 
 } // namespace Utils
+
+#ifdef UNIT_TEST
+    #define ASSERT(condition)   Utils::Assert(condition); return;
+#else
+    #define ASSERT(condition)   Utils::Assert(condition);
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration

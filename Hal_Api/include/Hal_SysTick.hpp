@@ -72,6 +72,9 @@ public:
     
     /// @brief Stops the SysTick.
     static_mf void Stop(void);
+    
+    /// @brief Return true if the SysTick is running.
+    static_mf bool IsRunning(void);
 
 private:
     

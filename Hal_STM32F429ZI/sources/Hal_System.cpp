@@ -29,6 +29,9 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Hal_System.hpp>
+#include <stm32f4xx.h>
+#include <Utils_Assert.hpp>
+#include <Utils_Bit.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -68,7 +71,25 @@ void System::WakeUp(void)
     return;
 }
 
+void System::InitPowerControl(void)
+{
+    Utils::SetBit(RCC->APB1ENR, 28UL, true);
+
+    return;
+}
+
 void System::InitClocks(void)
+{
+    return;
+}
+
+void System::Reset(void)
+{
+    Utils::SetBit(SCB->AIRCR, 2UL, true);
+    return;
+}
+
+void System::CriticalSystemError(void)
 {
     return;
 }
@@ -78,16 +99,6 @@ void System::InitClocks(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
-{
-
-void CriticalSystemError(void)
-{
-    return;
-}
-
-}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions

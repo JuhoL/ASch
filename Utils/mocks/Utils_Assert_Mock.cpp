@@ -17,46 +17,60 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Utils_Types.hpp
+//! @file    Utils_Assert_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    12 May 2019
+//! @date    20 May 2019
 //!
-//! @brief   Type definitions with some custom defines for unit testing purposes.
-
-#ifndef UTILS_TYPES_HPP_
-#define UTILS_TYPES_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <cstdint>
+//! @brief   Mock for assert.
+//! 
+//! This is mock for assert used in ASch. It also has helper functions for unit tests for reading and resetting failure count.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#if (UNIT_TEST == 1)
-    #define static_mf       virtual //!< When unit testing static_mf functions convert into virtual functions to enable mocking.
-#else
-    #define static_mf       static  //!< In target build static_mf functions convert into static functions.
-#endif
+#include <Utils_Assert_Mock.hpp>
+#include <Utils_Assert.hpp>
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
 
-inline void Nop(void)
+namespace
 {
-    (void)0;
+
+uint32_t failureCount = 0UL;    //!< Number of failed asserts.
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
+// 2. Member Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace ASchMock
+{
+
+Assert::Assert(void)
+{
+    return;
+}
+
+void Assert::Init(void)
+{
+    failureCount = 0UL;
+    return;
+}
+
+uint32_t Assert::GetFails(void)
+{
+    return failureCount;
+}
+
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
+// 3. Mock Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#endif // UTILS_TYPES_HPP_
+void Utils::AssertFailure(void)
+{
+    ++failureCount;
+    return;
+}

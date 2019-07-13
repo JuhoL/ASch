@@ -32,6 +32,9 @@
 #include <Catch_Utils.hpp>
 
 #include <Hal_System.hpp>
+#include <Utils_Bit.hpp>
+#include <stm32f429xx_mock.h>
+#include <Utils_Assert_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -46,15 +49,41 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO ("The power control module is configured", "[hal_system]")
 {
-    GIVEN ("a_premise")
+    Hal_Mock::InitRccRegisters();
+
+    GIVEN ("a HAL System class is created")
     {
-        WHEN ("doing_something")
+        Hal::System system = Hal::System();
+
+        WHEN ("the power control is initialised")
         {
-            THEN ("something_shall_happen")
+            system.InitPowerControl();
+
+            THEN ("PWREN bit in APB1ENR register shall be set")
             {
-                REQUIRE (1 == 1);
+                REQUIRE (RCC->APB1ENR == Utils::Bit(RCC_APB1ENR_PWREN_Pos));
+            }
+        }
+    }
+}
+
+SCENARIO ("A MCU must be reset", "[hal_system]")
+{
+    Hal_Mock::InitScbRegisters();
+
+    GIVEN ("a HAL System class is created")
+    {
+        Hal::System system = Hal::System();
+
+        WHEN ("the reset function is called")
+        {
+            system.Reset();
+
+            THEN ("SYSRESETREQ bit in AIRCR register shall be set")
+            {
+                REQUIRE (SCB->AIRCR == Utils::Bit(SCB_AIRCR_SYSRESETREQ_Pos));
             }
         }
     }

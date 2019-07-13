@@ -11,34 +11,41 @@ import re
 import sys
 from ListCreator import CreateListFromFile
 
+def GetFiles(fileGroup, buildFiles):
+    try:
+        fileList = CreateListFromFile(buildFiles[fileGroup])
+    except Exception as e:
+        if fileGroup == "sources":
+            # Only sources are mandatory
+            print (e)
+            print ("ERROR: Gathering source files failed!")
+            print ("       Make sure you have created .scons file listings under ./Build/SCons_UTest and ./Build/SCons_Release.")
+            sys.exit(1)
+        else:
+            fileList = []
+    return fileList
+
 def BuildTarget(env, buildTarget, buildFiles):
     # Parse source files to be built from Sources.scons, include directories from Inlude.scons and CcFlags.scons files.
-    try:
-        sourceFiles = CreateListFromFile(buildFiles["sources"])
-    except Exception as e:
-        print (e)
-        print ("ERROR: Gathering source files failed!")
-        print ("       Make sure you have created .scons file listing in Build/Scons_UTest folder.")
-        sys.exit(1)
+    sourceFiles = GetFiles("sources", buildFiles)
+    includeFiles = GetFiles("include", buildFiles)
+    sourceFiles += GetFiles("generalSources", buildFiles)
+    includeFiles += GetFiles("generalInclude", buildFiles)
 
-    try:
-        env.AppendUnique(CPPPATH = CreateListFromFile(buildFiles["include"]))
-    except Exception as e:
-        print (e)
-        print ("ERROR: Gathering include directories failed!")
-        print ("       Make sure you have created .scons directory listing in Build/Scons_UTest folder.")
-        sys.exit(1)
+    env.AppendUnique(CPPPATH = includeFiles)
 
     if "ccFlags" in buildFiles:
         env.AppendUnique(CCFLAGS = CreateListFromFile(buildFiles["ccFlags"]))
         if env.GetOption('debug') != None:
-            env.AppendUnique(CCFLAGS = '-DDEBUG')
+            env.AppendUnique(CCFLAGS = ['-DDEBUG', '-g3'])
     if "cxxFlags" in buildFiles:
         env.AppendUnique(CXXFLAGS = CreateListFromFile(buildFiles["cxxFlags"]))
-        if env.GetOption('debug') != None:
-            env.AppendUnique(CCFLAGS = '-DDEBUG')
     if "ldFlags" in buildFiles:
         env.AppendUnique(LINKFLAGS = CreateListFromFile(buildFiles["ldFlags"]))
+    if "asmFlags" in buildFiles:
+        env.AppendUnique(ASFLAGS = CreateListFromFile(buildFiles["asmFlags"]))
+        if env.GetOption('debug') != None:
+            env.AppendUnique(ASFLAGS = '-g3')
 
     if buildTarget == 'ASch':
         targetString = "./Build/Release/ASch"

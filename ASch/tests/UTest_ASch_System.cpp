@@ -84,7 +84,8 @@ void PreStartConfig1(void)
 namespace Hal
 {
 
-void CriticalSystemError(void)
+//! @brief This is a mock implementation of System::CriticalSystemError().
+void System::CriticalSystemError(void)
 {
     ++criticalSystemErrorCount;
     return;

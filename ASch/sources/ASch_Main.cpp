@@ -33,6 +33,7 @@
 #include <Utils_Types.hpp>
 #include <ASch_System.hpp>
 #include <ASch_Scheduler.hpp>
+#include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -50,13 +51,6 @@
 // 5. Static Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
-{
-
-void Init(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -67,34 +61,9 @@ void Init(void);
 
 int main(void)
 {
-    Init();
-
-    while (UNIT_TEST == 0)
-    {
-        ; // Let the scheduler run.
-    }
-
+    ASch::System::Init();    
+    ASch::System::PreStartConfig();
+    ASch::Scheduler::Start();
+    ASch::SchedulerLoop();
     return 0;
 }
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 8. Static Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
-{
-
-void Init(void)
-{
-    ASch::System system = ASch::System();
-    system.Init();
-    
-    system.PreStartConfig();
-
-    ASch::Scheduler scheduler = ASch::Scheduler();
-    scheduler.Start();
-
-    return;
-}
-
-} // namespace ASch

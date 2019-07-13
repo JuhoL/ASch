@@ -35,6 +35,8 @@
 // 2. Mock Structs
 //-----------------------------------------------------------------------------------------------------------------------------
 
+bool isGlobalInterrtupEnabled = false;
+
 namespace Hal_Mock
 {
 
@@ -947,7 +949,7 @@ void InitSysTickRegisters(void)
     sysTick.CTRL    = 0x0UL;
     sysTick.LOAD    = 0x0UL;
     sysTick.VAL     = 0x0UL;
-    sysTick.CALIB   = 0x0UL;
+    sysTick.CALIB   = 1000UL;
     return;
 }
 
