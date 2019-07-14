@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2019 Juho Lepistö
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,53 +17,86 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Main.cpp
+//! @file    Hal_Gpio_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    13 May 2019
+//! @date    20 May 2019
 //!
-//! @class   Main
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   Mocks for HAL GPIO.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! These are mocks for HAL GPIO utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
-#include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
+#include <Hal_Gpio_Mock.hpp>
 #include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-int main(void)
+namespace HalMock
 {
-    ASch::System::Init();    
-    ASch::System::PreStartConfig();
-    ASch::Scheduler::Start();
-    ASch::Scheduler::MainLoop();
-    return 0;
+
+Mock<Gpio> mockHalGpio;
+static HalMock::Gpio& gpio = mockHalGpio.get();
+
+void InitSystem(void)
+{
+    static bool isFirstInit = true;
+
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalGpio, GetConfiguration));
+        Fake(Method(mockHalGpio, SetConfiguration));
+        Fake(Method(mockHalGpio, SetOutputState));
+        Fake(Method(mockHalGpio, GetInputState));
+        Fake(Method(mockHalGpio, GetOutputState));
+    }
+    else
+    {
+        mockHalGpio.Reset();
+    }
+    return;
 }
+
+} // namespace HalMock
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+void Gpio::GetConfiguration(gpioConfig_t& gpio)
+{
+    HalMock::gpio.GetConfiguration(gpio);
+    return;
+}
+
+void Gpio::SetConfiguration(gpioConfig_t& gpio)
+{
+    HalMock::gpio.SetConfiguration(gpio);
+    return;
+}
+
+void Gpio::SetOutputState(Pin_t& pin, bool state)
+{
+    HalMock::gpio.SetOutputState(pin, state);
+    return;
+}
+
+bool Gpio::GetInputState(Pin_t& pin)
+{
+    return HalMock::gpio.GetInputState(pin);;
+}
+
+bool Gpio::GetOutputState(Pin_t& pin)
+{
+    return HalMock::gpio.GetOutputState(pin);
+}
+
+} // namespace Hal
+

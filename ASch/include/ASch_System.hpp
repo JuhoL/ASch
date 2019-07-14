@@ -49,7 +49,7 @@ enum class SysError
     invalidParameters = 0,          //!< A function was called with invalid parameters.
     bufferOverflow,                 //!< A buffer has overflown.
     insufficientResources,          //!< System resources (e.g. task quota) has ran out.
-    multipleSchedulerInstances,     //!< A second scheduler is initialised.
+    accessNotPermitted,             //!< An attempt to access blocked resource has occurred.
     assertFailure,                  //!< A debug assert has failed.
     unknownError                    //!< An unknown error. Should never occur.
 };
@@ -77,33 +77,17 @@ namespace ASch
 class System
 {
 public:
-    /// @brief A constructor with dependency injections.
-    /// 
-    /// This constructor must be used when initialising the system or unit testing.
-    /// @param halSystem - A reference to HAL System module.
-    explicit System(Hal::System& halSystem);
-
-    /// @brief Simple constructor.
-    ///
-    /// A constructor to be used after the system has been initialised.
-    explicit System(void);
-
-    /// @brief A destructor to be used to deinit the scheduler.
-    ~System(void);
-
+    explicit System(void) {};
+    
     /// @brief This fuction raises a system error.
     /// @param error - Error type.
-    static_mf void Error(SysError error);
+    static void Error(SysError error);
 
     /// @brief This fuction initialises the system, e.f. clocks and other base peripherals.
-    static_mf void Init(void);
+    static void Init(void);
 
     /// @brief This function runs pre-start configuration functions.
-    static_mf void PreStartConfig(void);
-
-private:
-    // Dependencies
-    static Hal::System* pHalSystem; //!< Pointer to the HAL System module.
+    static void PreStartConfig(void);
 };
 
 } // namespace ASch

@@ -62,33 +62,8 @@ namespace ASch
 {
 
 //---------------------------------------
-// Initialise static members
-//---------------------------------------
-Hal::System* System::pHalSystem = 0;
-
-//---------------------------------------
 // Functions
 //---------------------------------------
-System::System(Hal::System& halSystem)
-{
-    pHalSystem = &halSystem;
-    return;
-}
-
-System::System(void)
-{
-    if (pHalSystem == 0)
-    {
-        Hal::System::CriticalSystemError();
-    }
-    return;
-}
-
-System::~System(void)
-{
-    pHalSystem = 0;
-    return;
-}
 
 void System::Error(SysError error)
 {

@@ -17,16 +17,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Mock.hpp
+//! @file    Hal_Gpio_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for ASch classes.
+//! @brief   Mocks for GPIO HAL.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef ASCH_MOCK_HPP_
-#define ASCH_MOCK_HPP_
+#ifndef HAL_GPIO_MOCK_HPP_
+#define HAL_GPIO_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Framework Dependencies
@@ -37,22 +37,30 @@
 using namespace fakeit;
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Module Headers
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <ASch_Scheduler.hpp>
-#include <ASch_System.hpp>
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Mock Init Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASchMock
+namespace HalMock
 {
 
-void InitScheduler(Mock<ASch::Scheduler>& mockScheduler);
-void InitSystem(Mock<ASch::System>& mockSystem);
+//! @class Gpio
+//! @brief This is a mock class for GPIO HAL
+class Gpio
+{
+public:
+    explicit Gpio(void) {};
+    virtual void GetConfiguration(gpioConfig_t& gpio);
+    virtual void SetConfiguration(gpioConfig_t& gpio);
+    virtual void SetOutputState(Pin_t& pin, bool state);
+    virtual bool GetInputState(Pin_t& pin);
+    virtual bool GetOutputState(Pin_t& pin);
+};
 
-} // namespace ASchMock
+extern Mock<Gpio> mockHalGpio;
 
-#endif // ASCH_MOCK_HPP_
+/// @brief This function initialises the HAL Gpio mock.
+void InitGpio(void);
+
+} // namespace HalMock
+
+#endif // HAL_GPIO_MOCK_HPP_

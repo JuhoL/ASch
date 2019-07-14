@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2019 Juho Lepistö
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,53 +17,51 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Main.cpp
+//! @file    ASch_System_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    13 May 2019
+//! @date    20 May 2019
 //!
-//! @class   Main
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   Mocks for ASch System.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+
+#ifndef ASCH_SYSTEM_MOCK_HPP_
+#define ASCH_SYSTEM_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
 #include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
-#include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-int main(void)
+namespace ASchMock
 {
-    ASch::System::Init();    
-    ASch::System::PreStartConfig();
-    ASch::Scheduler::Start();
-    ASch::Scheduler::MainLoop();
-    return 0;
-}
+
+//! @class System
+//! @brief This is a mock class for ASch System
+class System
+{
+public:
+    explicit System(void) {};
+    virtual void Error(ASch::SysError error);
+    virtual void Init(void);
+    virtual void PreStartConfig(void);
+};
+
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<System> mockASchSystem;
+
+/// @brief This function initialises the ASch System mock.
+void InitSystem(void);
+
+} // namespace ASchMock
+
+#endif // ASCH_SYSTEM_MOCK_HPP_

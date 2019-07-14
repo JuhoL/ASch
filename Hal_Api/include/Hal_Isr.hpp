@@ -69,57 +69,57 @@ class Isr
 {
 public:
     /// @brief Simple constructor.
-    explicit Isr(void);
+    explicit Isr(void) {};
 
     /// @brief Initialises all the interrupts.
-    static_mf void Init(void);
+    static void Init(void);
 
     /// @brief This function enables global interrupts.
-    static_mf void EnableGlobal(void);
+    static void EnableGlobal(void);
 
     /// @brief This function disables global interrupts.
-    static_mf void DisableGlobal(void);
+    static void DisableGlobal(void);
     
     /// @brief This function sets a handler for the given interrupt.
     /// @param type - Interrupt type.
     /// @param Handler - Pointer to the interrupt handler.
-    static_mf void SetHandler(Interrupt type, interruptHandler_t Handler);
+    static void SetHandler(Interrupt type, interruptHandler_t Handler);
     
     /// @brief This function gets the handler of the given interrupt.
     /// @param type - Interrupt type.
     /// @return Pointer to the interrupt handler.
-    static_mf interruptHandler_t GetHandler(Interrupt type);
+    static interruptHandler_t GetHandler(Interrupt type);
 
     /// @brief This function enables given interrupt.
     /// @param type - Interrupt type.
-    static_mf void Enable(Interrupt type);
+    static void Enable(Interrupt type);
 
     /// @brief This function disables given interrupt.
     /// @param type - Interrupt type
-    static_mf void Disable(Interrupt type);
+    static void Disable(Interrupt type);
 
     /// @brief This function enables given interrupt.
     /// @param type - Interrupt type.
     /// @param priority - Interrupt priority.
-    static_mf void SetPriority(Interrupt type, uint32_t priority);
+    static void SetPriority(Interrupt type, uint32_t priority);
 
     /// @brief This function disables given interrupt.
     /// @param type - Interrupt type
     /// @return Interrupt priority.
-    static_mf uint8_t GetPriority(Interrupt type);
+    static uint8_t GetPriority(Interrupt type);
 
     /// @brief This function sets the given interrupt pending.
     /// @param type - Interrupt type.
-    static_mf void SetPending(Interrupt type);
+    static void SetPending(Interrupt type);
 
     /// @brief This function checks if the given interrupt is pending.
     /// @param type - Interrupt type
     /// @return True if the interrupt is pending, false otherwise.
-    static_mf bool GetPending(Interrupt type);
+    static bool GetPending(Interrupt type);
 
     /// @brief This function clears the given pending interrupt.
     /// @param type - Interrupt type.
-    static_mf void Clear(Interrupt type);
+    static void Clear(Interrupt type);
 
 private:
 

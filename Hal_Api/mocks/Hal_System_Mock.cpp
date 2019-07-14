@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2019 Juho Lepistö
+// Copyright (c) 2018 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,53 +17,102 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Main.cpp
+//! @file    Hal_System_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    13 May 2019
+//! @date    20 May 2019
 //!
-//! @class   Main
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   Mocks for HAL System.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! These are mocks for HAL System utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
-#include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
-#include <Hal_Gpio.hpp>
+#include <Hal_System_Mock.hpp>
+#include <Hal_System.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-int main(void)
+namespace HalMock
 {
-    ASch::System::Init();    
-    ASch::System::PreStartConfig();
-    ASch::Scheduler::Start();
-    ASch::Scheduler::MainLoop();
-    return 0;
+
+Mock<System> mockHalSystem;
+static HalMock::System& system = mockHalSystem.get();
+
+void InitSystem(void)
+{
+    static bool isFirstInit = true;
+
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalSystem, Sleep));
+        Fake(Method(mockHalSystem, WakeUp));
+        Fake(Method(mockHalSystem, InitPowerControl));
+        Fake(Method(mockHalSystem, InitClocks));
+        Fake(Method(mockHalSystem, Reset));
+        Fake(Method(mockHalSystem, CriticalSystemError));
+
+        isFirstInit = false;
+    }
+    else
+    {
+        mockHalSystem.ClearInvocationHistory();
+    }
+    return;
 }
+
+} // namespace HalMock
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+System::System(void)
+{
+    return;
+}
+
+void System::Sleep(void)
+{
+    HalMock::system.Sleep();
+    return;
+}
+
+void System::WakeUp(void)
+{
+    HalMock::system.WakeUp();
+    return;
+}
+
+void System::InitPowerControl(void)
+{
+    HalMock::system.InitPowerControl();
+    return;
+}
+
+void System::InitClocks(void)
+{
+    HalMock::system.InitClocks();
+    return;
+}
+
+void System::Reset(void)
+{
+    HalMock::system.Reset();
+    return;
+}
+
+void System::CriticalSystemError(void)
+{
+    HalMock::system.CriticalSystemError();
+    return;
+}
+
+} // namespace Hal
+

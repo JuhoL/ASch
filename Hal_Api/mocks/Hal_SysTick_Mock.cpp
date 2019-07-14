@@ -17,57 +17,82 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Mock.hpp
+//! @file    Hal_SysTick_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL classes.
+//! @brief   Mocks for SysTick HAL.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
-
-#ifndef HAL_MOCK_HPP_
-#define HAL_MOCK_HPP_
+//! These are mocks for SysTick HAL utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Framework Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 2. Module Headers
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <Hal_Isr.hpp>
-#include <Hal_System.hpp>
+#include <Hal_SysTick_Mock.hpp>
 #include <Hal_SysTick.hpp>
-#include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Mock Init Prototypes
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace HalMock
 {
 
-/// @brief This function initialises the HAL ISR mock.
-/// @param mockIsr - A reference to the HAL ISR mock class.
-void InitIsr(Mock<Hal::Isr>& mockIsr);
+Mock<SysTick> mockHalSysTick;
+static HalMock::SysTick& sysTick = mockHalSysTick.get();
 
-/// @brief This function initialises the HAL System mock.
-/// @param mockSystem - A reference to the HAL System mock class.
-void InitSystem(Mock<Hal::System>& mockHalSystem);
+void InitSysTick(void)
+{
+    static bool isFirstInit = true;
 
-/// @brief This function initialises the HAL SysTick mock.
-/// @param mockSysTick - A reference to the HAL SysTick mock class.
-void InitSysTick(Mock<Hal::SysTick>& mockSysTick);
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalSysTick, SetInterval));
+        Fake(Method(mockHalSysTick, Start));
+        Fake(Method(mockHalSysTick, Stop));
+        Fake(Method(mockHalSysTick, IsRunning));
 
-/// @brief This function initialises the HAL GPIO mock.
-/// @param mockGpio - A reference to the HAL GPIO mock class.
-void InitGpio(Mock<Hal::Gpio>& mockGpio);
+        isFirstInit = false;
+    }
+    else
+    {
+        mockHalSysTick.ClearInvocationHistory();
+    }
+    return;
+}
 
 } // namespace HalMock
 
-#endif // HAL_MOCK_HPP_
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+void SysTick::SetInterval(uint16_t intervalIn01Ms)
+{
+    HalMock::sysTick.SetInterval(intervalIn01Ms);
+    return;
+}
+
+void SysTick::Start(void)
+{
+    HalMock::sysTick.Start();
+    return;
+}
+
+void SysTick::Stop(void)
+{
+    HalMock::sysTick.Stop();
+    return;
+}
+
+bool SysTick::IsRunning(void)
+{
+    return HalMock::sysTick.IsRunning();
+}
+
+} // namespace Hal
+

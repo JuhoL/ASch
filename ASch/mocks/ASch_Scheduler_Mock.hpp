@@ -17,68 +17,61 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Mock.cpp
+//! @file    ASch_Scheduler_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for HAL classes.
+//! @brief   Mocks for ASch System.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <Hal_Mock.hpp>
+#ifndef ASCH_SCHEDULER_MOCK_HPP_
+#define ASCH_SCHEDULER_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Functions
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace HalMock
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Mock Init Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASchMock
 {
 
-void InitIsr(Mock<Hal::Isr>& mockIsr)
+//! @class Scheduler
+//! @brief This is a mock class for ASch Scheduler
+class Scheduler
 {
-    Fake(Method(mockIsr, Init));
-    Fake(Method(mockIsr, EnableGlobal));
-    Fake(Method(mockIsr, DisableGlobal));
-    Fake(Method(mockIsr, SetHandler));
-    Fake(Method(mockIsr, GetHandler));
-    Fake(Method(mockIsr, Enable));
-    Fake(Method(mockIsr, Disable));
-    Fake(Method(mockIsr, SetPriority));
-    Fake(Method(mockIsr, GetPriority));
-    Fake(Method(mockIsr, SetPending));
-    Fake(Method(mockIsr, GetPending));
-    Fake(Method(mockIsr, Clear));
-    return;
-}
+public:
+    explicit Scheduler(void) {};
+    virtual void Start(void);
+    virtual void Stop(void);
+    virtual SchedulerStatus GetStatus(void);
+    virtual uint8_t GetTaskCount(void);
+    virtual void CreateTask(task_t task);
+    virtual void DeleteTask(taskHandler_t taskHandler);
+    virtual uint16_t GetTaskInterval(uint8_t taskId);
+    virtual void RunTasks(void);
+    virtual void Sleep(void);
+    virtual void WakeUp(void);
+    virtual void PushEvent(event_t const& event);
+    virtual void RunEvents(void);
+    virtual void RegisterMessageListener(messageListener_t const& listener);
+    virtual void UnregisterMessageListener(messageListener_t const& listener);
+    virtual uint8_t GetNumberOfMessageListeners(Message type);
+    virtual void PushMessage(message_t const& message);
+};
 
-void InitSystem(Mock<Hal::System>& mockHalSystem)
-{
-    Fake(Method(mockHalSystem, Sleep));
-    Fake(Method(mockHalSystem, WakeUp));
-    return;
-}
+extern Mock<Scheduler> mockASchScheduler;
 
-void InitSysTick(Mock<Hal::SysTick>& mockSysTick)
-{
-    Fake(Method(mockSysTick, SetInterval));
-    Fake(Method(mockSysTick, Start));
-    Fake(Method(mockSysTick, Stop));
-    Fake(Method(mockSysTick, IsRunning));
-    return;
-}
+/// @brief This function initialises the ASch Scheduler mock.
+void InitScheduler(void);
 
-void InitGpio(Mock<Hal::Gpio>& mockGpio)
-{
-    Fake(Method(mockGpio, GetConfiguration));
-    Fake(Method(mockGpio, SetConfiguration));
-    Fake(Method(mockGpio, SetOutputState));
-    Fake(Method(mockGpio, GetInputState));
-    Fake(Method(mockGpio, GetOutputState));
-    return;
-}
+} // namespace ASchMock
 
-} // namespace HalMock
+#endif // ASCH_SCHEDULER_MOCK_HPP_

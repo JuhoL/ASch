@@ -17,72 +17,137 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System.hpp
+//! @file    Hal_Isr_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Oct 2018
+//! @date    20 May 2019
 //!
-//! @class   System
-//! @brief   This is HAL interface for system level functionality.
-
-#ifndef HAL_SYSTEM_HPP_
-#define HAL_SYSTEM_HPP_
+//! @brief   Mocks for HAL Isr.
+//! 
+//! These are mocks for HAL Isr utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Utils_Types.hpp>
+#include <Hal_Isr_Mock.hpp>
+#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Typedefs, Structs, Enums and Constants
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
+namespace HalMock
+{
+
+Mock<Isr> mockHalIsr;
+static HalMock::Isr& isr = mockHalIsr.get();
+
+void InitIsr(void)
+{
+    static bool isFirstInit = true;
+
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalIsr, Init));
+        Fake(Method(mockHalIsr, EnableGlobal));
+        Fake(Method(mockHalIsr, DisableGlobal));
+        Fake(Method(mockHalIsr, SetHandler));
+        Fake(Method(mockHalIsr, GetHandler));
+        Fake(Method(mockHalIsr, Enable));
+        Fake(Method(mockHalIsr, Disable));
+        Fake(Method(mockHalIsr, SetPriority));
+        Fake(Method(mockHalIsr, GetPriority));
+        Fake(Method(mockHalIsr, SetPending));
+        Fake(Method(mockHalIsr, GetPending));
+        Fake(Method(mockHalIsr, Clear));
+
+        isFirstInit = false;
+    }
+    else
+    {
+        mockHalIsr.ClearInvocationHistory();
+    }
+    return;
+}
+
+} // namespace HalMock
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
+// 3. Mock Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace Hal
 {
 
-//! @class System
-//! @brief This is HAL interface for system level functionality.
-//! This class handler system clocks and power management.
-class System
+void Isr::Init(void)
 {
-public:
-    /// @brief Simple constructor.
-    explicit System(void);
+    HalMock::isr.Init();
+    return;
+}
 
-    /// @brief Puts the system into sleep.
-    static void Sleep(void);
+void Isr::EnableGlobal(void)
+{
+    HalMock::isr.EnableGlobal();
+    return;
+}
 
-    /// @brief Wakes the system up from sleep.
-    static void WakeUp(void);
-    
-    /// @brief Initialises power control.
-    static void InitPowerControl(void);
-    
-    /// @brief Initialises system clocks.
-    static void InitClocks(void);
+void Isr::DisableGlobal(void)
+{
+    HalMock::isr.DisableGlobal();
+    return;
+}
 
-    /// @brief Performs MCU reset.
-    static void Reset(void);
+void Isr::SetHandler(Interrupt type, interruptHandler_t Handler)
+{
+    HalMock::isr.SetHandler(type, Handler);
+    return;
+}
 
-    /// @brief Critical system error handler. Halts the CPU.
-    static void CriticalSystemError(void);
+interruptHandler_t Isr::GetHandler(Interrupt type)
+{
+    return HalMock::isr.GetHandler(type);
+}
 
-private:
-    
-};
+void Isr::Enable(Interrupt type)
+{
+    HalMock::isr.Enable(type);
+    return;
+}
+
+void Isr::Disable(Interrupt type)
+{
+    HalMock::isr.Disable(type);
+    return;
+}
+
+void Isr::SetPriority(Interrupt type, uint32_t priority)
+{
+    HalMock::isr.SetPriority(type, priority);
+    return;
+}
+
+uint8_t Isr::GetPriority(Interrupt type)
+{
+    return HalMock::isr.GetPriority(type);
+}
+
+void Isr::SetPending(Interrupt type)
+{
+    HalMock::isr.SetPending(type);
+    return;
+}
+
+bool Isr::GetPending(Interrupt type)
+{
+    return HalMock::isr.GetPending(type);
+}
+
+void Isr::Clear(Interrupt type)
+{
+    HalMock::isr.Clear(type);
+    return;
+}
+
 
 } // namespace Hal
 
-#endif // HAL_SYSTEM_HPP_

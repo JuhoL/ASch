@@ -184,11 +184,6 @@ namespace Hal
 //---------------------------------------
 // Functions
 //---------------------------------------
-Isr::Isr(void)
-{
-    return;
-}
-
 void Isr::Init(void)
 {
     if (UNIT_TEST == 0)

@@ -17,88 +17,60 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    UTest_ASch_System.cpp
-//! @author  Juho Lepistö juho.lepisto(a)gmail.com
-//! @date    20 Aug 2018
+//! @file    Hal_Isr_Mock.hpp
+//! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
+//! @date    20 May 2019
+//!
+//! @brief   Mocks for ISR HAL.
 //! 
-//! @brief   These are unit tests for ASch_System.cpp
-//! 
-//! These are unit tests for ASch_System.cpp utilising Catch2 and FakeIt.
+//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+
+#ifndef HAL_ISR_MOCK_HPP_
+#define HAL_ISR_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Framework Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Catch_Utils.hpp>
+#include <catch.hpp>
+#include <fakeit.hpp>
+using namespace fakeit;
 
-#define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
-
-#include <Hal_System_Mock.hpp>
-
-#include <ASch_System.hpp>
-#include <ASch_Configuration.hpp>
+#include <Hal_Isr.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Test Structs and Variables
+// 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
+namespace HalMock
 {
 
-#define MOCK_SYSTEM()       ASch::System(mockSystem.get())
-
-// Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
-uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
-
-void InitConfigCallCounts(void)
+//! @class Isr
+//! @brief This is a mock class for ISR HAL
+class Isr
 {
-    for (std::size_t i = 0; i < ASch::preStartConfigurationFunctionsMax; ++i)
-    {
-        preStartConfigCallCount[i] = 0U;
-    }
+public:
+    explicit Isr(void) {};
+    virtual void Init(void);
+    virtual void EnableGlobal(void);
+    virtual void DisableGlobal(void);
+    virtual void SetHandler(Hal::Interrupt type, Hal::interruptHandler_t Handler);
+    virtual Hal::interruptHandler_t GetHandler(Hal::Interrupt type);
+    virtual void Enable(Hal::Interrupt type);
+    virtual void Disable(Hal::Interrupt type);
+    virtual void SetPriority(Hal::Interrupt type, uint32_t priority);
+    virtual uint8_t GetPriority(Hal::Interrupt type);
+    virtual void SetPending(Hal::Interrupt type);
+    virtual bool GetPending(Hal::Interrupt type);
+    virtual void Clear(Hal::Interrupt type);
+};
 
-    return;
-}
+/// @brief The mock entity for accessing FakeIt interface.
+extern Mock<Isr> mockHalIsr;
 
-} // anonymous namespace
+/// @brief This function initialises the HAL System mock.
+void InitIsr(void);
 
-namespace ASch
-{
+} // namespace HalMock
 
-void PreStartConfig0(void)
-{
-    ++preStartConfigCallCount[0];
-    return;
-}
-
-void PreStartConfig1(void)
-{
-    ++preStartConfigCallCount[1];
-    return;
-}
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Test Cases
-//-----------------------------------------------------------------------------------------------------------------------------
-
-SCENARIO ("A system is configured", "[system]")
-{
-    InitConfigCallCounts();
-    
-    GIVEN ("a system object is created")
-    {
-        WHEN ("pre-start config is called")
-        {
-            ASch::System::PreStartConfig();
-
-            THEN ("all pre-start config functions shall be called once")
-            {
-                REQUIRE (preStartConfigCallCount[0] == 1U);
-                REQUIRE (preStartConfigCallCount[1] == 1U);
-            }
-        }
-    }
-}
-
+#endif // HAL_ISR_MOCK_HPP_
