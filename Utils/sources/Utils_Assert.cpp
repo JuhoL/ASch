@@ -62,8 +62,7 @@ namespace Utils
 
 void AssertFailure(void)
 {
-    ASch::System system = ASch::System();
-    system.Error(ASch::SysError::assertFailure);
+    ASch::System::Error(ASch::SysError::assertFailure);
     return;
 }
 

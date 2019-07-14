@@ -54,24 +54,25 @@ namespace Utils
 void AssertFailure(void);
 
 /// @brief This function is used for debug asserts. When DEBUG is not defined, this function is optimised away.
-inline void Assert(bool condition)
+/// @param condition - An assert condition to be checked.
+/// @return Returns true if assert failed.
+inline bool Assert(bool condition)
 {
 #if defined (DEBUG) || defined (UNIT_TEST)
     if (condition == false)
     {
         AssertFailure();
     }
+    return !condition;
+#else
+    return false;
 #endif
-    return;
 }
 
 } // namespace Utils
 
-#ifdef UNIT_TEST
-    #define ASSERT(condition)   Utils::Assert(condition); return;
-#else
-    #define ASSERT(condition)   Utils::Assert(condition);
-#endif
+#define ASSERT_RETVAL(condition, retVal)    { if (Utils::Assert(condition) == true) { return retVal; } }
+#define ASSERT(condition)                   { if (Utils::Assert(condition) == true) { return; } }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration

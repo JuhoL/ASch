@@ -35,6 +35,7 @@
 #endif
 
 #include <ASch_System.hpp>
+#include <ASch_Scheduler.hpp>
 #include <ASch_Configuration.hpp>
 #include <Hal_System.hpp>
 
@@ -72,6 +73,7 @@ void System::Error(SysError error)
 
 void System::Init(void)
 {
+    Scheduler::Init(Config::schedulerTickInterval);
     return;
 }
 

@@ -213,20 +213,20 @@ private:
         bool isRunning;
     } taskState_t;
 
-    static taskState_t taskStates[ASch::schedulerTasksMax]; //!< Task states.
+    static taskState_t taskStates[Config::schedulerTasksMax]; //!< Task states.
     static volatile bool runTasks;  //!< An indication to run the tasks.
     static volatile bool runEvents; //!< An indication to run the events.
     static uint8_t msPerTick;       //!< How many ms is one tick.
 
     static SchedulerStatus status;  //!< Current scheduler status
     
-    static uint8_t taskCount;               //!< Current task count.
-    static task_t tasks[schedulerTasksMax]; //!< List of tasks limited by configuration variable schedulerTasksMax
+    static uint8_t taskCount;                       //!< Current task count.
+    static task_t tasks[Config::schedulerTasksMax]; //!< List of tasks limited by configuration variable schedulerTasksMax
 
-    static Utils::Queue<event_t, schedulerEventsMax> eventQueue;    //!< Event queue.
+    static Utils::Queue<event_t, Config::schedulerEventsMax> eventQueue;    //!< Event queue.
 
     static uint8_t messageListenerCount;                            //!< Current message listener total count.
-    static messageListener_t messageListeners[messageListenersMax]; //!< List of message listeners limited by a configuration variable messageListenersMax.
+    static messageListener_t messageListeners[Config::messageListenersMax]; //!< List of message listeners limited by a configuration variable messageListenersMax.
 };
 
 } // namespace ASch

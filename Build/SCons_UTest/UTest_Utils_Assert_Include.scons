@@ -1,3 +1,6 @@
 ./Config/include
+./ASch/include
+./ASch/mocks
+./Hal_Api/include
 ./Utils/sources
 ./Utils/include

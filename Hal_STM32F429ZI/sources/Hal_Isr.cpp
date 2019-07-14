@@ -189,7 +189,7 @@ void Isr::Init(void)
     if (UNIT_TEST == 0)
     {
         // Check that the handler array aligns to 0x80.
-        Utils::Assert((reinterpret_cast<uint32_t>(Handlers) & 0x7FUL) == 0x0UL);
+        ASSERT((reinterpret_cast<uint32_t>(Handlers) & 0x7FUL) == 0x0UL);
     }
     for (uint32_t i = 0U; i < static_cast<uint32_t>(Interrupt::max); ++i)
     {
@@ -213,7 +213,7 @@ void Isr::DisableGlobal(void)
 
 void Isr::SetHandler(Interrupt type, const interruptHandler_t Handler)
 {
-    Utils::Assert(Handler != 0);
+    ASSERT(Handler != 0);
     Handlers[static_cast<std::size_t>(type)] = Handler;
     return;
 }
@@ -225,7 +225,7 @@ interruptHandler_t Isr::GetHandler(Interrupt type)
 
 void Isr::Enable(Interrupt type)
 {
-    Utils::Assert(Handlers[static_cast<std::size_t>(type)] != 0);
+    ASSERT(Handlers[static_cast<std::size_t>(type)] != 0);
     NVIC_EnableIRQ(irqNumbers[static_cast<std::size_t>(type)]);
     return;
 }
@@ -238,7 +238,7 @@ void Isr::Disable(Interrupt type)
 
 void Isr::SetPriority(Interrupt type, uint32_t priority)
 {
-    Utils::Assert(type != Interrupt::nonMaskableInt);
+    ASSERT(type != Interrupt::nonMaskableInt);
     NVIC_SetPriority(irqNumbers[static_cast<std::size_t>(type)], priority);
     return;
 }

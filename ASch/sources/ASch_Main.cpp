@@ -59,7 +59,11 @@
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+#if (UNIT_TEST == 1)
+int main_test(void)
+#else
 int main(void)
+#endif
 {
     ASch::System::Init();    
     ASch::System::PreStartConfig();

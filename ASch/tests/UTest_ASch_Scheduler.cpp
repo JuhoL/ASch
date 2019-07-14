@@ -431,14 +431,14 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
         WHEN ("developer fills the scheduler up to task limit")
         {
-            for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
+            for (uint8_t i = 0U; i < ASch::Config::schedulerTasksMax; ++i)
             {
                 ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             THEN ("task count shall be schedulerTasksMax")
             {
-                REQUIRE (ASch::Scheduler::GetTaskCount() == ASch::schedulerTasksMax);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == ASch::Config::schedulerTasksMax);
             }
             AND_THEN ("no errors shall be triggered")
             {
@@ -560,14 +560,14 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
         WHEN ("developer fills the scheduler task limit")
         {
-            for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
+            for (uint8_t i = 0U; i < ASch::Config::schedulerTasksMax; ++i)
             {
                 ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             AND_WHEN ("developer tries to create another task")
             {
-                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::schedulerTasksMax]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::Config::schedulerTasksMax]});
 
                 THEN ("system error shall trigger")
                 {
@@ -584,7 +584,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
         WHEN ("developer tries to read task interval with an invalid ID")
         {
-            uint16_t taskInterval = ASch::Scheduler::GetTaskInterval(ASch::schedulerTasksMax);
+            uint16_t taskInterval = ASch::Scheduler::GetTaskInterval(ASch::Config::schedulerTasksMax);
 
             THEN ("the task interval will be set to zero")
             {
@@ -717,7 +717,7 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
             uint8_t testData0 = 0x12U;
             ASch::event_t testEvent = {.Handler = TestEventHandler0, .pPayload = static_cast<void*>(&testData0)};
 
-            for (std::size_t i = 0; i < ASch::schedulerEventsMax; ++i)
+            for (std::size_t i = 0; i < ASch::Config::schedulerEventsMax; ++i)
             {
                 ASch::Scheduler::PushEvent(testEvent);
             }

@@ -34,6 +34,7 @@
 #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
 
 #include <Hal_System_Mock.hpp>
+#include <ASch_Scheduler_Mock.hpp>
 
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
@@ -44,8 +45,6 @@
 
 namespace
 {
-
-#define MOCK_SYSTEM()       ASch::System(mockSystem.get())
 
 // Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
 uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
@@ -85,9 +84,23 @@ void PreStartConfig1(void)
 
 SCENARIO ("A system is configured", "[system]")
 {
+    ASchMock::InitScheduler();
     InitConfigCallCounts();
     
-    GIVEN ("a system object is created")
+    GIVEN ("a system is not yet initialised")
+    {
+        WHEN ("initialisation function is called")
+        {
+            ASch::System::Init();
+
+            THEN ("scheduler shall be initialised with configured tick value")
+            {
+                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchScheduler, Init, ASch::Config::schedulerTickInterval);
+            }
+        }
+    }
+    
+    GIVEN ("a system is not yet initialised")
     {
         WHEN ("pre-start config is called")
         {
