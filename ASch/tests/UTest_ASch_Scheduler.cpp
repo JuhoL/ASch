@@ -138,8 +138,9 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 {
     HalMock::InitIsr();
     HalMock::InitSysTick();
+    ASch::Scheduler::Deinit();
 
-    GIVEN ("a scheduler is not yet created")
+    GIVEN ("a scheduler is not yet initialised")
     {
         WHEN ("a scheduler is initialised")
         {
@@ -214,9 +215,12 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
 
 SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
 {
+    HalMock::InitIsr();
+    HalMock::InitSysTick();
     ASchMock::InitSystem();
+    ASch::Scheduler::Deinit();
 
-    GIVEN ("a scheduler is not yet created")
+    GIVEN ("a scheduler is not yet initialsied")
     {
         WHEN ("a scheduler is initialised with interval of 0ms")
         {
@@ -230,7 +234,22 @@ SCENARIO ("Developer configures scheduler wrong", "[scheduler]")
         }
     }
 
-    // ToDo: Initialising a running scheduler.
+    GIVEN ("a scheduler is running")
+    {
+        ASch::Scheduler::Init(1UL);
+        ASch::Scheduler::Start();
+
+        WHEN ("developer reinitialises the scheduler")
+        {
+            ASch::Scheduler::Init(2UL);
+
+            THEN ("a system error shall occur")
+            {
+                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::accessNotPermitted);
+                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::error);
+            }
+        }
+    }
 }
 
 SCENARIO ("Developer configures tasks successfully", "[scheduler]")
@@ -239,6 +258,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
     HalMock::InitSystem();
     ASchMock::InitSystem();
     InitCallCounters();
+    ASch::Scheduler::Deinit();
 
     GIVEN ("the scheduler is running and task list is empty")
     {
@@ -483,7 +503,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                         AND_WHEN ("main loop runs once")
                         {
-                            ASch::SchedulerLoop();
+                            ASch::Scheduler::MainLoop();
 
                             THEN ("sleep shall not occur yet")
                             {
@@ -491,7 +511,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                                 AND_WHEN ("main loops runs another time one idle run")
                                 {
-                                    ASch::SchedulerLoop();
+                                    ASch::Scheduler::MainLoop();
 
                                     THEN ("sleep call shall occur without additional wakeup")
                                     {
@@ -512,6 +532,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 {
     ASchMock::InitSystem();
     InitCallCounters();
+    ASch::Scheduler::Deinit();
 
     GIVEN ("the scheduler is running and task list is empty")
     {        
@@ -578,6 +599,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
     HalMock::InitIsr();
     HalMock::InitSystem();
     InitCallCounters();
+    ASch::Scheduler::Deinit();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
@@ -601,7 +623,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 
                 AND_WHEN ("scheduler loop runs")
                 {
-                    ASch::SchedulerLoop();
+                    ASch::Scheduler::MainLoop();
 
                     THEN ("TestEventHandler shall be called once with testData0 pointer as payload")
                     {
@@ -610,7 +632,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                     }
                     AND_WHEN ("sheduler loop runs another time")
                     {
-                        ASch::SchedulerLoop();
+                        ASch::Scheduler::MainLoop();
 
                         THEN ("no other event runs shall occur")
                         {
@@ -644,7 +666,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
             testEvent = {.Handler = TestEventHandler2, .pPayload = static_cast<void*>(&testData2)};
             ASch::Scheduler::PushEvent(testEvent);
 
-            ASch::SchedulerLoop();
+            ASch::Scheduler::MainLoop();
 
             THEN ("TestEventHandlers shall be called with testData pointers as payload")
             {
@@ -662,7 +684,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                     testEvent = {.Handler = TestEventHandler1, .pPayload = static_cast<void*>(&testData0)};
                     ASch::Scheduler::PushEvent(testEvent);
 
-                    ASch::SchedulerLoop();
+                    ASch::Scheduler::MainLoop();
 
                     THEN ("only TestEventHandler1 shall be called")
                     {
@@ -684,6 +706,7 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
 SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
 {
     ASchMock::InitSystem();
+    ASch::Scheduler::Deinit();
 
     GIVEN ("the scheduler is running and task list is empty")
     {
@@ -724,6 +747,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
     uint8_t testData = 0x12U;
     ASchMock::InitSystem();
     InitCallCounters();
+    ASch::Scheduler::Deinit();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
@@ -761,7 +785,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
                     
                         AND_WHEN ("scheduler runs one cycle")
                         {
-                            ASch::SchedulerLoop();
+                            ASch::Scheduler::MainLoop();
 
                             THEN ("message_test_0 listeners shall be called once with testData")
                             {
@@ -807,7 +831,7 @@ SCENARIO ("Developer manages message system successfully", "[scheduler]")
             AND_WHEN ("a message_test_1 is posted and scheduler runs one cycle")
             {
                 ASch::Scheduler::PushMessage({.type = ASch::Message::test_1, .pPayload = static_cast<void*>(&testData)});
-                ASch::SchedulerLoop();
+                ASch::Scheduler::MainLoop();
 
                 THEN ("remvoed message_test_1 listeners shall not be called")
                 {
@@ -823,6 +847,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
     uint8_t testData = 0x12U;
     ASchMock::InitSystem();
     InitCallCounters();
+    ASch::Scheduler::Deinit();
     
     GIVEN ("the scheduler is running and task list is empty")
     {
@@ -846,7 +871,7 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
                 AND_WHEN ("a message_test_0 is posted and scheduler runs one cycle")
                 {
                     ASch::Scheduler::PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});
-                    ASch::SchedulerLoop();
+                    ASch::Scheduler::MainLoop();
 
                     THEN ("the duplicated listener shall be called only once")
                     {
@@ -892,7 +917,7 @@ static void RunTicks(uint32_t ticks)
     for (uint32_t i = 0UL; i < ticks; ++i)
     {
         Isr::Scheduler_SysTickHandler();
-        ASch::SchedulerLoop();
+        ASch::Scheduler::MainLoop();
     }
     return;
 }

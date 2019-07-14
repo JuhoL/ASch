@@ -49,7 +49,7 @@ enum class SysError
     invalidParameters = 0,          //!< A function was called with invalid parameters.
     bufferOverflow,                 //!< A buffer has overflown.
     insufficientResources,          //!< System resources (e.g. task quota) has ran out.
-    multipleSchedulerInstances,     //!< A second scheduler is initialised.
+    accessNotPermitted,             //!< An attempt to access blocked resource has occurred.
     assertFailure,                  //!< A debug assert has failed.
     unknownError                    //!< An unknown error. Should never occur.
 };

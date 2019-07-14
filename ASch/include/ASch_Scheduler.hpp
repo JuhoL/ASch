@@ -99,14 +99,6 @@ enum class SchedulerStatus
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
-{
-
-/// @brief This function is called from the main loop.
-void SchedulerLoop(void);
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -193,6 +185,14 @@ public:
     /// @brief This function pushes a message into the scheduler.
     /// @param message - A reference to the message to be pushed.
     static void PushMessage(message_t const& message);
+
+    /// @brief This function is called from the main loop.
+    static void MainLoop(void);
+
+#if (UNIT_TEST == 1)
+    /// @brief This function is used to deinitialise the scheduler in unit tests.
+    static void Deinit(void);
+#endif
 
 private:
     /// @brief This function throws a system error.

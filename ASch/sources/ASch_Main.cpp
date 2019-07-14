@@ -64,6 +64,6 @@ int main(void)
     ASch::System::Init();    
     ASch::System::PreStartConfig();
     ASch::Scheduler::Start();
-    ASch::SchedulerLoop();
+    ASch::Scheduler::MainLoop();
     return 0;
 }

@@ -101,7 +101,11 @@ messageListener_t Scheduler::messageListeners[messageListenersMax] = {{.type = M
 //---------------------------------------
 void Scheduler::Init(uint16_t tickIntervalInMs)
 {
-    if (tickIntervalInMs == 0UL)
+    if (status == SchedulerStatus::running)
+    {
+        ThrowError(SysError::accessNotPermitted);
+    }
+    else if (tickIntervalInMs == 0UL)
     {
         ThrowError(SysError::invalidParameters);
     }
@@ -367,22 +371,7 @@ void Scheduler::PushMessage(message_t const& message)
     return;
 }
 
-void Scheduler::ThrowError(SysError error)
-{
-    status = SchedulerStatus::error;
-    System::Error(error);
-}
-
-} // namespace ASch
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace ASch
-{
-
-void SchedulerLoop(void)
+void Scheduler::MainLoop(void)
 {
     do
     {
@@ -409,7 +398,28 @@ void SchedulerLoop(void)
     return;
 }
 
+#if (UNIT_TEST == 1)
+void Scheduler::Deinit(void)
+{
+    taskCount = 0U;
+    eventQueue.Flush();
+    messageListenerCount = 0U;
+    status = SchedulerStatus::idle;
+    return;
 }
+#endif
+
+void Scheduler::ThrowError(SysError error)
+{
+    status = SchedulerStatus::error;
+    System::Error(error);
+}
+
+} // namespace ASch
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 7. Global Functions
+//-----------------------------------------------------------------------------------------------------------------------------
 
 namespace Isr
 {
