@@ -39,20 +39,7 @@
 namespace HalMock
 {
 
-//! @class Gpio
-//! @brief This is a mock class for HAL GPIO
-class Gpio
-{
-public:
-    explicit Gpio(void) {};
-    virtual void GetConfiguration(gpioConfig_t& gpio);
-    virtual void SetConfiguration(gpioConfig_t& gpio);
-    virtual void SetOutputState(Pin_t& pin, bool state);
-    virtual bool GetInputState(Pin_t& pin);
-    virtual bool GetOutputState(Pin_t& pin);
-};
-
-static Mock<Gpio> mockHalGpio;
+Mock<Gpio> mockHalGpio;
 static HalMock::Gpio& gpio = mockHalGpio.get();
 
 void InitSystem(void)

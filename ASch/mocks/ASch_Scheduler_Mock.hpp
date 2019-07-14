@@ -43,6 +43,32 @@ using namespace fakeit;
 namespace ASchMock
 {
 
+//! @class Scheduler
+//! @brief This is a mock class for ASch Scheduler
+class Scheduler
+{
+public:
+    explicit Scheduler(void) {};
+    virtual void Start(void);
+    virtual void Stop(void);
+    virtual SchedulerStatus GetStatus(void);
+    virtual uint8_t GetTaskCount(void);
+    virtual void CreateTask(task_t task);
+    virtual void DeleteTask(taskHandler_t taskHandler);
+    virtual uint16_t GetTaskInterval(uint8_t taskId);
+    virtual void RunTasks(void);
+    virtual void Sleep(void);
+    virtual void WakeUp(void);
+    virtual void PushEvent(event_t const& event);
+    virtual void RunEvents(void);
+    virtual void RegisterMessageListener(messageListener_t const& listener);
+    virtual void UnregisterMessageListener(messageListener_t const& listener);
+    virtual uint8_t GetNumberOfMessageListeners(Message type);
+    virtual void PushMessage(message_t const& message);
+};
+
+extern Mock<Scheduler> mockASchScheduler;
+
 /// @brief This function initialises the ASch Scheduler mock.
 void InitScheduler(void);
 

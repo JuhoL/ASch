@@ -46,7 +46,7 @@ namespace HalMock
 {
 
 //! @class Isr
-//! @brief This is a mock class for HAL Isr
+//! @brief This is a mock class for ISR HAL
 class Isr
 {
 public:
