@@ -152,7 +152,7 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             }
             AND_THEN ("scheduler tick handler shall be set as system tick handler")
             {
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, SetHandler, Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, SetHandler, Hal::Interrupt::sysTick, ASch::Scheduler::TickHandler);
             }
             AND_THEN ("no tasks shall be running")
             {
@@ -486,8 +486,8 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
         WHEN ("a task (Task0) with interval three is created and SysTick triggers twice")
         {
             ASch::Scheduler::CreateTask({.intervalInMs = 3U, .Task = Handlers[0]});
-            Isr::Scheduler_SysTickHandler();
-            Isr::Scheduler_SysTickHandler();
+            ASch::Scheduler::TickHandler();
+            ASch::Scheduler::TickHandler();
 
             THEN ("no wake up calls shall have been triggered")
             {
@@ -495,7 +495,7 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
                 AND_WHEN ("SysTick triggers one more time")
                 {
-                    Isr::Scheduler_SysTickHandler();
+                    ASch::Scheduler::TickHandler();
 
                     THEN ("wake up call shall occur")
                     {
@@ -916,7 +916,7 @@ static void RunTicks(uint32_t ticks)
 {
     for (uint32_t i = 0UL; i < ticks; ++i)
     {
-        Isr::Scheduler_SysTickHandler();
+        ASch::Scheduler::TickHandler();
         ASch::Scheduler::MainLoop();
     }
     return;

@@ -38,35 +38,9 @@
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace
-{
-
-typedef struct
-{
-    uint16_t msCounter;
-    bool isRunning;
-} taskState_t;
-
-typedef struct
-{
-    taskState_t taskStates[ASch::schedulerTasksMax];
-    volatile bool runTasks;
-    volatile bool runEvents;
-    uint8_t msPerTick;
-} schedulerState_t;
-
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Local Variables
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace
-{
-
-schedulerState_t schedulerState;
-
-}
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Inline Functions
@@ -86,10 +60,15 @@ namespace ASch
 //---------------------------------------
 // Initialise static members
 //---------------------------------------
+Scheduler::taskState_t Scheduler::taskStates[] = {{.msCounter = 0U, .isRunning = false}};
+volatile bool Scheduler::runTasks = false;
+volatile bool Scheduler::runEvents = false;
+uint8_t Scheduler::msPerTick = 0U;
+
 SchedulerStatus Scheduler::status = SchedulerStatus::idle;
 
 uint8_t Scheduler::taskCount = 0U;
-task_t Scheduler::tasks[schedulerTasksMax] = {{.intervalInMs = 0, .Task = 0}};
+task_t Scheduler::tasks[schedulerTasksMax] = {{.intervalInMs = 0U, .Task = 0}};
 
 Utils::Queue<event_t, schedulerEventsMax> Scheduler::eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
 
@@ -113,13 +92,13 @@ void Scheduler::Init(uint16_t tickIntervalInMs)
     {
         for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
         {
-            tasks[i] = {.intervalInMs = 0, .Task = 0};
-            schedulerState.taskStates[i] = {.msCounter = 0U, .isRunning = false};
+            tasks[i] = {.intervalInMs = 0U, .Task = 0};
+            taskStates[i] = {.msCounter = 0U, .isRunning = false};
         }
 
-        schedulerState.msPerTick = tickIntervalInMs;
-        schedulerState.runTasks = false;
-        schedulerState.runEvents = false;
+        msPerTick = tickIntervalInMs;
+        runTasks = false;
+        runEvents = false;
 
         taskCount = 0U;
         eventQueue.Flush();
@@ -127,7 +106,7 @@ void Scheduler::Init(uint16_t tickIntervalInMs)
         status = SchedulerStatus::idle;
 
         Hal::SysTick::SetInterval(tickIntervalInMs);
-        Hal::Isr::SetHandler(Hal::Interrupt::sysTick, Isr::Scheduler_SysTickHandler);
+        Hal::Isr::SetHandler(Hal::Interrupt::sysTick, Scheduler::TickHandler);
     }
     return;
 }
@@ -180,8 +159,8 @@ void Scheduler::CreateTask(task_t task)
             if (isDuplicate == false)
             {
                 tasks[taskCount] = task;
-                schedulerState.taskStates[taskCount].msCounter = task.intervalInMs;
-                schedulerState.taskStates[taskCount].isRunning = false;
+                taskStates[taskCount].msCounter = task.intervalInMs;
+                taskStates[taskCount].isRunning = false;
                 ++taskCount;
             }
         }
@@ -239,9 +218,9 @@ void Scheduler::RunTasks(void)
 {
     for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
     {
-        if (schedulerState.taskStates[taskId].isRunning == true)
+        if (taskStates[taskId].isRunning == true)
         {
-            schedulerState.taskStates[taskId].isRunning = false;
+            taskStates[taskId].isRunning = false;
             tasks[taskId].Task();
         }
     }
@@ -273,7 +252,7 @@ void Scheduler::PushEvent(event_t const& event)
         }
         else
         {
-            schedulerState.runEvents = true;
+            runEvents = true;
             Hal::System::WakeUp();
         }
         Hal::Isr::EnableGlobal();
@@ -376,15 +355,15 @@ void Scheduler::MainLoop(void)
     do
     {
         bool isIdle = true;
-        if (schedulerState.runTasks == true)
+        if (runTasks == true)
         {
-            schedulerState.runTasks = false;
+            runTasks = false;
             Scheduler::RunTasks();
             isIdle = false;
         }
-        if (schedulerState.runEvents == true)
+        if (runEvents == true)
         {
-            schedulerState.runEvents = false;
+            runEvents = false;
             Scheduler::RunEvents();
             isIdle = false;
         }
@@ -395,6 +374,30 @@ void Scheduler::MainLoop(void)
             Scheduler::Sleep();
         }
     } while (UNIT_TEST == 0);
+    return;
+}
+
+void Scheduler::TickHandler(void)
+{
+    uint8_t taskCount = ASch::Scheduler::GetTaskCount();
+    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
+    {
+        if (taskStates[taskId].msCounter > msPerTick)
+        {
+            taskStates[taskId].msCounter -= msPerTick;
+        }
+        else
+        {
+            taskStates[taskId].msCounter = ASch::Scheduler::GetTaskInterval(taskId);
+            taskStates[taskId].isRunning = true;
+            runTasks = true;
+        }
+    }
+
+    if (runTasks == true)
+    {
+        ASch::Scheduler::WakeUp();
+    }
     return;
 }
 
@@ -420,35 +423,6 @@ void Scheduler::ThrowError(SysError error)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 7. Global Functions
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Isr
-{
-
-void Scheduler_SysTickHandler(void)
-{
-    uint8_t taskCount = ASch::Scheduler::GetTaskCount();
-    for (uint8_t taskId = 0U; taskId < taskCount; ++taskId)
-    {
-        if (schedulerState.taskStates[taskId].msCounter > schedulerState.msPerTick)
-        {
-            schedulerState.taskStates[taskId].msCounter -= schedulerState.msPerTick;
-        }
-        else
-        {
-            schedulerState.taskStates[taskId].msCounter = ASch::Scheduler::GetTaskInterval(taskId);
-            schedulerState.taskStates[taskId].isRunning = true;
-            schedulerState.runTasks = true;
-        }
-    }
-
-    if (schedulerState.runTasks == true)
-    {
-        ASch::Scheduler::WakeUp();
-    }
-    return;
-}
-
-} // namespace Hal
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions

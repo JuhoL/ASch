@@ -190,14 +190,33 @@ public:
     static void MainLoop(void);
 
 #if (UNIT_TEST == 1)
+    /// @brief This function handles scheduler tick.
+    static void TickHandler(void);
+
     /// @brief This function is used to deinitialise the scheduler in unit tests.
     static void Deinit(void);
 #endif
 
 private:
+#if (UNIT_TEST == 0)
+    /// @brief This function handles scheduler tick.
+    static void TickHandler(void);
+#endif
     /// @brief This function throws a system error.
     /// @param error - Type of error that occurred.
     static void ThrowError(SysError error);
+
+    /// @brief This is a struct that is used to keep track of task states.
+    typedef struct
+    {
+        uint16_t msCounter;
+        bool isRunning;
+    } taskState_t;
+
+    static taskState_t taskStates[ASch::schedulerTasksMax]; //!< Task states.
+    static volatile bool runTasks;  //!< An indication to run the tasks.
+    static volatile bool runEvents; //!< An indication to run the events.
+    static uint8_t msPerTick;       //!< How many ms is one tick.
 
     static SchedulerStatus status;  //!< Current scheduler status
     
