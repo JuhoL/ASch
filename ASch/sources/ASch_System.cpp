@@ -63,16 +63,38 @@ namespace ASch
 {
 
 //---------------------------------------
+// Initialise static members
+//---------------------------------------
+bool System::resetOnError = false;
+
+//---------------------------------------
 // Functions
 //---------------------------------------
 
 void System::Error(SysError error)
 {
+    if (resetOnError == true)
+    {
+        Hal::System::Reset();
+    }
+    else
+    {
+        Hal::System::HaltDeubgger();
+    }
+    return;
+}
+
+void System::EnableResetOnSystemError(void)
+{
+    resetOnError = true;
     return;
 }
 
 void System::Init(void)
 {
+    Hal::System::InitPowerControl();
+    Hal::System::InitClocks();
+    
     Scheduler::Init(Config::schedulerTickInterval);
     return;
 }

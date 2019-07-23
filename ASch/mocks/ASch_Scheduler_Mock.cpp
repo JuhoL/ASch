@@ -65,6 +65,7 @@ void InitScheduler(void)
         Fake(Method(mockASchScheduler, UnregisterMessageListener));
         Fake(Method(mockASchScheduler, GetNumberOfMessageListeners));
         Fake(Method(mockASchScheduler, PushMessage));
+        Fake(Method(mockASchScheduler, MainLoop));
     }
     else
     {
@@ -177,6 +178,12 @@ uint8_t Scheduler::GetNumberOfMessageListeners(Message type)
 void Scheduler::PushMessage(message_t const& message)
 {
     ASchMock::scheduler.PushMessage(message);
+    return;
+}
+
+void Scheduler::MainLoop(void)
+{
+    ASchMock::scheduler.MainLoop();
     return;
 }
 

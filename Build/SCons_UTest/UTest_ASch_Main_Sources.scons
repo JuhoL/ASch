@@ -1,2 +1,4 @@
 ./ASch/sources/ASch_Main.cpp
 ./ASch/tests/UTest_ASch_Main.cpp
+./ASch/mocks/ASch_Scheduler_Mock.cpp
+./ASch/mocks/ASch_System_Mock.cpp

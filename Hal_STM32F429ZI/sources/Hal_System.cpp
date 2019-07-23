@@ -94,6 +94,11 @@ void System::CriticalSystemError(void)
     return;
 }
 
+void System::HaltDeubgger(void)
+{
+    return;
+}
+
 } // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------

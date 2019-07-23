@@ -55,6 +55,7 @@ public:
     virtual void InitClocks(void);
     virtual void Reset(void);
     virtual void CriticalSystemError(void);
+    virtual void HaltDeubgger(void);
 };
 
 /// @brief The mock entity for accessing FakeIt interface.

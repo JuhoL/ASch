@@ -82,8 +82,9 @@ void PreStartConfig1(void)
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("A system is configured", "[system]")
+SCENARIO ("A system is initialised", "[system]")
 {
+    HalMock::InitSystem();
     ASchMock::InitScheduler();
     InitConfigCallCounts();
     
@@ -93,9 +94,16 @@ SCENARIO ("A system is configured", "[system]")
         {
             ASch::System::Init();
 
-            THEN ("scheduler shall be initialised with configured tick value")
+            THEN ("power control and clocks shall be initialised")
             {
-                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchScheduler, Init, ASch::Config::schedulerTickInterval);
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, InitPowerControl);
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, InitClocks);
+
+                AND_THEN ("scheduler shall be initialised with configured tick value after HAL inits")
+                {
+                    REQUIRE_PARAM_CALLS (1, ASchMock::mockASchScheduler, Init, ASch::Config::schedulerTickInterval);
+                    REQUIRE_CALL_ORDER (CALL(HalMock::mockHalSystem, InitPowerControl) + CALL(HalMock::mockHalSystem, InitClocks) + CALL(ASchMock::mockASchScheduler, Init));
+                }
             }
         }
     }
@@ -110,6 +118,40 @@ SCENARIO ("A system is configured", "[system]")
             {
                 REQUIRE (preStartConfigCallCount[0] == 1U);
                 REQUIRE (preStartConfigCallCount[1] == 1U);
+            }
+        }
+    }
+}
+
+SCENARIO ("A system error occurs", "[system]")
+{
+    HalMock::InitSystem();
+    
+    GIVEN ("a system is idle")
+    {
+        WHEN ("a system error is thrown")
+        {
+            ASch::System::Error(ASch::SysError::invalidParameters);
+
+            THEN ("a debugger halt shall be called")
+            {
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, HaltDeubgger);
+            }
+        }
+    }
+
+    
+    GIVEN ("a reset on error is configured")
+    {
+        ASch::System::EnableResetOnSystemError();
+
+        WHEN ("a system error is thrown")
+        {
+            ASch::System::Error(ASch::SysError::invalidParameters);
+
+            THEN ("a debugger halt shall be called")
+            {
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, Reset);
             }
         }
     }

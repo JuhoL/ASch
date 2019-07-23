@@ -49,6 +49,7 @@ void InitSystem(void)
     if (isFirstInit == true)
     {
         Fake(Method(mockASchSystem, Error));
+        Fake(Method(mockASchSystem, EnableResetOnSystemError));
         Fake(Method(mockASchSystem, Init));
         Fake(Method(mockASchSystem, PreStartConfig));
 
@@ -75,11 +76,19 @@ void System::Error(ASch::SysError error)
     ASchMock::system.Error(error);
     return;
 }
+
+void System::EnableResetOnSystemError(void)
+{
+    ASchMock::system.EnableResetOnSystemError();
+    return;
+}
+
 void System::Init(void)
 {
     ASchMock::system.Init();
     return;
 }
+
 void System::PreStartConfig(void)
 {
     ASchMock::system.PreStartConfig();

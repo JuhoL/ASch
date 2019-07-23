@@ -54,6 +54,7 @@ void InitSystem(void)
         Fake(Method(mockHalSystem, InitClocks));
         Fake(Method(mockHalSystem, Reset));
         Fake(Method(mockHalSystem, CriticalSystemError));
+        Fake(Method(mockHalSystem, HaltDeubgger));
 
         isFirstInit = false;
     }
@@ -72,11 +73,6 @@ void InitSystem(void)
 
 namespace Hal
 {
-
-System::System(void)
-{
-    return;
-}
 
 void System::Sleep(void)
 {
@@ -111,6 +107,12 @@ void System::Reset(void)
 void System::CriticalSystemError(void)
 {
     HalMock::system.CriticalSystemError();
+    return;
+}
+
+void System::HaltDeubgger(void)
+{
+    HalMock::system.HaltDeubgger();
     return;
 }
 

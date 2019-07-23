@@ -33,7 +33,6 @@
 #include <Utils_Types.hpp>
 #include <ASch_System.hpp>
 #include <ASch_Scheduler.hpp>
-#include <Hal_Gpio.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants

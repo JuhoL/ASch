@@ -79,6 +79,9 @@ public:
     /// @brief Critical system error handler. Halts the CPU.
     static void CriticalSystemError(void);
 
+    /// @brief A debugger trap.
+    static void HaltDeubgger(void);
+
 private:
     
 };

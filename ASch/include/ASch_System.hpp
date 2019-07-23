@@ -83,11 +83,17 @@ public:
     /// @param error - Error type.
     static void Error(SysError error);
 
+    /// @brief This function enables reset on error.
+    static void EnableResetOnSystemError(void);
+
     /// @brief This fuction initialises the system, e.f. clocks and other base peripherals.
     static void Init(void);
 
     /// @brief This function runs pre-start configuration functions.
     static void PreStartConfig(void);
+
+private:
+    static bool resetOnError;
 };
 
 } // namespace ASch

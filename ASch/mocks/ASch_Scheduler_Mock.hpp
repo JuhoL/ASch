@@ -68,6 +68,7 @@ public:
     virtual void UnregisterMessageListener(ASch::messageListener_t const& listener);
     virtual uint8_t GetNumberOfMessageListeners(ASch::Message type);
     virtual void PushMessage(ASch::message_t const& message);
+    virtual void MainLoop(void);
 };
 
 extern Mock<Scheduler> mockASchScheduler;
