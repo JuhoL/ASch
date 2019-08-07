@@ -149,6 +149,245 @@ SCENARIO ("Clocks are enabled", "[hal_system]")
     }
 }
 
+SCENARIO ("Clocks are disabled", "[hal_system]")
+{
+    Hal_Mock::InitRccRegisters();
+    HalMock::InitInternal();
+    ASchMock::Assert::Init();
+
+    GIVEN ("HSI is enabled and is not used as a system clock")
+    {
+        Utils::SetBit(RCC->CR, RCC_CR_HSIRDY_Pos, true);
+        // HSE as system clock.
+        Utils::SetBits(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
+
+        // This tells the HAL that the oscillator has stopped correctly.
+        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
+
+        WHEN ("the HSI clock is disabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_internal);
+
+            THEN ("HSION bit in RCC CR register shall be cleared and HSERDY bit clearing shall be waited")
+            {
+                REQUIRE (Utils::GetBit(RCC->CR, RCC_CR_HSION_Pos) == false);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CR, RCC_CR_HSIRDY_Pos);
+            }
+        }
+    }
+
+    GIVEN ("HSE is enabled and clocks are functioning correctly")
+    {
+        Utils::SetBit(RCC->CR, RCC_CR_HSEON_Pos, true);
+        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
+
+        // This tells the HAL that the oscillator has started correctly.
+        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
+
+        WHEN ("the HSE clock is disabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
+
+            THEN ("HSEON bit in RCC CR register shall be cleared and HSERDY bit clearing shall be waited")
+            {
+                REQUIRE (Utils::GetBit(RCC->CR, RCC_CR_HSEON_Pos) == false);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CR, RCC_CR_HSERDY_Pos);
+            }
+        }
+    }
+
+    GIVEN ("LSI is enabled and clocks are functioning correctly")
+    {
+        Utils::SetBit(RCC->CSR, RCC_CSR_LSION_Pos, true);
+        Utils::SetBit(RCC->CSR, RCC_CSR_LSIRDY_Pos, true);
+
+        // This tells the HAL that the oscillator has started correctly.
+        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
+
+        WHEN ("the LSI clock is disabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_internal);
+
+            THEN ("LSION bit in RCC CSR register shall be cleared and LSIRDY bit clearing shall be waited")
+            {
+                REQUIRE (Utils::GetBit(RCC->CSR, RCC_CSR_LSION_Pos) == false);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CSR, RCC_CSR_LSIRDY_Pos);
+            }
+        }
+    }
+
+    GIVEN ("LSE is enabled and clocks are functioning correctly")
+    {
+        Utils::SetBit(RCC->BDCR, RCC_BDCR_LSEON_Pos, true);
+        Utils::SetBit(RCC->BDCR, RCC_BDCR_LSERDY_Pos, true);
+
+        // This tells the HAL that the oscillator has started correctly.
+        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
+
+        WHEN ("the LSE clock is disabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_external);
+
+            THEN ("LSEON bit in RCC BDCR register shall be cleared and LSERDY bit clearing shall be waited")
+            {
+                REQUIRE (Utils::GetBit(RCC->BDCR, RCC_BDCR_LSEON_Pos) == false);
+                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->BDCR, RCC_BDCR_LSERDY_Pos);
+            }
+        }
+    }
+
+    GIVEN ("the oscillators are already disabled")
+    {
+        Utils::SetBit(RCC->CR, RCC_CR_HSIRDY_Pos, false);
+
+        WHEN ("the the clocks are enabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_internal);
+            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
+            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_internal);
+            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_external);
+
+            THEN ("no configurations shall occur")
+            {
+                REQUIRE_CALLS (0, HalMock::mockHalInternal, WaitForBitToClear);
+            }
+        }
+    }
+
+    GIVEN ("HSE is enabled and used as system clock")
+    {
+        // HSE is enabled
+        Utils::SetBit(RCC->CR, RCC_CR_HSEON_Pos, true);
+        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
+        // Set HSE as system clock
+        Utils::SetBits(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
+
+        WHEN ("the HSE clock is disabled")
+        {
+            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+}
+
+SCENARIO ("PLL is enabled", "[hal_system]")
+{
+    Hal_Mock::InitRccRegisters();
+    HalMock::InitInternal();
+    ASchMock::Assert::Init();
+
+    GIVEN ("HSE is enabled and set as 24MHz")
+    {
+        // Enable HSE
+        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
+        // Set frequency
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
+        
+        // This tells the HAL that the oscillator has started correctly.
+        SET_RETURN(HalMock::mockHalInternal, WaitForBitToSet, false);
+
+        WHEN ("PLL is enabled with source from HSE and target of 100MHz and the frequency is read back")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::highSpeed_external, Hal::MHz(100UL));
+            Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true); // Set PLLRDY bit in order to be able to read the frequency.
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pll);
+
+            THEN ("PLLP, PLLN, and PLLM shall have correct values")
+            {
+                // 100MHz from 24MHz shall result in PLLP = 2, PLLN = 50, PLLM = 6.
+                INFO ("PLLCFGR: " << std::hex << RCC->PLLCFGR);
+                REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos)));
+                REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (50UL << RCC_PLLCFGR_PLLN_Pos)));
+                REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (6UL << RCC_PLLCFGR_PLLM_Pos)));
+                
+                AND_THEN ("PLLON bit in RCC CR register shall be set and PLLRDY bit shall be waited")
+                {
+                    REQUIRE (Utils::GetBit(RCC->CR, RCC_CR_PLLON_Pos) == true);
+                    REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToSet, RCC->CR, RCC_CR_PLLRDY_Pos);
+
+                    AND_THEN ("the PLL frequency shall be set to 100MHz")
+                    {
+                        REQUIRE (frequency == Hal::MHz(100UL));
+                    }
+                }
+            }
+        }
+    }
+
+    GIVEN ("system is at init state")
+    {
+        WHEN ("PLL is enabled with source from LSI and target of 120MHz")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::lowSpeed_internal, Hal::MHz(120UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+
+    GIVEN ("system is at init state")
+    {
+        WHEN ("PLL is enabled with source from HSI and target of 99MHz")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::highSpeed_internal, Hal::MHz(99UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+
+    GIVEN ("system is at init state")
+    {
+        WHEN ("PLL is enabled with source from HSI and target of 433MHz")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::highSpeed_internal, Hal::MHz(99UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+
+    GIVEN ("HSE is not running, but frequency is configured")
+    {
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
+        
+        WHEN ("PLL is enabled with source from HSE and target of 120MHz")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::highSpeed_external, Hal::MHz(120UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+
+    GIVEN ("HSE is running, but frequency is not configured")
+    {
+        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, false);
+
+        WHEN ("PLL is enabled with source from non-running HSE and target of 120MHz")
+        {
+            Hal::Clocks::EnablePll(Hal::OscillatorType::highSpeed_external, Hal::MHz(120UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+}
+
 SCENARIO ("Clock status is read", "[hal_system]")
 {
     Hal_Mock::InitRccRegisters();
@@ -309,125 +548,109 @@ SCENARIO ("Clock status is read", "[hal_system]")
     }
 }
 
-SCENARIO ("Clocks are disabled", "[hal_system]")
+SCENARIO ("Clock frequencies are written and read", "[hal_system]")
 {
     Hal_Mock::InitRccRegisters();
-    HalMock::InitInternal();
+    ASchMock::Assert::Init();
 
-    GIVEN ("HSI is enabled and is not used as a system clock")
+    GIVEN ("HSI is enabled")
     {
-        Utils::SetBit(RCC->CR, RCC_CR_HSIRDY_Pos, true);
-        // HSE as system clock.
-        Utils::SetBits(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
+        // HSI is on by default
 
-        // This tells the HAL that the oscillator has stopped correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
-
-        WHEN ("the HSI clock is disabled")
+        WHEN ("HSI frequency is read")
         {
-            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_internal);
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::highSpeed_internal);
 
-            THEN ("HSION bit in RCC CR register shall be cleared and HSERDY bit clearing shall be waited")
+            THEN ("frequency shall be 16MHz")
             {
-                REQUIRE (Utils::GetBit(RCC->CR, RCC_CR_HSION_Pos) == false);
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CR, RCC_CR_HSIRDY_Pos);
+                REQUIRE (frequency == Hal::MHz(16UL));
+
+                AND_WHEN ("the HSI frequency is set to 10MHz and the HSI frequency is read")
+                {
+                    Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_internal, Hal::MHz(10UL));
+                    frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::highSpeed_internal);
+
+                    THEN ("the frequency shall still be 16MHz")
+                    {
+                        REQUIRE (frequency == Hal::MHz(16UL));
+                    }
+                }
             }
         }
     }
 
-    GIVEN ("HSE is enabled and clocks are functioning correctly")
+    GIVEN ("HSI is enabled")
     {
-        Utils::SetBit(RCC->CR, RCC_CR_HSEON_Pos, true);
+        // HSI is on by default
+
+        WHEN ("the HSI frequency is set to 10MHz")
+        {
+            Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_internal, Hal::MHz(10UL));
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+            }
+        }
+    }
+
+    GIVEN ("HSE is enabled and its frequency is set to 24MHz")
+    {
+        // Enable HSE
         Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
 
-        // This tells the HAL that the oscillator has started correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
-
-        WHEN ("the HSE clock is disabled")
+        WHEN ("the HSE frequency is read")
         {
-            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::highSpeed_external);
 
-            THEN ("HSEON bit in RCC CR register shall be cleared and HSERDY bit clearing shall be waited")
+            THEN ("frequency shall be 24MHz")
             {
-                REQUIRE (Utils::GetBit(RCC->CR, RCC_CR_HSEON_Pos) == false);
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CR, RCC_CR_HSERDY_Pos);
+                REQUIRE (frequency == Hal::MHz(24UL));
             }
         }
     }
 
-    GIVEN ("LSI is enabled and clocks are functioning correctly")
+    GIVEN ("HSE is disabled and its frequency is set to 24MHz")
     {
-        Utils::SetBit(RCC->CSR, RCC_CSR_LSION_Pos, true);
-        Utils::SetBit(RCC->CSR, RCC_CSR_LSIRDY_Pos, true);
+        // HSE is disabled by default.
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
 
-        // This tells the HAL that the oscillator has started correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
-
-        WHEN ("the LSI clock is disabled")
+        WHEN ("the HSE frequency is read")
         {
-            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_internal);
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::highSpeed_external);
 
-            THEN ("LSION bit in RCC CSR register shall be cleared and LSIRDY bit clearing shall be waited")
+            THEN ("frequency shall be 0MHz")
             {
-                REQUIRE (Utils::GetBit(RCC->CSR, RCC_CSR_LSION_Pos) == false);
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->CSR, RCC_CSR_LSIRDY_Pos);
+                REQUIRE (frequency == 0UL);
             }
         }
     }
 
-    GIVEN ("LSE is enabled and clocks are functioning correctly")
+    GIVEN ("PLL is enabled")
     {
-        Utils::SetBit(RCC->BDCR, RCC_BDCR_LSEON_Pos, true);
-        Utils::SetBit(RCC->BDCR, RCC_BDCR_LSERDY_Pos, true);
+        Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true);
 
-        // This tells the HAL that the oscillator has started correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToClear, false);
-
-        WHEN ("the LSE clock is disabled")
+        WHEN ("the PLL frequency is set to 100MHz")
         {
-            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_external);
+            Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_internal, Hal::MHz(100UL));
 
-            THEN ("LSEON bit in RCC BDCR register shall be cleared and LSERDY bit clearing shall be waited")
+            THEN ("an assert failure shall trigger")
             {
-                REQUIRE (Utils::GetBit(RCC->BDCR, RCC_BDCR_LSEON_Pos) == false);
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalInternal, WaitForBitToClear, RCC->BDCR, RCC_BDCR_LSERDY_Pos);
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }
         }
     }
 
-    GIVEN ("the oscillators are already disabled")
+    GIVEN ("system is at init state")
     {
-        Utils::SetBit(RCC->CR, RCC_CR_HSIRDY_Pos, false);
-
-        WHEN ("the the clocks are enabled")
+        WHEN ("the unknown frequency is read")
         {
-            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_internal);
-            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
-            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_internal);
-            Hal::Clocks::Disable(Hal::OscillatorType::lowSpeed_external);
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::unknown);
 
-            THEN ("no configurations shall occur")
+            THEN ("frequency shall be 0MHz")
             {
-                REQUIRE_CALLS (0, HalMock::mockHalInternal, WaitForBitToClear);
-            }
-        }
-    }
-
-    GIVEN ("HSE is enabled and used as system clock")
-    {
-        // HSE is enabled
-        Utils::SetBit(RCC->CR, RCC_CR_HSEON_Pos, true);
-        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
-        // Set HSE as system clock
-        Utils::SetBits(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
-
-        WHEN ("the HSE clock is disabled")
-        {
-            Hal::Clocks::Disable(Hal::OscillatorType::highSpeed_external);
-
-            THEN ("no configurations shall occur")
-            {
-                REQUIRE_CALLS (0, HalMock::mockHalInternal, WaitForBitToClear);
+                REQUIRE (frequency == 0UL);
             }
         }
     }

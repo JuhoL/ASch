@@ -93,7 +93,6 @@ void System::EnableResetOnSystemError(void)
 void System::Init(void)
 {
     Hal::System::InitPowerControl();
-    // Hal::Clocks::Init();
     
     Scheduler::Init(Config::schedulerTickInterval);
     return;

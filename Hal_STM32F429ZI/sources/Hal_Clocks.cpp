@@ -43,8 +43,14 @@
 namespace
 {
 
+typedef struct
+{
+    uint32_t n;
+    uint32_t d;
+} fraction_t;
+
 // The default clock at boot is 16 MHz HSI DCO.
-const uint32_t defaultSystemClock = 16000000;
+const uint32_t defaultSystemClock = 16000000UL;
 
 } // anonymous namespace
 
@@ -63,7 +69,10 @@ const uint32_t defaultSystemClock = 16000000;
 namespace
 {
 
-
+/// @brief A function that converts a decimal into a fraction using Stern-Brocot tree.
+/// @param decimal - The decimal to be converted.
+/// @param fraction - A reference to the fraction struct for storing the result.
+void FloatToFraction(float decimal, fraction_t& fraction);
 
 } // anonymous namespace
 
@@ -78,6 +87,14 @@ namespace Hal
 // Initialise static members
 //---------------------------------------
 uint32_t Clocks::sysClockFrequency = defaultSystemClock;
+uint32_t Clocks::clockFrequencies[static_cast<std::size_t>(OscillatorType::unknown)] =
+{
+    defaultSystemClock, // highSpeed_internal
+    0UL,                // highSpeed_external
+    0UL,                // lowSpeed_internal
+    0UL,                // lowSpeed_external
+    0UL                 // pll
+};
 
 //---------------------------------------
 // Functions
@@ -122,7 +139,9 @@ void Clocks::Enable(OscillatorType type)
 
 void Clocks::Disable(OscillatorType type)
 {
-    if ((IsRunning(type) == true) && (GetSysClockSource() != type))
+    ASSERT(GetSysClockSource() != type);
+
+    if (IsRunning(type) == true)
     {
         bool isTimeout;
 
@@ -158,7 +177,82 @@ void Clocks::Disable(OscillatorType type)
     return;
 }
 
-bool Clocks::IsRunning(Hal::OscillatorType type)
+void Clocks::EnablePll(OscillatorType source, uint32_t frequency)
+{
+    ASSERT((source == OscillatorType::highSpeed_internal) || (source == OscillatorType::highSpeed_external));
+    ASSERT(GetFrequency(source) > 0UL);
+    ASSERT(IsRunning(source) == true);
+
+    // The PLL frequency must be between 100MHz and 432MHz.
+    ASSERT(frequency >= MHz(100UL));
+    ASSERT(frequency <= MHz(432UL));
+
+    // The PLL frequency is calculated by following formula:
+    // fVCO = fsource * PLLN / PLLM
+    // fPLL = fVCO / PLLP
+    // fUSB = fVCO / PLLQ
+    //
+    // The values have following limitations:
+    // PLLP = [2, 4, 6, 8]
+    // PLLN >= 50, PLLN <= 432
+    // PLLM >= 2, PLLN <= 63
+    
+    // The frequency formula can be converted into following form:
+    // PLLN / (PLLM * PLLP) = fPLL / fsource
+    // fPLL / fsource is calculated first.
+    float frequencyRatio = static_cast<float>(frequency) / static_cast<float>(GetFrequency(source));
+
+    // When we convert this decimal ratio into a fraction, we kno what PLLN and (PLLM * PLLP) are.
+    fraction_t ratioFraction;
+    FloatToFraction(frequencyRatio, ratioFraction);
+
+    // Let's expand the fraction until it is within the value limits
+    // The denominator must be even, so if the original denominator is odd we can skip odd expansion multipliers.
+    uint32_t increment;
+    if ((ratioFraction.d & 0x1UL) != 0UL)
+    {
+        increment = 2UL;
+    }
+    else
+    {
+        increment = 1UL;
+    }
+
+    // Minimum for nominator is minimum of PLLN, 50.
+    const uint32_t nominatorMin = 50UL;
+    // Minimum for denominator is (PLLMmin * PLLPmin) = 4
+    const uint32_t denominatorMin = 4UL;
+
+    uint32_t i = 0UL;
+    fraction_t finalFraction = {.n = ratioFraction.n, .d = ratioFraction.d};
+    while ((finalFraction.n < nominatorMin) || (finalFraction.d < denominatorMin))
+    {
+        i += increment;
+        finalFraction.n = ratioFraction.n * i;
+        finalFraction.d = ratioFraction.d * i;
+    }
+
+    // Set PLLN
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (finalFraction.n << RCC_PLLCFGR_PLLN_Pos));
+
+    // Let's select PLLP = 2. Set PLLP
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos));
+
+    // Since PLLP = 2, PLLM is straightforward to calculate: Denominator / 2.
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, ((finalFraction.d >> 1UL) << RCC_PLLCFGR_PLLM_Pos));
+
+    // Calculate the final frequency.
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pll)] = static_cast<uint32_t>(static_cast<float>(finalFraction.n * GetFrequency(source)) 
+                                                                                         / static_cast<float>(finalFraction.d));
+
+    Utils::SetBit(RCC->CR, RCC_CR_PLLON_Pos, true);
+    bool isTimeout = Internal::WaitForBitToSet(RCC->CR, RCC_CR_PLLRDY_Pos);
+    (void)isTimeout;
+
+    return;
+}
+
+bool Clocks::IsRunning(OscillatorType type)
 {
     bool isRunning;
 
@@ -192,12 +286,39 @@ bool Clocks::IsRunning(Hal::OscillatorType type)
     return isRunning;
 }
 
+void Clocks::SetFrequency(OscillatorType type, uint32_t frequency)
+{
+    ASSERT(type != OscillatorType::highSpeed_internal);
+    ASSERT(type != OscillatorType::pll);
+    ASSERT(type < OscillatorType::unknown);
+
+    clockFrequencies[static_cast<uint32_t>(type)] = frequency;
+    
+    return;
+}
+
+uint32_t Clocks::GetFrequency(OscillatorType type)
+{
+    ASSERT_RETVAL(type < OscillatorType::unknown, 0UL);
+
+    uint32_t frequency;
+    if (IsRunning(type) == true)
+    {
+        frequency = clockFrequencies[static_cast<uint32_t>(type)];
+    }
+    else
+    {
+        frequency = 0UL;
+    }
+    return frequency;
+}
+
 uint32_t Clocks::GetSysClockFrequency(void)
 {
     return sysClockFrequency;
 }
 
-void Clocks::SetSysClockSource(Hal::OscillatorType type)
+void Clocks::SetSysClockSource(OscillatorType type)
 {
     if (IsRunning(type) == true)
     {
@@ -230,9 +351,9 @@ void Clocks::SetSysClockSource(Hal::OscillatorType type)
     return;
 }
 
-Hal::OscillatorType Clocks::GetSysClockSource(void)
+OscillatorType Clocks::GetSysClockSource(void)
 {
-    Hal::OscillatorType type;
+    OscillatorType type;
     uint32_t sws = RCC->CFGR & RCC_CFGR_SWS_Msk;
 
     switch (sws)
@@ -266,3 +387,58 @@ Hal::OscillatorType Clocks::GetSysClockSource(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+
+void FloatToFraction(float decimal, fraction_t& fraction)
+{
+    const float error = 0.01;
+    uint32_t n = static_cast<uint32_t>(decimal);
+    decimal -= static_cast<float>(n);
+    
+    if (decimal < error)
+    {
+        fraction.n = n;
+        fraction.d = 1UL;
+    }
+    else if (1 - error < decimal)
+    {
+        fraction.n = n + 1UL;
+        fraction.d = 1UL;
+    }
+    else
+    {
+        fraction_t lower = {.n = 0UL, .d = 1UL};
+        fraction_t upper = {.n = 1UL, .d = 1UL};
+        fraction_t middle;
+
+        bool fractionFound = false;
+        while (fractionFound == false)
+        {
+            middle.n = lower.n + upper.n;
+            middle.d = lower.d + upper.d;
+            
+            if (static_cast<float>(middle.d) * (decimal + error) < static_cast<float>(middle.n))
+            {
+                upper.n = middle.n;
+                upper.d = middle.d;
+            }
+            else if (static_cast<float>(middle.n) < (decimal - error) * static_cast<float>(middle.d))
+            {
+                lower.n = middle.n;
+                lower.d = middle.d;
+            }
+            else
+            {
+                fraction.n = n * middle.d + middle.n;
+                fraction.d = middle.d;
+                fractionFound = true;
+            }
+        }
+    }
+    
+    return;
+}
+
+}

@@ -76,7 +76,7 @@ const configFunction_t apPreStartConfigFunctions[] =
 namespace Config
 {
 
-const Hal::OscillatorType oscillatorType = OscillatorType::highSpeed_internal;
+const Hal::OscillatorType oscillatorType = Hal::OscillatorType::highSpeed_internal;
 
 } // namespace Config
 

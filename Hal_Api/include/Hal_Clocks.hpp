@@ -59,6 +59,13 @@ enum class OscillatorType
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace Hal
+{
+
+constexpr uint32_t MHz(uint32_t MHz) {return MHz * 1000000UL;}
+
+} // namespace Hal
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -81,15 +88,31 @@ public:
 
     /// @brief Enables the given oscillator.
     /// @param type - The oscillator to be enabled.
-    static void Enable(Hal::OscillatorType type);
+    static void Enable(OscillatorType type);
 
     /// @brief Disables the given oscillator.
     /// @param type - The oscillator to be disabled.
-    static void Disable(Hal::OscillatorType type);
+    static void Disable(OscillatorType type);
+
+    /// @brief Enables PLL.
+    /// @param source - The oscillator to be used as source. Note: Make sure you have configured a frequency to the source!
+    /// @param frequency - Desired PLL target frequency.
+    static void EnablePll(OscillatorType source, uint32_t frequency);
 
     /// @brief Checks if the given oscillator is running.
     /// @return Returns true if the oscillator is running.
-    static bool IsRunning(Hal::OscillatorType type);
+    static bool IsRunning(OscillatorType type);
+
+    /// @brief Sets the frequency of the given clock.
+    /// This frequency is used for calculations only! It's used for calculating timers delays, baudrates, etc.
+    /// The FW has no ability to validate the correctness of this value, so be careful to configure it correctly.
+    /// @param type - The oscillator which frequency will be set.
+    /// @param frequency - Clock frequency in Hz.
+    static void SetFrequency(OscillatorType type, uint32_t frequency);
+
+    /// @brief Returns the frequency of the given clock.
+    /// @return Clock frequency in Hz. If the clock is off, 0Hz shall be returned.
+    static uint32_t GetFrequency(OscillatorType type);
 
     /// @brief Returns current system clock frequency.
     /// @return Current system clock frequency in Hz.
@@ -97,14 +120,15 @@ public:
 
     /// @brief Sets system clock source.
     /// @param type - The oscillator type to be set as system clock source.
-    static void SetSysClockSource(Hal::OscillatorType type);
+    static void SetSysClockSource(OscillatorType type);
 
     /// @brief Reads system clock source.
     /// @return The oscillator type set as system clock source.
-    static Hal::OscillatorType GetSysClockSource(void);
+    static OscillatorType GetSysClockSource(void);
 
 private:
     static uint32_t sysClockFrequency;
+    static uint32_t clockFrequencies[static_cast<std::size_t>(OscillatorType::unknown)];
 };
 
 } // namespace Hal
