@@ -69,9 +69,6 @@ public:
     
     /// @brief Initialises power control.
     static void InitPowerControl(void);
-    
-    /// @brief Initialises system clocks.
-    static void InitClocks(void);
 
     /// @brief Performs MCU reset.
     static void Reset(void);
@@ -83,7 +80,7 @@ public:
     static void HaltDeubgger(void);
 
 private:
-    
+
 };
 
 } // namespace Hal

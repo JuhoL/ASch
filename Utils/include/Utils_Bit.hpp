@@ -116,6 +116,20 @@ inline void SetBits(type& bitfield, uint32_t position, uint32_t mask, uint32_t p
     return;
 }
 
+/// @brief This function sets a partial bitfield in the given position in a bitfield.
+/// @param bitfield - A bitfield to be manipulated.
+/// @param mask - The bitfield mask.
+/// @param pattern - The bitfield pattern.
+/// @return The modified bitfield.
+template <typename type>
+inline void SetBits(type& bitfield, uint32_t mask, uint32_t pattern)
+{
+    pattern &= mask;
+    bitfield &= ~mask;
+    bitfield |= pattern;
+    return;
+}
+
 /// @brief This function compares given partial bitfield to another bitfield from the given position.
 /// If the bitfields match, the function will return true.
 /// For example from bitfield 10100101b, position 3 with mask 111b and pattern 100b results in true.
@@ -123,11 +137,24 @@ inline void SetBits(type& bitfield, uint32_t position, uint32_t mask, uint32_t p
 /// @param position - The partial bitfield position.
 /// @param mask - The bitfield mask.
 /// @param pattern - The pattern to compare.
-/// @return True if the partial bitfield mathes
+/// @return True if the partial bitfield matches
 template <typename type>
 inline bool CompareBits(type bitfield, uint32_t position, uint32_t mask, uint32_t pattern)
 {
-    bitfield >>= position;
+    bitfield &= mask;
+    pattern &= mask;
+    return (bitfield == pattern);
+}
+
+/// @brief This function compares given partial bitfield to another bitfield from the given position.
+/// If the bitfields match, the function will return true.
+/// @param bitfield - The bitfield to be checked.
+/// @param mask - The bitfield mask.
+/// @param pattern - The pattern to compare.
+/// @return True if the partial bitfield matches
+template <typename type>
+inline bool CompareBits(type bitfield, uint32_t mask, uint32_t pattern)
+{
     bitfield &= mask;
     pattern &= mask;
     return (bitfield == pattern);

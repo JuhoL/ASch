@@ -6,3 +6,5 @@
 ./ASch/sources/ASch_Main.cpp
 ./Hal_STM32F429ZI/sources/Hal_Gpio.cpp
 ./Utils/sources/Utils_Assert.cpp
+./Hal_STM32F429ZI/sources/Hal_Clocks.cpp
+./Hal_STM32F429ZI/sources/Hal_Internal.cpp

@@ -51,7 +51,6 @@ void InitSystem(void)
         Fake(Method(mockHalSystem, Sleep));
         Fake(Method(mockHalSystem, WakeUp));
         Fake(Method(mockHalSystem, InitPowerControl));
-        Fake(Method(mockHalSystem, InitClocks));
         Fake(Method(mockHalSystem, Reset));
         Fake(Method(mockHalSystem, CriticalSystemError));
         Fake(Method(mockHalSystem, HaltDeubgger));
@@ -89,12 +88,6 @@ void System::WakeUp(void)
 void System::InitPowerControl(void)
 {
     HalMock::system.InitPowerControl();
-    return;
-}
-
-void System::InitClocks(void)
-{
-    HalMock::system.InitClocks();
     return;
 }
 

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,27 +17,22 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_System.cpp
+//! @file    Hal_Internal.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 Aug 2018
+//! @date    27 Jul 2019
 //!
-//! @class   System
-//! @brief   Generic system control class for ASch.
+//! @class   Internal
+//! @brief   !!!!! Brief file description here !!!!!
 //! 
-//! This class implements system control functions and handles generic system level events like ticks and system errors. 
+//! !!!!! Detailed file description here !!!!!
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#if (UNIT_TEST == 1)
-    #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
-#endif
-
-#include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
-#include <ASch_Configuration.hpp>
-#include <Hal_System.hpp>
+#include <Hal_Internal.hpp>
+#include <Utils_Bit.hpp>
+#include <Hal_Clocks.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -59,53 +54,46 @@
 // 6. Class Member Definitions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Hal
 {
 
-//---------------------------------------
-// Initialise static members
-//---------------------------------------
-bool System::resetOnError = false;
-
-//---------------------------------------
-// Functions
-//---------------------------------------
-
-void System::Error(SysError error)
+bool Internal::WaitForBitToSet(__IO uint32_t& rccRegister, uint32_t bit)
 {
-    if (resetOnError == true)
+    // Since it's fair to assume that when configuring clocks no timers or other peripherals are available,
+    // a simple downcounter shall be used with preset value based on current system clock. This provides
+    // roughly the same scale timeout regardless of the current system clock.
+    uint32_t timeout = Hal::Clocks::GetSysClockFrequency() >> 1UL;
+    while ((Utils::GetBit(rccRegister, bit) == false) && (timeout > 0UL))
     {
-        Hal::System::Reset();
+        --timeout;
     }
-    else
-    {
-        Hal::System::HaltDeubgger();
-    }
-    return;
+    return timeout == 0UL;
 }
 
-void System::EnableResetOnSystemError(void)
+bool Internal::WaitForBitToClear(__IO uint32_t& rccRegister, uint32_t bit)
 {
-    resetOnError = true;
-    return;
-}
-
-void System::Init(void)
-{
-    Hal::System::InitPowerControl();
-    // Hal::Clocks::Init();
-    
-    Scheduler::Init(Config::schedulerTickInterval);
-    return;
-}
-
-void System::PreStartConfig(void)
-{
-    for (std::size_t i = 0; i < preStartConfigurationFunctionsMax; ++i)
+    // Since it's fair to assume that when configuring clocks no timers or other peripherals are available,
+    // a simple downcounter shall be used with preset value based on current system clock. This provides
+    // roughly the same scale timeout regardless of the current system clock.
+    uint32_t timeout = Hal::Clocks::GetSysClockFrequency() >> 1UL;
+    while ((Utils::GetBit(rccRegister, bit) == true) && (timeout > 0UL))
     {
-        apPreStartConfigFunctions[i]();
+        --timeout;
     }
-    return;
+    return timeout == 0UL;
+}
+
+bool Internal::WaitForBitPatternToSet(__IO uint32_t& rccRegister, uint32_t mask, uint32_t pattern)
+{
+    // Since it's fair to assume that when configuring clocks no timers or other peripherals are available,
+    // a simple downcounter shall be used with preset value based on current system clock. This provides
+    // roughly the same scale timeout regardless of the current system clock.
+    uint32_t timeout = Hal::Clocks::GetSysClockFrequency() >> 1UL;
+    while ((Utils::CompareBits(rccRegister, mask, pattern) == false) && (timeout > 0UL))
+    {
+        --timeout;
+    }
+    return timeout == 0UL;
 }
 
 } // namespace ASch
@@ -117,3 +105,4 @@ void System::PreStartConfig(void)
 //-----------------------------------------------------------------------------------------------------------------------------
 // 8. Static Functions
 //-----------------------------------------------------------------------------------------------------------------------------
+

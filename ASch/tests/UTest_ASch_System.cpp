@@ -34,6 +34,7 @@
 #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
 
 #include <Hal_System_Mock.hpp>
+#include <Hal_Clocks_Mock.hpp>
 #include <ASch_Scheduler_Mock.hpp>
 
 #include <ASch_System.hpp>
@@ -42,6 +43,12 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
+
+namespace ASch {
+namespace Config {
+Hal::OscillatorType oscillatorType = Hal::OscillatorType::highSpeed_internal;
+}
+}
 
 namespace
 {
@@ -97,12 +104,11 @@ SCENARIO ("A system is initialised", "[system]")
             THEN ("power control and clocks shall be initialised")
             {
                 REQUIRE_CALLS (1, HalMock::mockHalSystem, InitPowerControl);
-                REQUIRE_CALLS (1, HalMock::mockHalSystem, InitClocks);
 
                 AND_THEN ("scheduler shall be initialised with configured tick value after HAL inits")
                 {
                     REQUIRE_PARAM_CALLS (1, ASchMock::mockASchScheduler, Init, ASch::Config::schedulerTickInterval);
-                    REQUIRE_CALL_ORDER (CALL(HalMock::mockHalSystem, InitPowerControl) + CALL(HalMock::mockHalSystem, InitClocks) + CALL(ASchMock::mockASchScheduler, Init));
+                    REQUIRE_CALL_ORDER (CALL(HalMock::mockHalSystem, InitPowerControl) + CALL(ASchMock::mockASchScheduler, Init));
                 }
             }
         }

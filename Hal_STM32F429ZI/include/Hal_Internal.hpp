@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,78 +17,76 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    Hal_Internal.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    27 Jul 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @class   Internal
+//! @brief   STM32F429ZI internal functionality
 //! 
-//! This class configures certain system parameters
+//! This is a generic class that covers ceratain STM32F429ZI-specific functionalities outside the generic HAL API.
 
-#ifndef ASCH_TEST_CONFIGURATION_HPP_
-#define ASCH_TEST_CONFIGURATION_HPP_
+#ifndef HAL_INTERNAL_HPP_
+#define HAL_INTERNAL_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <Hal_Clocks.hpp>
-
-namespace ASch
-{
+#include <stm32f429xx_mock.h>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Scheduler Configuration
+// 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-enum class Message
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
 {
-    test_0 = 0,
-    test_1,
-    invalid // Do not remove! Leave last.
+
+//! @class   Internal
+//! @brief   STM32F429ZI internal functionality
+//! This is a generic class that covers ceratain STM32F429ZI-specific functionalities outside the generic HAL API.
+class Internal
+{
+public:
+    /// @brief Simple constructor.
+    explicit Internal(void) {};
+
+    /// @brief This function waits for a given bit to be set in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param bit - A bit to be checked.
+    /// @return Returns true if the bit is not set within timeout window. False if successful.
+    static bool WaitForBitToSet(__IO uint32_t& rccRegister, uint32_t bit);
+
+    /// @brief This function waits for a given bit to be cleared in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param bit - A bit to be checked.
+    /// @return Returns true if the bit is not cleared within timeout window. False if successful.
+    static bool WaitForBitToClear(__IO uint32_t& rccRegister, uint32_t bit);
+
+    /// @brief This function waits for a given bit patter to be set in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param mask - The bitfield mask.
+    /// @param pattern - The bitfield pattern.
+    /// @return Returns true if the pattern is not set within timeout window. False if successful.
+    static bool WaitForBitPatternToSet(__IO uint32_t& rccRegister, uint32_t mask, uint32_t pattern);
+
+private:
+    
 };
 
-namespace Config
-{
+} // namespace Hal
 
-const std::size_t schedulerTasksMax = 5;
-const std::size_t schedulerEventsMax = 10;
-const std::size_t messageListenersMax = 3;
-
-const uint16_t schedulerTickInterval = 1UL;
-
-} // namespace Config
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Pre-start Configuration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#ifdef SYSTEM_UNIT_TEST
-    // Test function prototypes
-    void PreStartConfig0(void);
-    void PreStartConfig1(void);
-
-    const configFunction_t apPreStartConfigFunctions[] =
-    {
-        PreStartConfig0,
-        PreStartConfig1
-    };
-#else
-    const configFunction_t apPreStartConfigFunctions[] = {0};
-#endif
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. System Configuration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Config
-{
-
-extern Hal::OscillatorType oscillatorType;
-
-} // namespace Config
-
-} // namespace ASch
-
-#endif // ASCH_TEST_CONFIGURATION_HPP_
+#endif // HAL_INTERNAL_HPP_

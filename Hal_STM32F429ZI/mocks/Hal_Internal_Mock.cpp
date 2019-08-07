@@ -17,52 +17,73 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.hpp
+//! @file    Hal_Internal_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for System HAL.
+//! @brief   Mocks for HAL GPIO.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
-
-#ifndef HAL_SYSTEM_MOCK_HPP_
-#define HAL_SYSTEM_MOCK_HPP_
+//! These are mocks for HAL GPIO utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Framework Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <Hal_Internal_Mock.hpp>
+#include <Hal_Internal.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Prototypes
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
+Mock<Internal> mockHalInternal;
+static HalMock::Internal& internal = mockHalInternal.get();
+
+void InitInternal(void)
 {
-public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
-    virtual void HaltDeubgger(void);
-};
+    static bool isFirstInit = true;
 
-/// @brief The mock entity for accessing FakeIt interface.
-extern Mock<System> mockHalSystem;
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalInternal, WaitForBitToSet));
+        Fake(Method(mockHalInternal, WaitForBitToClear));
+        Fake(Method(mockHalInternal, WaitForBitPatternToSet));
 
-/// @brief This function initialises the HAL System mock.
-void InitSystem(void);
+        isFirstInit = false;
+    }
+    else
+    {
+        mockHalInternal.Reset();
+    }
+    return;
+}
 
 } // namespace HalMock
 
-#endif // HAL_SYSTEM_MOCK_HPP_
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+bool Internal::WaitForBitToSet(__IO uint32_t& rccRegister, uint32_t bit)
+{
+    return HalMock::internal.WaitForBitToSet(rccRegister, bit);
+}
+
+bool Internal::WaitForBitToClear(__IO uint32_t& rccRegister, uint32_t bit)
+{
+    return HalMock::internal.WaitForBitToClear(rccRegister, bit);
+}
+
+bool Internal::WaitForBitPatternToSet(__IO uint32_t& rccRegister, uint32_t mask, uint32_t pattern)
+{
+    return HalMock::internal.WaitForBitPatternToSet(rccRegister, mask, pattern);
+}
+
+} // namespace Hal
+

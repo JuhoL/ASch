@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,78 +17,96 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Configuration.hpp
+//! @file    Hal_Clocks.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    28 Aug 2018
+//! @date    25 Jul 2019
 //!
-//! @brief   System configuration header for ASch.
+//! @class   Clocks
+//! @brief   !!!!! Brief file description here !!!!!
 //! 
-//! This class configures certain system parameters
+//! !!!!! Detailed file description here !!!!!
 
-#ifndef ASCH_TEST_CONFIGURATION_HPP_
-#define ASCH_TEST_CONFIGURATION_HPP_
+#ifndef HAL_CLOCKS_HPP_
+#define HAL_CLOCKS_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <Hal_Clocks.hpp>
-
-namespace ASch
-{
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Scheduler Configuration
+// 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-enum class Message
+namespace Hal
 {
-    test_0 = 0,
-    test_1,
-    invalid // Do not remove! Leave last.
+
+/// @brief This is a struct that is used to keep track of task states.
+enum class OscillatorType
+{
+    highSpeed_internal = 0,
+    highSpeed_external,
+    lowSpeed_internal,
+    lowSpeed_external,
+    pll,
+    unknown
 };
 
-namespace Config
+} // namespace Hal
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
 {
 
-const std::size_t schedulerTasksMax = 5;
-const std::size_t schedulerEventsMax = 10;
-const std::size_t messageListenersMax = 3;
-
-const uint16_t schedulerTickInterval = 1UL;
-
-} // namespace Config
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Pre-start Configuration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#ifdef SYSTEM_UNIT_TEST
-    // Test function prototypes
-    void PreStartConfig0(void);
-    void PreStartConfig1(void);
-
-    const configFunction_t apPreStartConfigFunctions[] =
-    {
-        PreStartConfig0,
-        PreStartConfig1
-    };
-#else
-    const configFunction_t apPreStartConfigFunctions[] = {0};
-#endif
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. System Configuration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Config
+//! @class   Clocks
+//! @brief   !!!!! Brief file description here !!!!!
+//! !!!!! Detailed file description here !!!!!
+class Clocks
 {
+public:
+    /// @brief Simple constructor.
+    explicit Clocks(void) {};
 
-extern Hal::OscillatorType oscillatorType;
+    /// @brief Enables the given oscillator.
+    /// @param type - The oscillator to be enabled.
+    static void Enable(Hal::OscillatorType type);
 
-} // namespace Config
+    /// @brief Disables the given oscillator.
+    /// @param type - The oscillator to be disabled.
+    static void Disable(Hal::OscillatorType type);
 
-} // namespace ASch
+    /// @brief Checks if the given oscillator is running.
+    /// @return Returns true if the oscillator is running.
+    static bool IsRunning(Hal::OscillatorType type);
 
-#endif // ASCH_TEST_CONFIGURATION_HPP_
+    /// @brief Returns current system clock frequency.
+    /// @return Current system clock frequency in Hz.
+    static uint32_t GetSysClockFrequency(void);
+
+    /// @brief Sets system clock source.
+    /// @param type - The oscillator type to be set as system clock source.
+    static void SetSysClockSource(Hal::OscillatorType type);
+
+    /// @brief Reads system clock source.
+    /// @return The oscillator type set as system clock source.
+    static Hal::OscillatorType GetSysClockSource(void);
+
+private:
+    static uint32_t sysClockFrequency;
+};
+
+} // namespace Hal
+
+#endif // HAL_CLOCKS_HPP_

@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
+#include <Hal_Clocks.hpp>
 
 namespace ASch
 {
@@ -67,6 +68,17 @@ const configFunction_t apPreStartConfigFunctions[] =
 {
     0
 };
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. System Configuration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Config
+{
+
+const Hal::OscillatorType oscillatorType = OscillatorType::highSpeed_internal;
+
+} // namespace Config
 
 } // namespace ASch
 

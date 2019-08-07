@@ -42,7 +42,7 @@ namespace HalMock
 Mock<Gpio> mockHalGpio;
 static HalMock::Gpio& gpio = mockHalGpio.get();
 
-void InitSystem(void)
+void InitGpio(void)
 {
     static bool isFirstInit = true;
 
@@ -90,7 +90,7 @@ void Gpio::SetOutputState(Pin_t& pin, bool state)
 
 bool Gpio::GetInputState(Pin_t& pin)
 {
-    return HalMock::gpio.GetInputState(pin);;
+    return HalMock::gpio.GetInputState(pin);
 }
 
 bool Gpio::GetOutputState(Pin_t& pin)
