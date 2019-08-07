@@ -17,56 +17,76 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Main.cpp
+//! @file    Hal_Internal.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    13 May 2019
+//! @date    27 Jul 2019
 //!
-//! @class   Main
-//! @brief   !!!!! Brief file description here !!!!!
+//! @class   Internal
+//! @brief   STM32F429ZI internal functionality
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! This is a generic class that covers ceratain STM32F429ZI-specific functionalities outside the generic HAL API.
+
+#ifndef HAL_INTERNAL_HPP_
+#define HAL_INTERNAL_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
+#include <stm32f4xx.h>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
+// 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
+// 4. Global Function Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
+// 5. Class Declaration
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-int main_test(void)
-#else
-int main(void)
-#endif
+namespace Hal
 {
-    ASch::System::Init();    
-    ASch::System::PreStartConfig();
-    ASch::Scheduler::Start();
-    ASch::Scheduler::MainLoop();
-    return 0;
-}
+
+//! @class   Internal
+//! @brief   STM32F429ZI internal functionality
+//! This is a generic class that covers ceratain STM32F429ZI-specific functionalities outside the generic HAL API.
+class Internal
+{
+public:
+    /// @brief Simple constructor.
+    explicit Internal(void) {};
+
+    /// @brief This function waits for a given bit to be set in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param bit - A bit to be checked.
+    /// @return Returns true if the bit is not set within timeout window. False if successful.
+    static bool WaitForBitToSet(__IO uint32_t& rccRegister, uint32_t bit);
+
+    /// @brief This function waits for a given bit to be cleared in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param bit - A bit to be checked.
+    /// @return Returns true if the bit is not cleared within timeout window. False if successful.
+    static bool WaitForBitToClear(__IO uint32_t& rccRegister, uint32_t bit);
+
+    /// @brief This function waits for a given bit patter to be set in given register.
+    /// @param rccRegister - A reference to the RCC register to be checked.
+    /// @param mask - The bitfield mask.
+    /// @param pattern - The bitfield pattern.
+    /// @return Returns true if the pattern is not set within timeout window. False if successful.
+    static bool WaitForBitPatternToSet(__IO uint32_t& rccRegister, uint32_t mask, uint32_t pattern);
+
+private:
+    
+};
+
+} // namespace Hal
+
+#endif // HAL_INTERNAL_HPP_

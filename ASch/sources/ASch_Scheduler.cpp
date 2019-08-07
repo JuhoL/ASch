@@ -68,12 +68,12 @@ uint8_t Scheduler::msPerTick = 0U;
 SchedulerStatus Scheduler::status = SchedulerStatus::idle;
 
 uint8_t Scheduler::taskCount = 0U;
-task_t Scheduler::tasks[schedulerTasksMax] = {{.intervalInMs = 0U, .Task = 0}};
+task_t Scheduler::tasks[Config::schedulerTasksMax] = {{.intervalInMs = 0U, .Task = 0}};
 
-Utils::Queue<event_t, schedulerEventsMax> Scheduler::eventQueue = Utils::Queue<event_t, schedulerEventsMax>();
+Utils::Queue<event_t, Config::schedulerEventsMax> Scheduler::eventQueue = Utils::Queue<event_t, Config::schedulerEventsMax>();
 
 uint8_t Scheduler::messageListenerCount = 0U;
-messageListener_t Scheduler::messageListeners[messageListenersMax] = {{.type = Message::invalid, .Handler = 0}};
+messageListener_t Scheduler::messageListeners[Config::messageListenersMax] = {{.type = Message::invalid, .Handler = 0}};
 
 //---------------------------------------
 // Functions
@@ -90,7 +90,7 @@ void Scheduler::Init(uint16_t tickIntervalInMs)
     }
     else
     {
-        for (uint8_t i = 0U; i < schedulerTasksMax; ++i)
+        for (uint8_t i = 0U; i < Config::schedulerTasksMax; ++i)
         {
             tasks[i] = {.intervalInMs = 0U, .Task = 0};
             taskStates[i] = {.msCounter = 0U, .isRunning = false};
@@ -142,7 +142,7 @@ void Scheduler::CreateTask(task_t task)
     if ((task.Task != 0) && (task.intervalInMs > 0U))
     {
         Hal::Isr::DisableGlobal();
-        if (taskCount < schedulerTasksMax)
+        if (taskCount < Config::schedulerTasksMax)
         {
             bool isDuplicate = false;
             for (uint8_t i = 0U; i < taskCount; ++i)
@@ -202,7 +202,7 @@ uint16_t Scheduler::GetTaskInterval(uint8_t taskId)
 {
     uint16_t interval;
 
-    if (taskId < schedulerTasksMax)
+    if (taskId < Config::schedulerTasksMax)
     {
         interval = tasks[taskId].intervalInMs;
     }
@@ -273,7 +273,7 @@ void Scheduler::RunEvents(void)
 
 void Scheduler::RegisterMessageListener(messageListener_t const& listener)
 {
-    if (messageListenerCount < messageListenersMax)
+    if (messageListenerCount < Config::messageListenersMax)
     {
         if (listener.Handler != 0)
         {

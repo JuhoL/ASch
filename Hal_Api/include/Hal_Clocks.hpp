@@ -17,56 +17,120 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    ASch_Main.cpp
+//! @file    Hal_Clocks.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    13 May 2019
+//! @date    25 Jul 2019
 //!
-//! @class   Main
+//! @class   Clocks
 //! @brief   !!!!! Brief file description here !!!!!
 //! 
 //! !!!!! Detailed file description here !!!!!
 
+#ifndef HAL_CLOCKS_HPP_
+#define HAL_CLOCKS_HPP_
+
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Include Files
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
-#include <ASch_System.hpp>
-#include <ASch_Scheduler.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 3. Local Variables
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Inline Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Static Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 6. Class Member Definitions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 7. Global Functions
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#if (UNIT_TEST == 1)
-int main_test(void)
-#else
-int main(void)
-#endif
+namespace Hal
 {
-    ASch::System::Init();    
-    ASch::System::PreStartConfig();
-    ASch::Scheduler::Start();
-    ASch::Scheduler::MainLoop();
-    return 0;
-}
+
+/// @brief This is a struct that is used to keep track of task states.
+enum class OscillatorType
+{
+    highSpeed_internal = 0,
+    highSpeed_external,
+    lowSpeed_internal,
+    lowSpeed_external,
+    pll,
+    unknown
+};
+
+} // namespace Hal
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+constexpr uint32_t MHz(uint32_t MHz) {return MHz * 1000000UL;}
+
+} // namespace Hal
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. Global Function Prototypes
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 5. Class Declaration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+//! @class   Clocks
+//! @brief   !!!!! Brief file description here !!!!!
+//! !!!!! Detailed file description here !!!!!
+class Clocks
+{
+public:
+    /// @brief Simple constructor.
+    explicit Clocks(void) {};
+
+    /// @brief Enables the given oscillator.
+    /// @param type - The oscillator to be enabled.
+    static void Enable(OscillatorType type);
+
+    /// @brief Disables the given oscillator.
+    /// @param type - The oscillator to be disabled.
+    static void Disable(OscillatorType type);
+
+    /// @brief Enables PLL.
+    /// @param source - The oscillator to be used as source. Note: Make sure you have configured a frequency to the source!
+    /// @param frequency - Desired PLL target frequency.
+    static void EnablePll(OscillatorType source, uint32_t frequency);
+
+    /// @brief Checks if the given oscillator is running.
+    /// @return Returns true if the oscillator is running.
+    static bool IsRunning(OscillatorType type);
+
+    /// @brief Sets the frequency of the given clock.
+    /// This frequency is used for calculations only! It's used for calculating timers delays, baudrates, etc.
+    /// The FW has no ability to validate the correctness of this value, so be careful to configure it correctly.
+    /// @param type - The oscillator which frequency will be set.
+    /// @param frequency - Clock frequency in Hz.
+    static void SetFrequency(OscillatorType type, uint32_t frequency);
+
+    /// @brief Returns the frequency of the given clock.
+    /// @return Clock frequency in Hz. If the clock is off, 0Hz shall be returned.
+    static uint32_t GetFrequency(OscillatorType type);
+
+    /// @brief Returns current system clock frequency.
+    /// @return Current system clock frequency in Hz.
+    static uint32_t GetSysClockFrequency(void);
+
+    /// @brief Sets system clock source.
+    /// @param type - The oscillator type to be set as system clock source.
+    static void SetSysClockSource(OscillatorType type);
+
+    /// @brief Reads system clock source.
+    /// @return The oscillator type set as system clock source.
+    static OscillatorType GetSysClockSource(void);
+
+private:
+    static uint32_t sysClockFrequency;
+    static uint32_t clockFrequencies[static_cast<std::size_t>(OscillatorType::unknown)];
+};
+
+} // namespace Hal
+
+#endif // HAL_CLOCKS_HPP_

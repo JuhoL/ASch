@@ -55,6 +55,8 @@ namespace ASch
 //! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
 #define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
 
+#define SET_RETURN(mock, function, returnValue)                 When(Method(mock, function)).AlwaysReturn(returnValue);
+
 } // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------

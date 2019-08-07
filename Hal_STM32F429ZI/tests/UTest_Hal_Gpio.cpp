@@ -172,7 +172,7 @@ SCENARIO ("Developer configures GPIO wrong", "[gpio]")
         {
             gpio.SetConfiguration(gpioConfig);
 
-            THEN ("a critical system error shall trigger")
+            THEN ("an assert failure shall trigger")
             {
                 REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }
@@ -191,7 +191,7 @@ SCENARIO ("Developer configures GPIO wrong", "[gpio]")
         {
             gpio.SetConfiguration(gpioConfig);
 
-            THEN ("a critical system error shall trigger")
+            THEN ("an assert failure shall trigger")
             {
                 REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }
@@ -326,7 +326,7 @@ SCENARIO ("Developer uses GPIO wrong", "[gpio]")
         {
             gpio.SetOutputState(gpioConfig.pin, true);
 
-            THEN ("a critical system error shall trigger")
+            THEN ("an assert failure shall trigger")
             {
                 REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }
@@ -335,7 +335,7 @@ SCENARIO ("Developer uses GPIO wrong", "[gpio]")
         {
             (void)gpio.GetInputState(gpioConfig.pin);
 
-            THEN ("a critical system error shall trigger")
+            THEN ("an assert failure shall trigger")
             {
                 REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }
@@ -344,7 +344,7 @@ SCENARIO ("Developer uses GPIO wrong", "[gpio]")
         {
             (void)gpio.GetOutputState(gpioConfig.pin);
 
-            THEN ("a critical system error shall trigger")
+            THEN ("an assert failure shall trigger")
             {
                 REQUIRE (ASchMock::Assert::GetFails() == 1UL);
             }

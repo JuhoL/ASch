@@ -29,8 +29,8 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <Hal_Isr_Mock.hpp>
-#include <Hal_Isr.hpp>
+#include <ASch_Scheduler_Mock.hpp>
+#include <ASch_Scheduler.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Initialisation
@@ -42,12 +42,13 @@ namespace ASchMock
 Mock<Scheduler> mockASchScheduler;
 static ASchMock::Scheduler& scheduler = mockASchScheduler.get();
 
-void InitSystem(void)
+void InitScheduler(void)
 {
     static bool isFirstInit = true;
 
     if (isFirstInit == true)
     {
+        Fake(Method(mockASchScheduler, Init));
         Fake(Method(mockASchScheduler, Start));
         Fake(Method(mockASchScheduler, Stop));
         Fake(Method(mockASchScheduler, GetStatus));
@@ -64,6 +65,7 @@ void InitSystem(void)
         Fake(Method(mockASchScheduler, UnregisterMessageListener));
         Fake(Method(mockASchScheduler, GetNumberOfMessageListeners));
         Fake(Method(mockASchScheduler, PushMessage));
+        Fake(Method(mockASchScheduler, MainLoop));
     }
     else
     {
@@ -78,8 +80,14 @@ void InitSystem(void)
 // 3. Mock Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace Hal
+namespace ASch
 {
+
+void Scheduler::Init(uint16_t tickIntervalInMs)
+{
+    ASchMock::scheduler.Init(tickIntervalInMs);
+    return;
+}
 
 void Scheduler::Start(void)
 {
@@ -173,6 +181,11 @@ void Scheduler::PushMessage(message_t const& message)
     return;
 }
 
+void Scheduler::MainLoop(void)
+{
+    ASchMock::scheduler.MainLoop();
+    return;
+}
 
-} // namespace Hal
+} // namespace ASch
 

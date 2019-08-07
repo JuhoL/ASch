@@ -52,6 +52,7 @@ class System
 public:
     explicit System(void) {};
     virtual void Error(ASch::SysError error);
+    virtual void EnableResetOnSystemError(void);
     virtual void Init(void);
     virtual void PreStartConfig(void);
 };

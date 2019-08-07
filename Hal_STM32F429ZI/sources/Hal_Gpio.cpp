@@ -118,7 +118,7 @@ Gpio::Gpio(void)
 
 void Gpio::GetConfiguration(gpioConfig_t& gpio)
 {
-    Utils::Assert(gpio.pin.number <= 15U);
+    ASSERT(gpio.pin.number <= 15U);
 
     gpio.mode = GetMode(gpio.pin);
     gpio.isOpenDrain = IsOpenDrain(gpio.pin);
@@ -131,7 +131,7 @@ void Gpio::GetConfiguration(gpioConfig_t& gpio)
 
 void Gpio::SetConfiguration(gpioConfig_t& gpio)
 {
-    Utils::Assert(gpio.pin.number <= 15U);
+    ASSERT(gpio.pin.number <= 15U);
     
     EnablePortClock(gpio.pin.port);
     SetMode(gpio.pin, gpio.mode);
@@ -146,7 +146,7 @@ void Gpio::SetConfiguration(gpioConfig_t& gpio)
 void Gpio::SetOutputState(Pin_t& pin, bool state)
 {
     // See STM32F429ZI datasheet chapter 8.4.7.
-    Utils::Assert(pin.number <= 15U);
+    ASSERT(pin.number <= 15U);
     if (state == true)
     {
         Utils::SetBit(GPIO(pin.port)->BSRR, pin.number, true);
@@ -160,13 +160,13 @@ void Gpio::SetOutputState(Pin_t& pin, bool state)
 
 bool Gpio::GetInputState(Pin_t& pin)
 {
-    Utils::Assert(pin.number <= 15U);
+    ASSERT_RETVAL(pin.number <= 15U, false);
     return (Utils::GetBits(GPIO(pin.port)->IDR, pin.number, stateMask) != 0UL);
 }
 
 bool Gpio::GetOutputState(Pin_t& pin)
 {
-    Utils::Assert(pin.number <= 15U);
+    ASSERT_RETVAL(pin.number <= 15U, false);
     return (Utils::GetBits(GPIO(pin.port)->ODR, pin.number, stateMask) != 0UL);
 }
 

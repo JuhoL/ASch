@@ -149,18 +149,21 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             THEN ("the scheduler shall configure system tick")
             {
                 REQUIRE_PARAM_CALLS (1, HalMock::mockHalSysTick, SetInterval, 1U);
-            }
-            AND_THEN ("scheduler tick handler shall be set as system tick handler")
-            {
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, SetHandler, Hal::Interrupt::sysTick, ASch::Scheduler::TickHandler);
-            }
-            AND_THEN ("no tasks shall be running")
-            {
-                REQUIRE (ASch::Scheduler::GetTaskCount() == 0U);
-            }
-            AND_THEN ("scheduler state shall be idle")
-            {
-                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::idle);
+
+                AND_THEN ("scheduler tick handler shall be set as system tick handler")
+                {
+                    REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, SetHandler, Hal::Interrupt::sysTick, ASch::Scheduler::TickHandler);
+
+                    AND_THEN ("no tasks shall be running")
+                    {
+                        REQUIRE (ASch::Scheduler::GetTaskCount() == 0U);
+
+                        AND_THEN ("scheduler state shall be idle")
+                        {
+                            REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::idle);
+                        }
+                    }
+                }
             }
         }
     }
@@ -176,14 +179,16 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             THEN ("SysTick ISR is enabled")
             {
                 REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, Enable, Hal::Interrupt::sysTick);
-            }
-            AND_THEN ("SysTick is started")
-            {
-                REQUIRE_CALLS (1, HalMock::mockHalSysTick, Start);
-            }
-            AND_THEN ("scheduler state shall be running")
-            {
-                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::running);
+
+                AND_THEN ("SysTick is started")
+                {
+                    REQUIRE_CALLS (1, HalMock::mockHalSysTick, Start);
+
+                    AND_THEN ("scheduler state shall be running")
+                    {
+                        REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::running);
+                    }
+                }
             }
         }
     }
@@ -200,14 +205,16 @@ SCENARIO ("Developer starts or stops the scheduler", "[scheduler]")
             THEN ("SysTick is stopped")
             {
                 REQUIRE_CALLS(1, HalMock::mockHalSysTick, Stop);
-            }
-            AND_THEN ("SysTick ISR is disabled") // ToDo: Verify order!
-            {
-                REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, Disable, Hal::Interrupt::sysTick);
-            }
-            AND_THEN ("scheduler state shall be stopped")
-            {
-                REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::stopped);
+
+                AND_THEN ("SysTick ISR is disabled") // ToDo: Verify order!
+                {
+                    REQUIRE_PARAM_CALLS (1, HalMock::mockHalIsr, Disable, Hal::Interrupt::sysTick);
+
+                    AND_THEN ("scheduler state shall be stopped")
+                    {
+                        REQUIRE (ASch::Scheduler::GetStatus() == ASch::SchedulerStatus::stopped);
+                    }
+                }
             }
         }
     }
@@ -273,30 +280,32 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
                 REQUIRE_CALLS (1, HalMock::mockHalIsr, DisableGlobal);
                 REQUIRE_CALLS (1, HalMock::mockHalIsr, EnableGlobal);
                 REQUIRE_CALL_ORDER (CALL(HalMock::mockHalIsr, DisableGlobal) + CALL(HalMock::mockHalIsr, EnableGlobal));
-            }
-            AND_THEN ("the task count shall be one")
-            {
-                REQUIRE (ASch::Scheduler::GetTaskCount() == 1U);
-            }
-            AND_THEN ("the task 0 interval will be set to one")
-            {
-                REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
-            }
-            AND_WHEN ("SysTick triggers")
-            {
-                RunTicks(1UL);
 
-                THEN ("Task0 shall be called once")
+                AND_THEN ("the task count shall be one")
                 {
-                    REQUIRE (testTaskCalls[0] == 1U);
-                }
-                AND_WHEN ("SysTick triggers five more times")
-                {
-                    RunTicks(5UL);
+                    REQUIRE (ASch::Scheduler::GetTaskCount() == 1U);
 
-                    THEN ("Task0 shall be called five more additional times")
+                    AND_THEN ("the task 0 interval will be set to one")
                     {
-                        REQUIRE (testTaskCalls[0] == 6U);
+                        REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
+                    }
+                    AND_WHEN ("SysTick triggers")
+                    {
+                        RunTicks(1UL);
+
+                        THEN ("Task0 shall be called once")
+                        {
+                            REQUIRE (testTaskCalls[0] == 1U);
+                        }
+                        AND_WHEN ("SysTick triggers five more times")
+                        {
+                            RunTicks(5UL);
+
+                            THEN ("Task0 shall be called five more additional times")
+                            {
+                                REQUIRE (testTaskCalls[0] == 6U);
+                            }
+                        }
                     }
                 }
             }
@@ -322,55 +331,56 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
                 THEN ("the task count shall be two")
                 {
                     REQUIRE (ASch::Scheduler::GetTaskCount() == 2U);
-                }
-                AND_THEN ("the interval of task ID 1 will be set to five")
-                {
-                    REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 5U);
-                }
-                AND_WHEN ("SysTick triggers twice")
-                {
-                    RunTicks(2UL);
 
-                    THEN ("no tasks shall run")
+                    AND_THEN ("the interval of task ID 1 will be set to five")
                     {
-                        REQUIRE (testTaskCalls[0] == 0U);
-                        REQUIRE (testTaskCalls[1] == 0U);
+                        REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 5U);
                     }
-                    AND_WHEN ("SysTick triggers third time")
+                    AND_WHEN ("SysTick triggers twice")
                     {
-                        RunTicks(1UL);
+                        RunTicks(2UL);
 
-                        THEN ("Task0 shall be called once")
+                        THEN ("no tasks shall run")
                         {
-                            REQUIRE (testTaskCalls[0] == 1U);
+                            REQUIRE (testTaskCalls[0] == 0U);
                             REQUIRE (testTaskCalls[1] == 0U);
                         }
-                        AND_WHEN ("SysTick triggers one more times")
+                        AND_WHEN ("SysTick triggers third time")
                         {
                             RunTicks(1UL);
 
-                            THEN ("there shall be no new calls")
+                            THEN ("Task0 shall be called once")
                             {
                                 REQUIRE (testTaskCalls[0] == 1U);
                                 REQUIRE (testTaskCalls[1] == 0U);
                             }
-                            AND_WHEN ("SysTick triggers one more time")
+                            AND_WHEN ("SysTick triggers one more times")
                             {
                                 RunTicks(1UL);
 
-                                THEN ("Task1 shall be called once")
+                                THEN ("there shall be no new calls")
                                 {
                                     REQUIRE (testTaskCalls[0] == 1U);
-                                    REQUIRE (testTaskCalls[1] == 1U);
+                                    REQUIRE (testTaskCalls[1] == 0U);
                                 }
                                 AND_WHEN ("SysTick triggers one more time")
                                 {
                                     RunTicks(1UL);
 
-                                    THEN ("Task0 shall be called once more")
+                                    THEN ("Task1 shall be called once")
                                     {
-                                        REQUIRE (testTaskCalls[0] == 2U);
+                                        REQUIRE (testTaskCalls[0] == 1U);
                                         REQUIRE (testTaskCalls[1] == 1U);
+                                    }
+                                    AND_WHEN ("SysTick triggers one more time")
+                                    {
+                                        RunTicks(1UL);
+
+                                        THEN ("Task0 shall be called once more")
+                                        {
+                                            REQUIRE (testTaskCalls[0] == 2U);
+                                            REQUIRE (testTaskCalls[1] == 1U);
+                                        }
                                     }
                                 }
                             }
@@ -396,30 +406,34 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
             THEN ("the task count shall be two")
             {
                 REQUIRE (ASch::Scheduler::GetTaskCount() == 2U);
-            }
-            AND_THEN ("interval of task ID 0 shall be one")
-            {
-                REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
-            }
-            AND_THEN ("interval of task ID 1 shall be three")
-            {
-                REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 3U);
-            }
-            AND_WHEN ("SysTick triggers three times")
-            {
-                RunTicks(3UL);
 
-                THEN ("Task0 shall be called thrice")
+                AND_THEN ("interval of task ID 0 shall be one")
                 {
-                    REQUIRE (testTaskCalls[0] == 3U);
-                }
-                AND_THEN ("Task1 shall not be called")
-                {
-                    REQUIRE (testTaskCalls[1] == 0U);
-                }
-                AND_THEN ("Task2 shall be called once")
-                {
-                    REQUIRE (testTaskCalls[2] == 1U);
+                    REQUIRE (ASch::Scheduler::GetTaskInterval(0) == 1U);
+
+                    AND_THEN ("interval of task ID 1 shall be three")
+                    {
+                        REQUIRE (ASch::Scheduler::GetTaskInterval(1) == 3U);
+                    }
+                    AND_WHEN ("SysTick triggers three times")
+                    {
+                        RunTicks(3UL);
+
+                        THEN ("Task0 shall be called thrice")
+                        {
+                            REQUIRE (testTaskCalls[0] == 3U);
+
+                            AND_THEN ("Task1 shall not be called")
+                            {
+                                REQUIRE (testTaskCalls[1] == 0U);
+
+                                AND_THEN ("Task2 shall be called once")
+                                {
+                                    REQUIRE (testTaskCalls[2] == 1U);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -431,14 +445,14 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
 
         WHEN ("developer fills the scheduler up to task limit")
         {
-            for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
+            for (uint8_t i = 0U; i < ASch::Config::schedulerTasksMax; ++i)
             {
                 ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             THEN ("task count shall be schedulerTasksMax")
             {
-                REQUIRE (ASch::Scheduler::GetTaskCount() == ASch::schedulerTasksMax);
+                REQUIRE (ASch::Scheduler::GetTaskCount() == ASch::Config::schedulerTasksMax);
             }
             AND_THEN ("no errors shall be triggered")
             {
@@ -465,15 +479,17 @@ SCENARIO ("Developer configures tasks successfully", "[scheduler]")
                 THEN ("task count shall stay as three")
                 {
                     REQUIRE (ASch::Scheduler::GetTaskCount() == 3U);
-                }
-                AND_THEN ("no errors shall be triggered")
-                {
-                    REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
-                    REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
-                }
-                AND_THEN ("Task1 time shall be updated")
-                {
-                    REQUIRE (ASch::Scheduler::GetTaskInterval(1U) == 2U);
+
+                    AND_THEN ("no errors shall be triggered")
+                    {
+                        REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                        REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
+
+                        AND_THEN ("Task1 time shall be updated")
+                        {
+                            REQUIRE (ASch::Scheduler::GetTaskInterval(1U) == 2U);
+                        }
+                    }
                 }
             }
         }
@@ -545,11 +561,12 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
             THEN ("task count shall stay zero")
             {
                 REQUIRE (ASch::Scheduler::GetTaskCount() == 0U);
-            }
-            AND_THEN ("no errors shall be triggered")
-            {
-                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
-                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
+
+                AND_THEN ("no errors shall be triggered")
+                {
+                    REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                    REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
+                }
             }
         }
     }
@@ -560,14 +577,14 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
         WHEN ("developer fills the scheduler task limit")
         {
-            for (uint8_t i = 0U; i < ASch::schedulerTasksMax; ++i)
+            for (uint8_t i = 0U; i < ASch::Config::schedulerTasksMax; ++i)
             {
                 ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[i]});
             }
 
             AND_WHEN ("developer tries to create another task")
             {
-                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::schedulerTasksMax]});
+                ASch::Scheduler::CreateTask({.intervalInMs = 1U, .Task = Handlers[ASch::Config::schedulerTasksMax]});
 
                 THEN ("system error shall trigger")
                 {
@@ -584,7 +601,7 @@ SCENARIO ("Developer configures or uses tasks wrong", "[scheduler]")
 
         WHEN ("developer tries to read task interval with an invalid ID")
         {
-            uint16_t taskInterval = ASch::Scheduler::GetTaskInterval(ASch::schedulerTasksMax);
+            uint16_t taskInterval = ASch::Scheduler::GetTaskInterval(ASch::Config::schedulerTasksMax);
 
             THEN ("the task interval will be set to zero")
             {
@@ -616,11 +633,11 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                 REQUIRE_CALLS (1, HalMock::mockHalIsr, DisableGlobal);
                 REQUIRE_CALLS (1, HalMock::mockHalIsr, EnableGlobal);
                 REQUIRE_CALL_ORDER (CALL(HalMock::mockHalIsr, DisableGlobal) + CALL(HalMock::mockHalIsr, EnableGlobal));
-            }
-            AND_THEN ("wake up call shall occur")
-            {
-                REQUIRE_CALLS (1, HalMock::mockHalSystem, WakeUp);
 
+                AND_THEN ("wake up call shall occur")
+                {
+                    REQUIRE_CALLS (1, HalMock::mockHalSystem, WakeUp);
+                }
                 AND_WHEN ("scheduler loop runs")
                 {
                     ASch::Scheduler::MainLoop();
@@ -637,10 +654,11 @@ SCENARIO ("Developer pushes events successfully", "[scheduler]")
                         THEN ("no other event runs shall occur")
                         {
                             REQUIRE (eventHandlerCalls[0] == 1U);
-                        }
-                        AND_THEN ("sleep call shall occur")
-                        {
-                            REQUIRE_CALLS (1, HalMock::mockHalSystem, Sleep);
+
+                            AND_THEN ("sleep call shall occur")
+                            {
+                                REQUIRE_CALLS (1, HalMock::mockHalSystem, Sleep);
+                            }
                         }
                     }
                 }
@@ -717,7 +735,7 @@ SCENARIO ("Developer pushes events unsuccessfully", "[scheduler]")
             uint8_t testData0 = 0x12U;
             ASch::event_t testEvent = {.Handler = TestEventHandler0, .pPayload = static_cast<void*>(&testData0)};
 
-            for (std::size_t i = 0; i < ASch::schedulerEventsMax; ++i)
+            for (std::size_t i = 0; i < ASch::Config::schedulerEventsMax; ++i)
             {
                 ASch::Scheduler::PushEvent(testEvent);
             }
@@ -862,12 +880,11 @@ SCENARIO ("Developer manages message system unsuccessfully", "[scheduler]")
             THEN ("the duplicate listener shall be ignored")
             {
                 REQUIRE (ASch::Scheduler::GetNumberOfMessageListeners(ASch::Message::test_0) == 1U);
-            }
-            AND_THEN ("no errors shall be triggered")
-            {
-                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
-                REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
-
+                AND_THEN ("no errors shall be triggered")
+                {
+                    REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+                    REQUIRE (ASch::Scheduler::GetStatus() != ASch::SchedulerStatus::error);
+                }
                 AND_WHEN ("a message_test_0 is posted and scheduler runs one cycle")
                 {
                     ASch::Scheduler::PushMessage({.type = ASch::Message::test_0, .pPayload = static_cast<void*>(&testData)});

@@ -34,6 +34,8 @@
 #define SYSTEM_UNIT_TEST    // For enabling test functions in ASch_TestConfiguration.hpp
 
 #include <Hal_System_Mock.hpp>
+#include <Hal_Clocks_Mock.hpp>
+#include <ASch_Scheduler_Mock.hpp>
 
 #include <ASch_System.hpp>
 #include <ASch_Configuration.hpp>
@@ -42,10 +44,14 @@
 // 2. Test Structs and Variables
 //-----------------------------------------------------------------------------------------------------------------------------
 
+namespace ASch {
+namespace Config {
+Hal::OscillatorType oscillatorType = Hal::OscillatorType::highSpeed_internal;
+}
+}
+
 namespace
 {
-
-#define MOCK_SYSTEM()       ASch::System(mockSystem.get())
 
 // Test function declarations. See ASch_TestConfiguration.hpp for prototypes.
 uint8_t preStartConfigCallCount[ASch::preStartConfigurationFunctionsMax] = {0U};
@@ -83,11 +89,32 @@ void PreStartConfig1(void)
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("A system is configured", "[system]")
+SCENARIO ("A system is initialised", "[system]")
 {
+    HalMock::InitSystem();
+    ASchMock::InitScheduler();
     InitConfigCallCounts();
     
-    GIVEN ("a system object is created")
+    GIVEN ("a system is not yet initialised")
+    {
+        WHEN ("initialisation function is called")
+        {
+            ASch::System::Init();
+
+            THEN ("power control and clocks shall be initialised")
+            {
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, InitPowerControl);
+
+                AND_THEN ("scheduler shall be initialised with configured tick value after HAL inits")
+                {
+                    REQUIRE_PARAM_CALLS (1, ASchMock::mockASchScheduler, Init, ASch::Config::schedulerTickInterval);
+                    REQUIRE_CALL_ORDER (CALL(HalMock::mockHalSystem, InitPowerControl) + CALL(ASchMock::mockASchScheduler, Init));
+                }
+            }
+        }
+    }
+    
+    GIVEN ("a system is not yet initialised")
     {
         WHEN ("pre-start config is called")
         {
@@ -97,6 +124,40 @@ SCENARIO ("A system is configured", "[system]")
             {
                 REQUIRE (preStartConfigCallCount[0] == 1U);
                 REQUIRE (preStartConfigCallCount[1] == 1U);
+            }
+        }
+    }
+}
+
+SCENARIO ("A system error occurs", "[system]")
+{
+    HalMock::InitSystem();
+    
+    GIVEN ("a system is idle")
+    {
+        WHEN ("a system error is thrown")
+        {
+            ASch::System::Error(ASch::SysError::invalidParameters);
+
+            THEN ("a debugger halt shall be called")
+            {
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, HaltDeubgger);
+            }
+        }
+    }
+
+    
+    GIVEN ("a reset on error is configured")
+    {
+        ASch::System::EnableResetOnSystemError();
+
+        WHEN ("a system error is thrown")
+        {
+            ASch::System::Error(ASch::SysError::invalidParameters);
+
+            THEN ("a debugger halt shall be called")
+            {
+                REQUIRE_CALLS (1, HalMock::mockHalSystem, Reset);
             }
         }
     }

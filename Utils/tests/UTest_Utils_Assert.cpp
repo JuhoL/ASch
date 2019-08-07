@@ -32,6 +32,7 @@
 #include <Catch_Utils.hpp>
 
 #include <Utils_Assert.hpp>
+#include <ASch_System_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -46,15 +47,49 @@ namespace
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO ("Assert passes", "[assert]")
 {
-    GIVEN ("a_premise")
+    ASchMock::InitSystem();
+
+    GIVEN ("a condition passes")
     {
-        WHEN ("doing_something")
+        bool condition = 1 == 1;
+
+        WHEN ("passing the condition to assert")
         {
-            THEN ("something_shall_happen")
+            bool isFail = Utils::Assert(condition);
+
+            THEN ("assert failure shall not trigger")
             {
-                REQUIRE (1 == 1);
+                REQUIRE_CALLS (0, ASchMock::mockASchSystem, Error);
+            }
+            AND_THEN ("assert shall return false")
+            {
+                REQUIRE (isFail == false);
+            }
+        }
+    }
+}
+
+SCENARIO ("Assert fails", "[assert]")
+{
+    ASchMock::InitSystem();
+    
+    GIVEN ("a condition fails")
+    {
+        bool condition = 1 == 0;
+
+        WHEN ("passing the condition to assert")
+        {
+            bool isFail = Utils::Assert(condition);
+
+            THEN ("assert failure shall trigger")
+            {
+                REQUIRE_PARAM_CALLS (1, ASchMock::mockASchSystem, Error, ASch::SysError::assertFailure);
+            }
+            AND_THEN ("assert shall return true")
+            {
+                REQUIRE (isFail == true);
             }
         }
     }

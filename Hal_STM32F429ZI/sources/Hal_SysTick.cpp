@@ -73,11 +73,11 @@ SysTick::SysTick(void)
 
 void SysTick::SetInterval(uint16_t intervalIn01Ms)
 {
-    Utils::Assert(intervalIn01Ms > 0U);
-    Utils::Assert(Utils::GetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos) == false);
+    ASSERT(intervalIn01Ms > 0U);
+    ASSERT(Utils::GetBit(SYSTICK->CTRL, SysTick_CTRL_ENABLE_Pos) == false);
 
     uint32_t calibrationValue = SYSTICK->CALIB & calibrationMask;
-    Utils::Assert(calibrationValue > 0U); // In some rare cases the calibration can be zero.
+    ASSERT(calibrationValue > 0U); // In some rare cases the calibration can be zero.
 
     // Simple claculation PreLoad = interval / intervalOfCalibration * calibration with rounding.
     uint32_t preLoad = ((calibrationValue * static_cast<uint32_t>(intervalIn01Ms)) + (calibratedIntervalIn01Ms >> 1UL)) / calibratedIntervalIn01Ms;

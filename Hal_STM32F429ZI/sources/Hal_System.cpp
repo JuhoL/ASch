@@ -32,6 +32,7 @@
 #include <stm32f4xx.h>
 #include <Utils_Assert.hpp>
 #include <Utils_Bit.hpp>
+#include <ASch_Configuration.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
@@ -73,23 +74,23 @@ void System::WakeUp(void)
 
 void System::InitPowerControl(void)
 {
-    Utils::SetBit(RCC->APB1ENR, 28UL, true);
+    Utils::SetBit(RCC->APB1ENR, RCC_APB1ENR_PWREN_Pos, true);
 
-    return;
-}
-
-void System::InitClocks(void)
-{
     return;
 }
 
 void System::Reset(void)
 {
-    Utils::SetBit(SCB->AIRCR, 2UL, true);
+    Utils::SetBit(SCB->AIRCR, SCB_AIRCR_SYSRESETREQ_Pos, true);
     return;
 }
 
 void System::CriticalSystemError(void)
+{
+    return;
+}
+
+void System::HaltDeubgger(void)
 {
     return;
 }

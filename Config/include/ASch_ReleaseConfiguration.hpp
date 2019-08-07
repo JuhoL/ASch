@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
+#include <Hal_Clocks.hpp>
 
 namespace ASch
 {
@@ -48,11 +49,16 @@ enum class Message
     invalid // Do not remove! Leave last.
 };
 
+namespace Config
+{
+
 const std::size_t schedulerTasksMax = 5;
 const std::size_t schedulerEventsMax = 10;
 const std::size_t messageListenersMax = 10;
 
 const uint16_t schedulerTickInterval = 1UL;
+
+} // namespace Config
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Pre-start Configuration
@@ -62,6 +68,17 @@ const configFunction_t apPreStartConfigFunctions[] =
 {
     0
 };
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 4. System Configuration
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Config
+{
+
+const Hal::OscillatorType oscillatorType = Hal::OscillatorType::highSpeed_internal;
+
+} // namespace Config
 
 } // namespace ASch
 

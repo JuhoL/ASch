@@ -17,16 +17,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.hpp
+//! @file    Hal_Clocks_Mock.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for System HAL.
+//! @brief   Mocks for clocks HAL.
 //! 
 //! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
 
-#ifndef HAL_SYSTEM_MOCK_HPP_
-#define HAL_SYSTEM_MOCK_HPP_
+#ifndef HAL_INTERNAL_MOCK_HPP_
+#define HAL_INTERNAL_MOCK_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Framework Dependencies
@@ -36,6 +36,9 @@
 #include <fakeit.hpp>
 using namespace fakeit;
 
+#include <Utils_Types.hpp>
+#include <stm32f429xx_mock.h>
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Mock Init Prototypes
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -43,26 +46,25 @@ using namespace fakeit;
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
+//! @class Internal
+//! @brief This is a mock class for internal HAL
+class Internal
 {
 public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
-    virtual void HaltDeubgger(void);
+    /// @brief Simple constructor.
+    explicit Internal(void) {};
+
+    virtual bool WaitForBitToSet(__IO uint32_t& rccRegister, uint32_t bit);
+    virtual bool WaitForBitToClear(__IO uint32_t& rccRegister, uint32_t bit);
+    virtual bool WaitForBitPatternToSet(__IO uint32_t& rccRegister, uint32_t mask, uint32_t pattern);
+private:
 };
 
-/// @brief The mock entity for accessing FakeIt interface.
-extern Mock<System> mockHalSystem;
+extern Mock<Internal> mockHalInternal;
 
-/// @brief This function initialises the HAL System mock.
-void InitSystem(void);
+/// @brief This function initialises the HAL Gpio mock.
+void InitInternal(void);
 
 } // namespace HalMock
 
-#endif // HAL_SYSTEM_MOCK_HPP_
+#endif // HAL_INTERNAL_MOCK_HPP_

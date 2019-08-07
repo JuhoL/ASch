@@ -1,3 +1,5 @@
 ./ASch/sources/ASch_System.cpp
 ./ASch/tests/UTest_ASch_System.cpp
+./Hal_Api/mocks/Hal_Clocks_Mock.cpp
 ./Hal_Api/mocks/Hal_System_Mock.cpp
+./ASch/mocks/ASch_Scheduler_Mock.cpp

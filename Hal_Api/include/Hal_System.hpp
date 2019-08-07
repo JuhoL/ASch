@@ -69,9 +69,6 @@ public:
     
     /// @brief Initialises power control.
     static void InitPowerControl(void);
-    
-    /// @brief Initialises system clocks.
-    static void InitClocks(void);
 
     /// @brief Performs MCU reset.
     static void Reset(void);
@@ -79,8 +76,11 @@ public:
     /// @brief Critical system error handler. Halts the CPU.
     static void CriticalSystemError(void);
 
+    /// @brief A debugger trap.
+    static void HaltDeubgger(void);
+
 private:
-    
+
 };
 
 } // namespace Hal

@@ -29,10 +29,10 @@
 // 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <Catch_Utils.hpp>
+
+#include <ASch_Scheduler_Mock.hpp>
+#include <ASch_System_Mock.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Test Structs and Variables
@@ -43,19 +43,30 @@ namespace
 
 }
 
+extern int main_test(void);
+
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Test Cases
 //-----------------------------------------------------------------------------------------------------------------------------
 
-SCENARIO ("Some test", "[feature_tag]")
+SCENARIO ("System starts", "[feature_tag]")
 {
-    GIVEN ("a_premise")
+    ASchMock::InitScheduler();
+    ASchMock::InitSystem();
+
+    GIVEN ("system is starting")
     {
-        WHEN ("doing_something")
+        WHEN ("main() is called")
         {
-            THEN ("something_shall_happen")
+            main_test();
+
+            THEN ("system init, pre-start config, scheduler start shall be called and main loop shall be entered")
             {
-                REQUIRE (1 == 1);
+                REQUIRE_CALLS (1, ASchMock::mockASchSystem, Init);
+                REQUIRE_CALLS (1, ASchMock::mockASchSystem, PreStartConfig);
+                REQUIRE_CALLS (1, ASchMock::mockASchScheduler, Start);
+                REQUIRE_CALLS (1, ASchMock::mockASchScheduler, MainLoop);
+                REQUIRE_CALL_ORDER (CALL(ASchMock::mockASchSystem, Init) + CALL(ASchMock::mockASchSystem, PreStartConfig) + CALL(ASchMock::mockASchScheduler, Start) + CALL(ASchMock::mockASchScheduler, MainLoop));
             }
         }
     }

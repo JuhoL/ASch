@@ -35,6 +35,7 @@
 #endif
 
 #include <ASch_System.hpp>
+#include <ASch_Scheduler.hpp>
 #include <ASch_Configuration.hpp>
 #include <Hal_System.hpp>
 
@@ -62,16 +63,38 @@ namespace ASch
 {
 
 //---------------------------------------
+// Initialise static members
+//---------------------------------------
+bool System::resetOnError = false;
+
+//---------------------------------------
 // Functions
 //---------------------------------------
 
 void System::Error(SysError error)
 {
+    if (resetOnError == true)
+    {
+        Hal::System::Reset();
+    }
+    else
+    {
+        Hal::System::HaltDeubgger();
+    }
+    return;
+}
+
+void System::EnableResetOnSystemError(void)
+{
+    resetOnError = true;
     return;
 }
 
 void System::Init(void)
 {
+    Hal::System::InitPowerControl();
+    
+    Scheduler::Init(Config::schedulerTickInterval);
     return;
 }
 

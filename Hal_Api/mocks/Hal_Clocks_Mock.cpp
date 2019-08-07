@@ -17,52 +17,95 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_System_Mock.hpp
+//! @file    Hal_Clocks_Mock.cpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
 //! @date    20 May 2019
 //!
-//! @brief   Mocks for System HAL.
+//! @brief   Mocks for HAL GPIO.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
-
-#ifndef HAL_SYSTEM_MOCK_HPP_
-#define HAL_SYSTEM_MOCK_HPP_
+//! These are mocks for HAL GPIO utilising FakeIt.
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 1. Framework Dependencies
+// 1. Include Files
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
+#include <Hal_Clocks_Mock.hpp>
+#include <Hal_Clocks.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Prototypes
+// 2. Mock Initialisation
 //-----------------------------------------------------------------------------------------------------------------------------
 
 namespace HalMock
 {
 
-//! @class System
-//! @brief This is a mock class for HAL System
-class System
+Mock<Clocks> mockHalClocks;
+static HalMock::Clocks& clocks = mockHalClocks.get();
+
+void InitClocks(void)
 {
-public:
-    explicit System(void) {};
-    virtual void Sleep(void);
-    virtual void WakeUp(void);
-    virtual void InitPowerControl(void);
-    virtual void Reset(void);
-    virtual void CriticalSystemError(void);
-    virtual void HaltDeubgger(void);
-};
+    static bool isFirstInit = true;
 
-/// @brief The mock entity for accessing FakeIt interface.
-extern Mock<System> mockHalSystem;
+    if (isFirstInit == true)
+    {
+        Fake(Method(mockHalClocks, Enable));
+        Fake(Method(mockHalClocks, Disable));
+        Fake(Method(mockHalClocks, IsRunning));
+        Fake(Method(mockHalClocks, GetSysClockFrequency));
+        Fake(Method(mockHalClocks, SetSysClockSource));
+        Fake(Method(mockHalClocks, GetSysClockSource));
 
-/// @brief This function initialises the HAL System mock.
-void InitSystem(void);
+        isFirstInit = false;
+    }
+    else
+    {
+        mockHalClocks.Reset();
+    }
+    return;
+}
 
 } // namespace HalMock
 
-#endif // HAL_SYSTEM_MOCK_HPP_
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Mock Functions
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
+{
+
+void Clocks::Enable(Hal::OscillatorType type)
+{
+    HalMock::clocks.Enable(type);
+    return;
+}
+
+void Clocks::Disable(Hal::OscillatorType type)
+{
+    HalMock::clocks.Disable(type);
+    return;
+}
+
+bool Clocks::IsRunning(Hal::OscillatorType type)
+{
+    return HalMock::clocks.IsRunning(type);
+}
+
+uint32_t Clocks::GetSysClockFrequency(void)
+{
+    return HalMock::clocks.GetSysClockFrequency();
+}
+
+void Clocks::SetSysClockSource(Hal::OscillatorType type)
+{
+    HalMock::clocks.SetSysClockSource(type);
+    return;
+}
+
+Hal::OscillatorType Clocks::GetSysClockSource(void)
+{
+    return HalMock::clocks.GetSysClockSource();
+}
+
+
+} // namespace Hal
+
