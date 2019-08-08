@@ -22,9 +22,9 @@
 //! @date    25 Jul 2019
 //!
 //! @class   Clocks
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   This is a clocks HAL interface.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! This class handles clock configurations.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
@@ -50,7 +50,11 @@ typedef struct
 } fraction_t;
 
 // The default clock at boot is 16 MHz HSI DCO.
-const uint32_t defaultSystemClock = 16000000UL;
+const uint32_t defaultSystemClock = Hal::MHz(16UL);
+// The LSE clock is tuned to 32.768kHz.
+const uint32_t lseFrequency = 32768UL;
+// The LSI clock is roughly 32kHz.
+const uint32_t lsiFrequency = Hal::kHz(32UL);
 
 } // anonymous namespace
 
@@ -74,6 +78,12 @@ namespace
 /// @param fraction - A reference to the fraction struct for storing the result.
 void FloatToFraction(float decimal, fraction_t& fraction);
 
+/// @brief A function that converts a plain PLLP value into register format.
+/// I.e. PLLP 2 -> 0, PLLP 8 -> 3
+/// @param pllp - The PLLP divider value.
+/// @return Returns the corresponding register value. Returns 4 if the value is invalid.
+uint32_t ConvertPllp(uint32_t pllp);
+
 } // anonymous namespace
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -91,16 +101,21 @@ uint32_t Clocks::clockFrequencies[static_cast<std::size_t>(OscillatorType::unkno
 {
     defaultSystemClock, // highSpeed_internal
     0UL,                // highSpeed_external
-    0UL,                // lowSpeed_internal
-    0UL,                // lowSpeed_external
-    0UL                 // pll
+    lsiFrequency,       // lowSpeed_internal
+    lseFrequency,       // lowSpeed_external
+    0UL,                // pll
+    0UL                 // pllSecondary
 };
 
 //---------------------------------------
 // Functions
 //---------------------------------------
-void Clocks::Enable(OscillatorType type)
+Error Clocks::Enable(OscillatorType type)
 {
+    ASSERT_RETVAL(type <= OscillatorType::pll, Error::invalidParameter);
+
+    Error error = Error::noErrors;
+
     if (IsRunning(type) == false)
     {
         bool isTimeout;
@@ -127,19 +142,33 @@ void Clocks::Enable(OscillatorType type)
                 isTimeout = Internal::WaitForBitToSet(RCC->BDCR, RCC_BDCR_LSERDY_Pos);
                 break;
 
+            case OscillatorType::pll:
+                Utils::SetBit(RCC->CR, RCC_CR_PLLON_Pos, true);
+                isTimeout = Internal::WaitForBitToSet(RCC->CR, RCC_CR_PLLRDY_Pos);
+                break;
+
             default:
-                // Do nothing.
+                // This state should be already catched in sserts, but better to be safe.
+                isTimeout = false;
+                error = Error::invalidParameter;
                 break;
         }
 
-        (void)isTimeout;
+        if (isTimeout == true)
+        {
+            error = Error::timeout;
+        }
     }
-    return;
+
+    return error;
 }
 
-void Clocks::Disable(OscillatorType type)
+Error Clocks::Disable(OscillatorType type)
 {
-    ASSERT(GetSysClockSource() != type);
+    ASSERT_RETVAL(type <= OscillatorType::pll, Error::invalidParameter);
+    ASSERT_RETVAL(GetSysClockSource() != type, Error::reservedResource);
+
+    Error error = Error::noErrors;
 
     if (IsRunning(type) == true)
     {
@@ -167,35 +196,46 @@ void Clocks::Disable(OscillatorType type)
                 isTimeout = Internal::WaitForBitToClear(RCC->BDCR, RCC_BDCR_LSERDY_Pos);
                 break;
 
+            case OscillatorType::pll:
+                Utils::SetBit(RCC->CR, RCC_CR_PLLON_Pos, false);
+                isTimeout = Internal::WaitForBitToClear(RCC->CR, RCC_CR_PLLRDY_Pos);
+                break;
+
             default:
-                // Do nothing.
+                // This state should be already catched in sserts, but better to be safe.
+                isTimeout = false;
+                error = Error::invalidParameter;
                 break;
         }
 
-        (void)isTimeout;
+        if (isTimeout == true)
+        {
+            error = Error::timeout;
+        }
     }
-    return;
+
+    return error;
 }
 
-void Clocks::EnablePll(OscillatorType source, uint32_t frequency)
+Error Clocks::ConfigurePll(OscillatorType source, uint32_t frequency)
 {
-    ASSERT((source == OscillatorType::highSpeed_internal) || (source == OscillatorType::highSpeed_external));
-    ASSERT(GetFrequency(source) > 0UL);
-    ASSERT(IsRunning(source) == true);
+    ASSERT_RETVAL((source == OscillatorType::highSpeed_internal) || (source == OscillatorType::highSpeed_external), Error::invalidParameter);
+    ASSERT_RETVAL(IsRunning(source) == true, Error::unavailableResource);
+    ASSERT_RETVAL(GetFrequency(source) > 0UL, Error::invalidParameter);
+    ASSERT_RETVAL(frequency <= MHz(168UL), Error::invalidParameter); // The PLL frequency maximum is 168MHz.
 
-    // The PLL frequency must be between 100MHz and 432MHz.
-    ASSERT(frequency >= MHz(100UL));
-    ASSERT(frequency <= MHz(432UL));
+    Error error = Error::noErrors;
 
     // The PLL frequency is calculated by following formula:
     // fVCO = fsource * PLLN / PLLM
     // fPLL = fVCO / PLLP
-    // fUSB = fVCO / PLLQ
+    // fsecondary = fVCO / PLLQ
     //
     // The values have following limitations:
     // PLLP = [2, 4, 6, 8]
     // PLLN >= 50, PLLN <= 432
-    // PLLM >= 2, PLLN <= 63
+    // PLLM >= 2, PLLM <= 63
+    // PLLQ >= 2, PLLQ <= 15
     
     // The frequency formula can be converted into following form:
     // PLLN / (PLLM * PLLP) = fPLL / fsource
@@ -222,34 +262,129 @@ void Clocks::EnablePll(OscillatorType source, uint32_t frequency)
     const uint32_t nominatorMin = 50UL;
     // Minimum for denominator is (PLLMmin * PLLPmin) = 4
     const uint32_t denominatorMin = 4UL;
+    // Maximum for nominator is minimum of PLLN, 432.
+    const uint32_t nominatorMax = 432UL;
+    // PLLM max is 63. If we choose PLLP = 2, maximum for denominator is (63 * 2)
+    const uint32_t denominatorMax = 126UL;
 
     uint32_t i = 0UL;
-    fraction_t finalFraction = {.n = ratioFraction.n, .d = ratioFraction.d};
-    while ((finalFraction.n < nominatorMin) || (finalFraction.d < denominatorMin))
+    fraction_t finalFraction;
+    do
     {
         i += increment;
         finalFraction.n = ratioFraction.n * i;
         finalFraction.d = ratioFraction.d * i;
-    }
+    } while ((finalFraction.n < nominatorMin) || (finalFraction.d < denominatorMin));
 
-    // Set PLLN
+    // Check that the values are in acceptable range
+    ASSERT_RETVAL(finalFraction.n <= nominatorMax, Error::invalidParameter);
+    ASSERT_RETVAL(finalFraction.d <= denominatorMax, Error::invalidParameter);
+
+    // Nominator == PLLN
     Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (finalFraction.n << RCC_PLLCFGR_PLLN_Pos));
 
     // Let's select PLLP = 2. Set PLLP
-    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, ConvertPllp(2UL));
 
     // Since PLLP = 2, PLLM is straightforward to calculate: Denominator / 2.
-    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, ((finalFraction.d >> 1UL) << RCC_PLLCFGR_PLLM_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (finalFraction.d >> 1UL));
 
-    // Calculate the final frequency.
-    clockFrequencies[static_cast<uint32_t>(OscillatorType::pll)] = static_cast<uint32_t>(static_cast<float>(finalFraction.n * GetFrequency(source)) 
-                                                                                         / static_cast<float>(finalFraction.d));
+    // Set the PLL source bit
+    Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, (source == OscillatorType::highSpeed_external));
 
-    Utils::SetBit(RCC->CR, RCC_CR_PLLON_Pos, true);
-    bool isTimeout = Internal::WaitForBitToSet(RCC->CR, RCC_CR_PLLRDY_Pos);
-    (void)isTimeout;
+    // Let's multiply the nominator with the source frequency for calculating the final PLL frequency.
+    finalFraction.n *= GetFrequency(source);
 
-    return;
+    // Calculate the final PLL frequency.
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pll)] = finalFraction.n / finalFraction.d;
+
+    // Divide the denominator by 2 to remove PLLP.
+    finalFraction.d >>= 1UL;
+
+    // Next calculate minimum PLLQ value.
+    // fsecondary max is 48MHz.
+    const uint32_t secondaryPllFrequencyMax = MHz(48UL);
+    // PLLQ max is 15.
+    const uint32_t pllqMax = 15UL;
+    
+    // Let's increment PLLQ until the frequency is in the correct range.
+    uint32_t secondaryPllFrequency;
+    uint32_t pllq = 1UL;
+    do
+    {
+        ++pllq;
+        secondaryPllFrequency = finalFraction.n / (finalFraction.d * pllq);
+    } while ((secondaryPllFrequency > secondaryPllFrequencyMax) && (pllq < pllqMax));
+
+    // Store the USB PLL register values only if the frequency is sensible.
+    if (secondaryPllFrequency <= secondaryPllFrequencyMax)
+    {
+        Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (pllq << RCC_PLLCFGR_PLLQ_Pos));
+
+        // Store the final secondary PLL frequency.
+        clockFrequencies[static_cast<uint32_t>(OscillatorType::pllSecondary)] = secondaryPllFrequency;
+    }
+
+    return error;
+}
+
+Error Clocks::ConfigurePllManually(OscillatorType source, pllRegisters_t const& registers)
+{
+    ASSERT_RETVAL((source == OscillatorType::highSpeed_internal) || (source == OscillatorType::highSpeed_external), Error::invalidParameter);
+
+    // The values have following limitations:
+    // PLLP = [2, 4, 6, 8]
+    // PLLN >= 50, PLLN <= 432
+    // PLLM >= 2, PLLM <= 63
+    // PLLQ >= 2, PLLQ <= 15
+    uint32_t finalPllp = ConvertPllp(registers.pllp);
+    ASSERT_RETVAL(finalPllp != 4UL, Error::invalidParameter);
+
+    // Calculate frequencies
+    float vcoFrequency = static_cast<float>(GetFrequency(source)) * static_cast<float>(registers.plln)/static_cast<float>(registers.pllm);
+    // The VCO frequency must be between 100MHz and 432MHz.
+    ASSERT_RETVAL((vcoFrequency >= MHz(100UL)) && (vcoFrequency <= MHz(432UL)), Error::invalidParameter);
+
+    float pllFrequency = static_cast<uint32_t>(vcoFrequency/static_cast<float>(registers.pllp) + 0.5f);
+    // Maximum PLL frequency is 168MHz.
+    ASSERT_RETVAL(pllFrequency <= MHz(168UL), Error::invalidParameter);
+    
+    float pllSecondaryFrequency = static_cast<uint32_t>(vcoFrequency/static_cast<float>(registers.pllq) + 0.5f);
+    // Maximum secondary PLL frequency is 48MHz.
+    ASSERT_RETVAL(pllSecondaryFrequency <= MHz(48UL), Error::invalidParameter);
+
+    ASSERT_RETVAL((registers.plln >= 50UL) && (registers.plln <= 432UL), Error::invalidParameter);
+    ASSERT_RETVAL((registers.pllm >= 2UL) && (registers.pllm <= 63UL), Error::invalidParameter);
+    ASSERT_RETVAL((registers.pllq >= 2UL) && (registers.pllq <= 15UL), Error::invalidParameter);
+
+    // Set the register values
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (finalPllp << RCC_PLLCFGR_PLLP_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (registers.plln << RCC_PLLCFGR_PLLN_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, registers.pllm);
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (registers.pllq << RCC_PLLCFGR_PLLQ_Pos));
+
+    // Set the PLL source bit
+    Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, (source == OscillatorType::highSpeed_external));
+
+    // Store frequencies
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pll)] = pllFrequency;
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pllSecondary)] = pllSecondaryFrequency;
+
+    return Error::noErrors;
+}
+
+OscillatorType Clocks::GetPllSource(void)
+{
+    OscillatorType type;
+    if (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == true)
+    {
+        type = OscillatorType::highSpeed_external;
+    }
+    else
+    {
+        type = OscillatorType::highSpeed_internal;
+    }
+    return type;
 }
 
 bool Clocks::IsRunning(OscillatorType type)
@@ -275,6 +410,8 @@ bool Clocks::IsRunning(OscillatorType type)
             break;
 
         case OscillatorType::pll:
+            // Intentional fall-through.
+        case OscillatorType::pllSecondary:
             isRunning = Utils::GetBit(RCC->CR, RCC_CR_PLLRDY_Pos);
             break;
 
@@ -288,12 +425,8 @@ bool Clocks::IsRunning(OscillatorType type)
 
 void Clocks::SetFrequency(OscillatorType type, uint32_t frequency)
 {
-    ASSERT(type != OscillatorType::highSpeed_internal);
-    ASSERT(type != OscillatorType::pll);
-    ASSERT(type < OscillatorType::unknown);
-
+    ASSERT(type == OscillatorType::highSpeed_external);
     clockFrequencies[static_cast<uint32_t>(type)] = frequency;
-    
     return;
 }
 
@@ -315,40 +448,61 @@ uint32_t Clocks::GetFrequency(OscillatorType type)
 
 uint32_t Clocks::GetSysClockFrequency(void)
 {
-    return sysClockFrequency;
+    OscillatorType type = GetSysClockSource();
+    return clockFrequencies[static_cast<uint32_t>(type)];
 }
 
-void Clocks::SetSysClockSource(OscillatorType type)
+Error Clocks::SetSysClockSource(OscillatorType type)
 {
+    ASSERT_RETVAL((type == OscillatorType::highSpeed_internal)
+               || (type == OscillatorType::highSpeed_external)
+               || (type == OscillatorType::pll),
+               Error::invalidParameter);
+
+    Error error = Error::noErrors;
+
     if (IsRunning(type) == true)
     {
-        bool isTimeout;
-
-        switch (type)
+        if (GetSysClockSource() != type)
         {
-            case OscillatorType::highSpeed_internal:
-                Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, 0UL);
-                isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, 0UL);
-                break;
+            bool isTimeout;
 
-            case OscillatorType::highSpeed_external:
-                Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_0);
-                isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
-                break;
+            switch (type)
+            {
+                case OscillatorType::highSpeed_internal:
+                    Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, 0UL);
+                    isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, 0UL);
+                    break;
 
-            case OscillatorType::pll:
-                Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_1);
-                isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_1);
-                break;
+                case OscillatorType::highSpeed_external:
+                    Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_0);
+                    isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);
+                    break;
 
-            default:
-                // Do nothing.
-                break;
+                case OscillatorType::pll:
+                    Utils::SetBits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_1);
+                    isTimeout = Internal::WaitForBitPatternToSet(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_1);
+                    break;
+
+                default:
+                    // This state should be already catched in sserts, but better to be safe.
+                    isTimeout = false;
+                    error = Error::invalidParameter;
+                    break;
+            }
+
+            if (isTimeout)
+            {
+                error = Error::timeout;
+            }
         }
-
-        (void)isTimeout;
     }
-    return;
+    else
+    {
+        error = Error::unavailableResource;
+    }
+
+    return error;
 }
 
 OscillatorType Clocks::GetSysClockSource(void)
@@ -439,6 +593,23 @@ void FloatToFraction(float decimal, fraction_t& fraction)
     }
     
     return;
+}
+
+uint32_t ConvertPllp(uint32_t pllp)
+{
+    uint32_t registerValue;
+
+    if (((pllp & 0x1UL) == 0UL) && (pllp <= 8UL))
+    {
+        registerValue = pllp >> 1UL;
+        --registerValue;
+    }
+    else
+    {
+        registerValue = 4UL;
+    }
+
+    return registerValue;
 }
 
 }

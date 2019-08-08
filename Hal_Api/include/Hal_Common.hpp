@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,49 +17,38 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Catch_Utils.hpp
+//! @file    Hal_Common.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    12 Oct 2018
+//! @date    08 Aug 2019
 //!
-//! @brief   Utility functions and macros for Catch2.
+//! @class   Common
+//! @brief   Common enum definitions used for HAL API.
 
-#ifndef CATCH_UTILS_HPP_
-#define CATCH_UTILS_HPP_
+#ifndef HAL_COMMON_HPP_
+#define HAL_COMMON_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <Utils_Types.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace ASch
+namespace Hal
 {
 
-//! This macro is used to "prettify" FakeIt mock fake call.
-#define CALL(mockClass, member)                                 Method(mockClass, member)
-
-//! This macro is used to "prettify" FakeIt mock fake call with parameters.
-#define PARAM_CALL(mockClass, member, ...)                      Method(mockClass, member).Using(__VA_ARGS__)
-
-//! This macro is used to "prettify" FakeIt mock checks of members without parameters.
-#define REQUIRE_CALLS(callCount, mockClass, member)             REQUIRE_NOTHROW (Verify(Method(mockClass, member)).Exactly(callCount))
-
-//! This macro is used to "prettify" FakeIt mock checks of members with parameters.
-#define REQUIRE_PARAM_CALLS(callCount, mockClass, member, ...)  REQUIRE_NOTHROW (Verify(Method(mockClass, member).Using(__VA_ARGS__)).Exactly(callCount))
-
-//! This macro is used to "prettify" call order macros. It's basically just an alias for REQUIRE_NOTHROW.
-#define REQUIRE_CALL_ORDER(calls)                               REQUIRE_NOTHROW (calls)
-
-#define SET_RETURN(mock, function, returnValue)                 When(Method(mock, function)).AlwaysReturn(returnValue);
-
-#define WITHIN_LIMITS(value, min, max)                          (((value) >= (min)) && ((value) <= (max)))
-
-#define APPROX_EQUAL(value, expected, error)                    (((value) >= ((expected) - (error))) && ((value) <= ((expected) + (error))))
+/// @brief This enum defines common error returns used in HAL API.
+enum class Error
+{
+    noErrors = 0,           //!< No errors occurred, all OK.
+    invalidParameter,       //!< Parameter out of range or other configuration error.
+    reservedResource,       //!< The action is not possible due to reserved resource.
+    unavailableResource,    //!< The requested resource is not available.
+    timeout                 //!< Request timed out.
+};
 
 } // namespace ASch
 
@@ -67,12 +56,5 @@ namespace ASch
 // 3. Inline Functions
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 4. Global Function Prototypes
-//-----------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------------------------
-// 5. Class Declaration
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#endif // CATCH_UTILS_HPP_
+#endif // HAL_COMMON_HPP_

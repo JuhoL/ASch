@@ -22,9 +22,9 @@
 //! @date    25 Jul 2019
 //!
 //! @class   Clocks
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   This is a clocks HAL interface.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! This class handles clock configurations.
 
 #ifndef HAL_CLOCKS_HPP_
 #define HAL_CLOCKS_HPP_
@@ -34,26 +34,12 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 
 #include <Utils_Types.hpp>
+#include <Hal_Common.hpp>
+#include <Hal_ClockTypes.hpp>
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 2. Typedefs, Structs, Enums and Constants
 //-----------------------------------------------------------------------------------------------------------------------------
-
-namespace Hal
-{
-
-/// @brief This is a struct that is used to keep track of task states.
-enum class OscillatorType
-{
-    highSpeed_internal = 0,
-    highSpeed_external,
-    lowSpeed_internal,
-    lowSpeed_external,
-    pll,
-    unknown
-};
-
-} // namespace Hal
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 3. Inline Functions
@@ -63,6 +49,7 @@ namespace Hal
 {
 
 constexpr uint32_t MHz(uint32_t MHz) {return MHz * 1000000UL;}
+constexpr uint32_t kHz(uint32_t kHz) {return kHz * 1000UL;}
 
 } // namespace Hal
 
@@ -88,16 +75,31 @@ public:
 
     /// @brief Enables the given oscillator.
     /// @param type - The oscillator to be enabled.
-    static void Enable(OscillatorType type);
+    /// @return Returns an error code if operation fails.
+    static Error Enable(OscillatorType type);
 
     /// @brief Disables the given oscillator.
     /// @param type - The oscillator to be disabled.
-    static void Disable(OscillatorType type);
+    /// @return Returns an error code if operation fails.
+    static Error Disable(OscillatorType type);
 
-    /// @brief Enables PLL.
+    /// @brief Configures PLL automatically.
+    /// Note that this does not start the PLL yet! It just calculates and sets PLL register values.
     /// @param source - The oscillator to be used as source. Note: Make sure you have configured a frequency to the source!
     /// @param frequency - Desired PLL target frequency.
-    static void EnablePll(OscillatorType source, uint32_t frequency);
+    /// @return Returns an error code if operation fails.
+    static Error ConfigurePll(OscillatorType source, uint32_t frequency);
+
+    /// @brief Configures PLL from given PLL register parameters.
+    /// Note that this does not start the PLL yet! It just sets PLL register values.
+    /// @param source - The oscillator to be used as source. Note: Make sure you have configured a frequency to the source!
+    /// @param registers - Reference to the desired PLL register configuration.
+    /// @return Returns an error code if operation fails.
+    static Error ConfigurePllManually(OscillatorType source, pllRegisters_t const& registers);
+
+    /// @brief Gets the current source of PLL.
+    /// @return Returns the PLL source type.
+    static OscillatorType GetPllSource(void);
 
     /// @brief Checks if the given oscillator is running.
     /// @return Returns true if the oscillator is running.
@@ -106,6 +108,7 @@ public:
     /// @brief Sets the frequency of the given clock.
     /// This frequency is used for calculations only! It's used for calculating timers delays, baudrates, etc.
     /// The FW has no ability to validate the correctness of this value, so be careful to configure it correctly.
+    /// Note that some clock sources get their frequency automatically.
     /// @param type - The oscillator which frequency will be set.
     /// @param frequency - Clock frequency in Hz.
     static void SetFrequency(OscillatorType type, uint32_t frequency);
@@ -120,7 +123,8 @@ public:
 
     /// @brief Sets system clock source.
     /// @param type - The oscillator type to be set as system clock source.
-    static void SetSysClockSource(OscillatorType type);
+    /// @return Returns an error code if operation fails.
+    static Error SetSysClockSource(OscillatorType type);
 
     /// @brief Reads system clock source.
     /// @return The oscillator type set as system clock source.
