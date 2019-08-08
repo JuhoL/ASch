@@ -51,6 +51,10 @@ typedef struct
 
 // The default clock at boot is 16 MHz HSI DCO.
 const uint32_t defaultSystemClock = Hal::MHz(16UL);
+// The LSE clock is tuned to 32.768kHz.
+const uint32_t lseFrequency = 32768UL;
+// The LSI clock is roughly 32kHz.
+const uint32_t lsiFrequency = Hal::kHz(32UL);
 
 } // anonymous namespace
 
@@ -74,6 +78,12 @@ namespace
 /// @param fraction - A reference to the fraction struct for storing the result.
 void FloatToFraction(float decimal, fraction_t& fraction);
 
+/// @brief A function that converts a plain PLLP value into register format.
+/// I.e. PLLP 2 -> 0, PLLP 8 -> 3
+/// @param pllp - The PLLP divider value.
+/// @return Returns the corresponding register value. Returns 4 if the value is invalid.
+uint32_t ConvertPllp(uint32_t pllp);
+
 } // anonymous namespace
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -91,8 +101,8 @@ uint32_t Clocks::clockFrequencies[static_cast<std::size_t>(OscillatorType::unkno
 {
     defaultSystemClock, // highSpeed_internal
     0UL,                // highSpeed_external
-    0UL,                // lowSpeed_internal
-    0UL,                // lowSpeed_external
+    lsiFrequency,       // lowSpeed_internal
+    lseFrequency,       // lowSpeed_external
     0UL,                // pll
     0UL                 // pllSecondary
 };
@@ -274,10 +284,13 @@ Error Clocks::ConfigurePll(OscillatorType source, uint32_t frequency)
     Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (finalFraction.n << RCC_PLLCFGR_PLLN_Pos));
 
     // Let's select PLLP = 2. Set PLLP
-    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, ConvertPllp(2UL));
 
     // Since PLLP = 2, PLLM is straightforward to calculate: Denominator / 2.
     Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (finalFraction.d >> 1UL));
+
+    // Set the PLL source bit
+    Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, (source == OscillatorType::highSpeed_external));
 
     // Let's multiply the nominator with the source frequency for calculating the final PLL frequency.
     finalFraction.n *= GetFrequency(source);
@@ -313,6 +326,65 @@ Error Clocks::ConfigurePll(OscillatorType source, uint32_t frequency)
     }
 
     return error;
+}
+
+Error Clocks::ConfigurePllManually(OscillatorType source, pllRegisters_t const& registers)
+{
+    ASSERT_RETVAL((source == OscillatorType::highSpeed_internal) || (source == OscillatorType::highSpeed_external), Error::invalidParameter);
+
+    // The values have following limitations:
+    // PLLP = [2, 4, 6, 8]
+    // PLLN >= 50, PLLN <= 432
+    // PLLM >= 2, PLLM <= 63
+    // PLLQ >= 2, PLLQ <= 15
+    uint32_t finalPllp = ConvertPllp(registers.pllp);
+    ASSERT_RETVAL(finalPllp != 4UL, Error::invalidParameter);
+
+    // Calculate frequencies
+    float vcoFrequency = static_cast<float>(GetFrequency(source)) * static_cast<float>(registers.plln)/static_cast<float>(registers.pllm);
+    // The VCO frequency must be between 100MHz and 432MHz.
+    ASSERT_RETVAL((vcoFrequency >= MHz(100UL)) && (vcoFrequency <= MHz(432UL)), Error::invalidParameter);
+
+    float pllFrequency = static_cast<uint32_t>(vcoFrequency/static_cast<float>(registers.pllp) + 0.5f);
+    // Maximum PLL frequency is 168MHz.
+    ASSERT_RETVAL(pllFrequency <= MHz(168UL), Error::invalidParameter);
+    
+    float pllSecondaryFrequency = static_cast<uint32_t>(vcoFrequency/static_cast<float>(registers.pllq) + 0.5f);
+    // Maximum secondary PLL frequency is 48MHz.
+    ASSERT_RETVAL(pllSecondaryFrequency <= MHz(48UL), Error::invalidParameter);
+
+    ASSERT_RETVAL((registers.plln >= 50UL) && (registers.plln <= 432UL), Error::invalidParameter);
+    ASSERT_RETVAL((registers.pllm >= 2UL) && (registers.pllm <= 63UL), Error::invalidParameter);
+    ASSERT_RETVAL((registers.pllq >= 2UL) && (registers.pllq <= 15UL), Error::invalidParameter);
+
+    // Set the register values
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (finalPllp << RCC_PLLCFGR_PLLP_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (registers.plln << RCC_PLLCFGR_PLLN_Pos));
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, registers.pllm);
+    Utils::SetBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (registers.pllq << RCC_PLLCFGR_PLLQ_Pos));
+
+    // Set the PLL source bit
+    Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, (source == OscillatorType::highSpeed_external));
+
+    // Store frequencies
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pll)] = pllFrequency;
+    clockFrequencies[static_cast<uint32_t>(OscillatorType::pllSecondary)] = pllSecondaryFrequency;
+
+    return Error::noErrors;
+}
+
+OscillatorType Clocks::GetPllSource(void)
+{
+    OscillatorType type;
+    if (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == true)
+    {
+        type = OscillatorType::highSpeed_external;
+    }
+    else
+    {
+        type = OscillatorType::highSpeed_internal;
+    }
+    return type;
 }
 
 bool Clocks::IsRunning(OscillatorType type)
@@ -353,13 +425,8 @@ bool Clocks::IsRunning(OscillatorType type)
 
 void Clocks::SetFrequency(OscillatorType type, uint32_t frequency)
 {
-    ASSERT(type != OscillatorType::highSpeed_internal);
-    ASSERT(type != OscillatorType::pll);
-    ASSERT(type != OscillatorType::pllSecondary);
-    ASSERT(type < OscillatorType::unknown);
-
+    ASSERT(type == OscillatorType::highSpeed_external);
     clockFrequencies[static_cast<uint32_t>(type)] = frequency;
-    
     return;
 }
 
@@ -381,7 +448,8 @@ uint32_t Clocks::GetFrequency(OscillatorType type)
 
 uint32_t Clocks::GetSysClockFrequency(void)
 {
-    return sysClockFrequency;
+    OscillatorType type = GetSysClockSource();
+    return clockFrequencies[static_cast<uint32_t>(type)];
 }
 
 Error Clocks::SetSysClockSource(OscillatorType type)
@@ -525,6 +593,23 @@ void FloatToFraction(float decimal, fraction_t& fraction)
     }
     
     return;
+}
+
+uint32_t ConvertPllp(uint32_t pllp)
+{
+    uint32_t registerValue;
+
+    if (((pllp & 0x1UL) == 0UL) && (pllp <= 8UL))
+    {
+        registerValue = pllp >> 1UL;
+        --registerValue;
+    }
+    else
+    {
+        registerValue = 4UL;
+    }
+
+    return registerValue;
 }
 
 }

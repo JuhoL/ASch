@@ -56,6 +56,8 @@ public:
     virtual Hal::Error Enable(Hal::OscillatorType type);
     virtual Hal::Error Disable(Hal::OscillatorType type);
     virtual Hal::Error ConfigurePll(OscillatorType source, uint32_t frequency);
+    virtual Hal::Error ConfigurePllManually(OscillatorType source, pllRegisters_t const& registers);
+    virtual OscillatorType GetPllSource(void);
     virtual bool IsRunning(Hal::OscillatorType type);
     virtual uint32_t GetSysClockFrequency(void);
     virtual Error SetSysClockSource(Hal::OscillatorType type);

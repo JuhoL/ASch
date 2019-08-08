@@ -484,19 +484,14 @@ SCENARIO ("PLL is configured", "[hal_system]")
     HalMock::InitInternal();
     ASchMock::Assert::Init();
 
-    GIVEN ("HSE is enabled and set as 24MHz")
+    GIVEN ("system is at init state")
     {
-        // Enable HSE
-        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
-        // Set frequency
-        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
-        
-        // This tells the HAL that the oscillator has started correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToSet, false);
+        // Set PLL source to HSE for checking that it gets cleared in case of HSI PLL source.
+        Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, true);
 
-        WHEN ("PLL is enabled with source from HSE and target of 168MHz and the frequency is read back")
+        WHEN ("PLL is enabled with source from HSI and target of 168MHz and the frequency is read back")
         {
-            Hal::Error error = Hal::Clocks::ConfigurePll(Hal::OscillatorType::highSpeed_external, Hal::MHz(168UL));
+            Hal::Error error = Hal::Clocks::ConfigurePll(Hal::OscillatorType::highSpeed_internal, Hal::MHz(168UL));
             Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true); // Set PLLRDY bit in order to be able to read the frequency.
             uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pll);
             uint32_t secondaryFrequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pllSecondary);
@@ -512,15 +507,20 @@ SCENARIO ("PLL is configured", "[hal_system]")
                     INFO ("Frequency: " << frequency);
                     INFO ("Frequency: " << secondaryFrequency);
 
-                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos)));
-                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (56UL << RCC_PLLCFGR_PLLN_Pos)));
-                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (4UL << RCC_PLLCFGR_PLLM_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, 0UL));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (63UL << RCC_PLLCFGR_PLLN_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (3UL << RCC_PLLCFGR_PLLM_Pos)));
                     REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (7UL << RCC_PLLCFGR_PLLQ_Pos)));
                     
                     AND_THEN ("the PLL frequency shall be set to 168MHz and secondary frequency to 48MHz")
                     {
                         REQUIRE (frequency == Hal::MHz(168UL));
                         REQUIRE (secondaryFrequency == Hal::MHz(48UL));
+
+                        AND_THEN ("the PLL source is set to HSE")
+                        {
+                            REQUIRE (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == false);
+                        }
                     }
                 }
             }
@@ -533,9 +533,8 @@ SCENARIO ("PLL is configured", "[hal_system]")
         Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
         // Set frequency
         Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
-        
-        // This tells the HAL that the oscillator has started correctly.
-        SET_RETURN(HalMock::mockHalInternal, WaitForBitToSet, false);
+        // Set PLL source to HSI for checking that it gets cleared in case of HSE PLL source.
+        Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, false);
 
         WHEN ("PLL is enabled with source from HSE and target of 109MHz and the frequency is read back")
         {
@@ -555,7 +554,7 @@ SCENARIO ("PLL is configured", "[hal_system]")
                     INFO ("Frequency: " << frequency);
                     INFO ("Frequency: " << secondaryFrequency);
 
-                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (2UL << RCC_PLLCFGR_PLLP_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, 0UL));
                     REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (100UL << RCC_PLLCFGR_PLLN_Pos)));
                     REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (11UL << RCC_PLLCFGR_PLLM_Pos)));
                     REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (5UL << RCC_PLLCFGR_PLLQ_Pos)));
@@ -564,6 +563,11 @@ SCENARIO ("PLL is configured", "[hal_system]")
                     {
                         REQUIRE (frequency == 109090909UL);
                         REQUIRE (secondaryFrequency == 43636363UL);
+
+                        AND_THEN ("the PLL source is set to HSE")
+                        {
+                            REQUIRE (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == true);
+                        }
                     }
                 }
             }
@@ -640,6 +644,115 @@ SCENARIO ("PLL is configured", "[hal_system]")
                 AND_THEN ("an assert failure shall trigger")
                 {
                     REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO ("PLL registers are manually configured", "[hal_system]")
+{
+    Hal_Mock::InitRccRegisters();
+
+    GIVEN ("system is at init state")
+    {
+        // Set PLL source to HSE for checking that it gets cleared in case of HSI PLL source.
+        Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, true);
+
+        WHEN ("PLL is configured with valid register values from HSI")
+        {
+            Hal::pllRegisters_t registers =
+            {
+                .pllp = 8UL,
+                .plln = 432UL,
+                .pllm = 63UL,
+                .pllq = 15UL
+            };
+            Hal::Error error = Hal::Clocks::ConfigurePllManually(Hal::OscillatorType::highSpeed_internal, registers);
+            Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true); // Set PLLRDY bit in order to be able to read the frequency.
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pll);
+            uint32_t secondaryFrequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pllSecondary);
+
+            THEN ("no errors shall occur")
+            {
+                REQUIRE (error == Hal::Error::noErrors);
+
+                AND_THEN ("PLLP, PLLN, PLLM, and PLLQ shall have correct values")
+                {
+                    // 100MHz from 24MHz shall result in PLLP = 2, PLLN = 100, PLLM = 11.
+                    PRINT_PLL();
+                    INFO ("Frequency: " << frequency);
+                    INFO ("Frequency: " << secondaryFrequency);
+
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (3UL << RCC_PLLCFGR_PLLP_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (432UL << RCC_PLLCFGR_PLLN_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (63UL << RCC_PLLCFGR_PLLM_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (15UL << RCC_PLLCFGR_PLLQ_Pos)));
+
+                    AND_THEN ("the PLL frequency shall be set to 109 090 909 Hz and secondary frequency to 43 636 363 Hz")
+                    {
+                        REQUIRE (frequency == 13714286UL);
+                        REQUIRE (secondaryFrequency == 7314286UL);
+
+                        AND_THEN ("the PLL source is set to HSI")
+                        {
+                            REQUIRE (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    GIVEN ("HSE is enabled and set as 24MHz")
+    {
+        // Enable HSE
+        Utils::SetBit(RCC->CR, RCC_CR_HSERDY_Pos, true);
+        // Set frequency
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
+        // Set PLL source to HSI for checking that it gets cleared in case of HSE PLL source.
+        Utils::SetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos, false);
+
+        WHEN ("PLL is configured with valid register values from HSE")
+        {
+            Hal::pllRegisters_t registers =
+            {
+                .pllp = 2UL,
+                .plln = 50UL,
+                .pllm = 4UL,
+                .pllq = 7UL
+            };
+            Hal::Error error = Hal::Clocks::ConfigurePllManually(Hal::OscillatorType::highSpeed_external, registers);
+            Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true); // Set PLLRDY bit in order to be able to read the frequency.
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pll);
+            uint32_t secondaryFrequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::pllSecondary);
+
+            THEN ("no errors shall occur")
+            {
+                REQUIRE (error == Hal::Error::noErrors);
+
+                AND_THEN ("PLLP, PLLN, PLLM, and PLLQ shall have correct values")
+                {
+                    // 100MHz from 24MHz shall result in PLLP = 2, PLLN = 100, PLLM = 11.
+                    PRINT_PLL();
+                    INFO ("Frequency: " << frequency);
+                    INFO ("Frequency: " << secondaryFrequency);
+
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, 0UL));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (50UL << RCC_PLLCFGR_PLLN_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (4UL << RCC_PLLCFGR_PLLM_Pos)));
+                    REQUIRE (Utils::CompareBits(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (7UL << RCC_PLLCFGR_PLLQ_Pos)));
+
+                    AND_THEN ("the PLL frequency shall be set to 109 090 909 Hz and secondary frequency to 43 636 363 Hz")
+                    {
+                        REQUIRE (frequency == Hal::MHz(150UL));
+                        REQUIRE (APPROX_EQUAL(secondaryFrequency, 42857143UL, 3UL)); // Add some tolerance due to float inaccuracies.
+
+                        AND_THEN ("the PLL source is set to HSE")
+                        {
+                            REQUIRE (Utils::GetBit(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_Pos) == true);
+                        }
+                    }
                 }
             }
         }
@@ -880,6 +993,48 @@ SCENARIO ("Clock frequencies are written and read", "[hal_system]")
         }
     }
 
+    GIVEN ("LSI is enabled")
+    {
+        Utils::SetBit(RCC->CSR, RCC_CSR_LSIRDY_Pos, true);
+
+        WHEN ("the LSI frequency is set to 30kHz")
+        {
+            Hal::Clocks::SetFrequency(Hal::OscillatorType::lowSpeed_internal, Hal::kHz(30UL));
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::lowSpeed_internal);
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+
+                AND_THEN ("the frequency shall still be 32kHz")
+                {
+                    REQUIRE (frequency == Hal::kHz(32UL));
+                }
+            }
+        }
+    }
+
+    GIVEN ("LSE is enabled")
+    {
+        Utils::SetBit(RCC->BDCR, RCC_BDCR_LSERDY_Pos, true);
+
+        WHEN ("the LSE frequency is set to 30kHz")
+        {
+            Hal::Clocks::SetFrequency(Hal::OscillatorType::lowSpeed_external, Hal::kHz(30UL));
+            uint32_t frequency = Hal::Clocks::GetFrequency(Hal::OscillatorType::lowSpeed_external);
+
+            THEN ("an assert failure shall trigger")
+            {
+                REQUIRE (ASchMock::Assert::GetFails() == 1UL);
+
+                AND_THEN ("the frequency shall still be 32768Hz")
+                {
+                    REQUIRE (frequency == 32768UL);
+                }
+            }
+        }
+    }
+
     GIVEN ("PLL is enabled")
     {
         Utils::SetBit(RCC->CR, RCC_CR_PLLRDY_Pos, true);
@@ -919,6 +1074,43 @@ SCENARIO ("Clock frequencies are written and read", "[hal_system]")
             THEN ("frequency shall be 0MHz")
             {
                 REQUIRE (frequency == 0UL);
+            }
+        }
+    }
+}
+
+SCENARIO ("System clock frequency is read", "[hal_system]")
+{
+    Hal_Mock::InitRccRegisters();
+
+    GIVEN ("HSI is system clock")
+    {
+        // HSI is system clock by default
+
+        WHEN ("system clock frequency is read")
+        {
+            uint32_t frequency = Hal::Clocks::GetSysClockFrequency();
+
+            THEN ("the frequency shall be 16MHz")
+            {
+                REQUIRE (frequency == Hal::MHz(16UL));
+            }
+        }
+    }
+
+    GIVEN ("24MHz HSE is system clock")
+    {
+        // HSE as system clock
+        Utils::SetBits(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_0);        
+        Hal::Clocks::SetFrequency(Hal::OscillatorType::highSpeed_external, Hal::MHz(24UL));
+
+        WHEN ("system clock frequency is read")
+        {
+            uint32_t frequency = Hal::Clocks::GetSysClockFrequency();
+
+            THEN ("the frequency shall be 24MHz")
+            {
+                REQUIRE (frequency == Hal::MHz(24UL));
             }
         }
     }

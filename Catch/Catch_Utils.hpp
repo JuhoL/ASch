@@ -57,6 +57,10 @@ namespace ASch
 
 #define SET_RETURN(mock, function, returnValue)                 When(Method(mock, function)).AlwaysReturn(returnValue);
 
+#define WITHIN_LIMITS(value, min, max)                          (((value) >= (min)) && ((value) <= (max)))
+
+#define APPROX_EQUAL(value, expected, error)                    (((value) >= ((expected) - (error))) && ((value) <= ((expected) + (error))))
+
 } // namespace ASch
 
 //-----------------------------------------------------------------------------------------------------------------------------

@@ -54,6 +54,14 @@ enum class OscillatorType
     unknown                 //!< Invalid clock source.
 };
 
+typedef struct
+{
+    uint32_t pllp;
+    uint32_t plln;
+    uint32_t pllm;
+    uint32_t pllq;
+} pllRegisters_t;
+
 } // namespace Hal
 
 #endif // HAL_CLOCKTYPES_HPP_

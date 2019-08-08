@@ -51,6 +51,8 @@ void InitClocks(void)
         Fake(Method(mockHalClocks, Enable));
         Fake(Method(mockHalClocks, Disable));
         Fake(Method(mockHalClocks, ConfigurePll));
+        Fake(Method(mockHalClocks, ConfigurePllManually));
+        Fake(Method(mockHalClocks, GetPllSource));
         Fake(Method(mockHalClocks, IsRunning));
         Fake(Method(mockHalClocks, GetSysClockFrequency));
         Fake(Method(mockHalClocks, SetSysClockSource));
@@ -87,6 +89,16 @@ Error Clocks::Disable(Hal::OscillatorType type)
 Error Clocks::ConfigurePll(OscillatorType source, uint32_t frequency)
 {
     return HalMock::clocks.ConfigurePll(source, frequency);
+}
+
+Error Clocks::ConfigurePllManually(OscillatorType source, pllRegisters_t const& registers)
+{
+    return HalMock::clocks.ConfigurePllManually(source, registers);
+}
+
+OscillatorType Clocks::GetPllSource(void)
+{
+    return HalMock::clocks.GetPllSource();
 }
 
 bool Clocks::IsRunning(Hal::OscillatorType type)
