@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,59 +17,44 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Clocks_Mock.hpp
+//! @file    Hal_Common.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 May 2019
+//! @date    08 Aug 2019
 //!
-//! @brief   Mocks for clocks HAL.
-//! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+//! @class   Common
+//! @brief   Common enum definitions used for HAL API.
 
-#ifndef HAL_GPIO_MOCK_HPP_
-#define HAL_GPIO_MOCK_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Framework Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
-
-#include <Hal_Clocks.hpp>
+#ifndef HAL_COMMON_HPP_
+#define HAL_COMMON_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Prototypes
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace HalMock
+#include <Utils_Types.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Typedefs, Structs, Enums and Constants
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
 {
 
-//! @class Clocks
-//! @brief This is a mock class for clocks HAL
-class Clocks
+/// @brief This enum defines common error returns used in HAL API.
+enum class Error
 {
-public:
-    /// @brief Simple constructor.
-    explicit Clocks(void) {};
-
-    virtual Hal::Error Enable(Hal::OscillatorType type);
-    virtual Hal::Error Disable(Hal::OscillatorType type);
-    virtual Hal::Error ConfigurePll(OscillatorType source, uint32_t frequency);
-    virtual bool IsRunning(Hal::OscillatorType type);
-    virtual uint32_t GetSysClockFrequency(void);
-    virtual Error SetSysClockSource(Hal::OscillatorType type);
-    virtual Hal::OscillatorType GetSysClockSource(void);
-
-private:
-    
+    noErrors = 0,           //!< No errors occurred, all OK.
+    invalidParameter,       //!< Parameter out of range or other configuration error.
+    reservedResource,       //!< The action is not possible due to reserved resource.
+    unavailableResource,    //!< The requested resource is not available.
+    timeout                 //!< Request timed out.
 };
 
-extern Mock<Clocks> mockHalClocks;
+} // namespace ASch
 
-/// @brief This function initialises the HAL Gpio mock.
-void InitClocks(void);
+//-----------------------------------------------------------------------------------------------------------------------------
+// 3. Inline Functions
+//-----------------------------------------------------------------------------------------------------------------------------
 
-} // namespace HalMock
 
-#endif // HAL_GPIO_MOCK_HPP_
+#endif // HAL_COMMON_HPP_

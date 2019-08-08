@@ -50,6 +50,7 @@ void InitClocks(void)
     {
         Fake(Method(mockHalClocks, Enable));
         Fake(Method(mockHalClocks, Disable));
+        Fake(Method(mockHalClocks, ConfigurePll));
         Fake(Method(mockHalClocks, IsRunning));
         Fake(Method(mockHalClocks, GetSysClockFrequency));
         Fake(Method(mockHalClocks, SetSysClockSource));
@@ -73,16 +74,19 @@ void InitClocks(void)
 namespace Hal
 {
 
-void Clocks::Enable(Hal::OscillatorType type)
+Error Clocks::Enable(Hal::OscillatorType type)
 {
-    HalMock::clocks.Enable(type);
-    return;
+    return HalMock::clocks.Enable(type);
 }
 
-void Clocks::Disable(Hal::OscillatorType type)
+Error Clocks::Disable(Hal::OscillatorType type)
 {
-    HalMock::clocks.Disable(type);
-    return;
+    return HalMock::clocks.Disable(type);
+}
+
+Error Clocks::ConfigurePll(OscillatorType source, uint32_t frequency)
+{
+    return HalMock::clocks.ConfigurePll(source, frequency);
 }
 
 bool Clocks::IsRunning(Hal::OscillatorType type)
@@ -95,10 +99,9 @@ uint32_t Clocks::GetSysClockFrequency(void)
     return HalMock::clocks.GetSysClockFrequency();
 }
 
-void Clocks::SetSysClockSource(Hal::OscillatorType type)
+Error Clocks::SetSysClockSource(Hal::OscillatorType type)
 {
-    HalMock::clocks.SetSysClockSource(type);
-    return;
+    return HalMock::clocks.SetSysClockSource(type);
 }
 
 Hal::OscillatorType Clocks::GetSysClockSource(void)

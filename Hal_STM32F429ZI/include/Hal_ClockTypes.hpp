@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------------------------------------------------------
-// Copyright (c) 2018 Juho Lepistö
+// Copyright (c) 2019 Juho Lepistö
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without 
@@ -17,59 +17,43 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------------------------------------------------------
 
-//! @file    Hal_Clocks_Mock.hpp
+//! @file    Hal_ClockTypes.hpp
 //! @author  Juho Lepistö <juho.lepisto(a)gmail.com>
-//! @date    20 May 2019
+//! @date    08 Aug 2019
 //!
-//! @brief   Mocks for clocks HAL.
+//! @class   ClockTypes
+//! @brief   Enum and struct definitions used in Hal_Clock.
 //! 
-//! These are initialisation functions for mocks. The mocks are utilising FakeIt framework.
+//! This file is required by HAL API. The enums and structs depend on the MCU type.
 
-#ifndef HAL_GPIO_MOCK_HPP_
-#define HAL_GPIO_MOCK_HPP_
-
-//-----------------------------------------------------------------------------------------------------------------------------
-// 1. Framework Dependencies
-//-----------------------------------------------------------------------------------------------------------------------------
-
-#include <catch.hpp>
-#include <fakeit.hpp>
-using namespace fakeit;
-
-#include <Hal_Clocks.hpp>
+#ifndef HAL_CLOCKTYPES_HPP_
+#define HAL_CLOCKTYPES_HPP_
 
 //-----------------------------------------------------------------------------------------------------------------------------
-// 2. Mock Init Prototypes
+// 1. Include Dependencies
 //-----------------------------------------------------------------------------------------------------------------------------
 
-namespace HalMock
+#include <Utils_Types.hpp>
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// 2. Typedefs, Structs, Enums and Constants
+//-----------------------------------------------------------------------------------------------------------------------------
+
+namespace Hal
 {
 
-//! @class Clocks
-//! @brief This is a mock class for clocks HAL
-class Clocks
+/// @brief This is a enum defining available clocks in STM32F429ZI.
+enum class OscillatorType
 {
-public:
-    /// @brief Simple constructor.
-    explicit Clocks(void) {};
-
-    virtual Hal::Error Enable(Hal::OscillatorType type);
-    virtual Hal::Error Disable(Hal::OscillatorType type);
-    virtual Hal::Error ConfigurePll(OscillatorType source, uint32_t frequency);
-    virtual bool IsRunning(Hal::OscillatorType type);
-    virtual uint32_t GetSysClockFrequency(void);
-    virtual Error SetSysClockSource(Hal::OscillatorType type);
-    virtual Hal::OscillatorType GetSysClockSource(void);
-
-private:
-    
+    highSpeed_internal = 0, //!< HSI
+    highSpeed_external,     //!< HSE
+    lowSpeed_internal,      //!< LSI
+    lowSpeed_external,      //!< LSE
+    pll,                    //!< PLL
+    pllSecondary,           //!< Secondary PLL to feed USB, SDIO, and RNG.
+    unknown                 //!< Invalid clock source.
 };
 
-extern Mock<Clocks> mockHalClocks;
+} // namespace Hal
 
-/// @brief This function initialises the HAL Gpio mock.
-void InitClocks(void);
-
-} // namespace HalMock
-
-#endif // HAL_GPIO_MOCK_HPP_
+#endif // HAL_CLOCKTYPES_HPP_

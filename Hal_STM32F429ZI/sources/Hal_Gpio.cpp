@@ -22,9 +22,9 @@
 //! @date    16 Jun 2019
 //!
 //! @class   Gpio
-//! @brief   !!!!! Brief file description here !!!!!
+//! @brief   This is a GPIO HAL interface.
 //! 
-//! !!!!! Detailed file description here !!!!!
+//! This class handles GPIO configuration and IO access.
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // 1. Include Files
